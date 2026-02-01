@@ -1,4 +1,5 @@
 # muscle-map
+
 ```
 muscle-map/
 │
@@ -75,3 +76,8 @@ muscle-map/
     ├── api.md                        # API documentation
     └── architecture.md               # system design
 ```
+
+## Development Workflow
+
+This project uses a protected `main` branch.
+All changes go through `development` and are reviewed before deployment.
