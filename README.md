@@ -38,43 +38,34 @@ muscle-map/
 │       ├── icons/
 │       └── fonts/
 │
-├── backend/                          # Node + Express API
-│   ├── package.json
-│   └── src/
-│       ├── server.js                 # starts server
-│       ├── app.js                    # express config
-│       │
-│       ├── routes/                   # URL endpoints
-│       │   ├── muscle.routes.js
-│       │   └── exercise.routes.js
-│       │
-│       ├── controllers/              # request handling
-│       │   ├── muscle.controller.js
-│       │   └── exercise.controller.js
-│       │
-│       ├── services/                 # business logic
-│       │   ├── muscle.service.js
-│       │   └── exercise.service.js
-│       │
-│       ├── models/                   # DB queries
-│       │   ├── muscle.model.js
-│       │   └── exercise.model.js
-│       │
-│       ├── middleware/               # auth, validation, rate-limit (later)
-│       │   ├── auth.middleware.js
-│       │   └── error.middleware.js
-│       │
-│       └── config/
-│           ├── db.js                 # PostgreSQL connection
-│           └── env.js                # env loader if needed
+├── backend/                          # PHP Backend
+│   ├── public/                       # Only exposed directory
+│   │   └── index.php
+│   │
+│   ├── src/
+│   │   ├── Core/
+│   │   │   ├── Router.php
+│   │   │   ├── Database.php
+│   │   │   ├── Request.php
+│   │   │   └── Response.php
+│   │   │
+│   │   ├── Controllers/
+│   │   ├── Services/
+│   │   ├── Repositories/
+│   │   ├── Middleware/
+│   │   └── Config/
+│   │
+│   ├── .env
+│   ├── composer.json
+│   └── vendor/
 │
 ├── database/
-│   ├── schema.sql                    # tables
-│   └── seed.sql                      # test data
+│   ├── schema.sql
+│   └── seed.sql
 │
 └── docs/
-    ├── api.md                        # API documentation
-    └── architecture.md               # system design
+├── api.md
+└── architecture.md
 ```
 
 ## Development Workflow

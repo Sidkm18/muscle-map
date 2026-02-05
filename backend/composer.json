@@ -1,0 +1,10 @@
+{
+  "name": "muscle-map/backend",
+  "description": "Muscle Map PHP Backend API",
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/"
+    }
+  },
+  "require": {}
+}
