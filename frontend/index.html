@@ -1,13 +1,62 @@
 <!doctype html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+    <title>Muscle Map</title>
+    <link rel="stylesheet" href="/src/styles/index.css" />
+</head>
+
+<body>
+    <div id="particles-js"></div>
+
+    <header class="landing-header">
+        <div class="brand">Muscle Map</div>
+        <nav class="landing-nav">
+            <a href="/login.html">Login</a>
+            <a class="cta ghost" href="/register.html">Get started</a>
+        </nav>
+    </header>
+
+    <main class="landing-main">
+        <section class="hero">
+            <p class="eyebrow">Strength. Clarity. Progress.</p>
+            <h1>Map your training and see every muscle in motion.</h1>
+            <p class="lead">
+                Plan workouts, track progress, and build routines that stick with a clear view
+                of your full-body effort.
+            </p>
+            <div class="hero-actions">
+                <a class="cta primary" href="/register.html">Start free</a>
+                <a class="cta ghost" href="/dashboard.html">View dashboard</a>
+            </div>
+        </section>
+
+        <section class="feature-grid">
+            <article class="feature-card">
+                <h3>Targeted planning</h3>
+                <p>Build routines by muscle groups and keep your week balanced.</p>
+            </article>
+            <article class="feature-card">
+                <h3>Progress snapshots</h3>
+                <p>Track lifts, volume, and recovery with a clear at-a-glance view.</p>
+            </article>
+            <article class="feature-card">
+                <h3>Guided focus</h3>
+                <p>Stay aligned with quick cues and personalized training reminders.</p>
+            </article>
+        </section>
+    </main>
+
+    <footer class="landing-footer">
+        <a href="/profile.html">Profile</a>
+        <span class="divider"></span>
+        <a href="/login.html">Login</a>
+        <span class="divider"></span>
+        <a href="/register.html">Register</a>
+    </footer>
+
+</body>
+
 </html>
