@@ -9,6 +9,10 @@
             "dest": "/frontend/pages/$1"
         },
         {
+            "src": "/(tailwind.*\\.config\\.js)",
+            "dest": "/frontend/$1"
+        },
+        {
             "src": "/(css|js|assets|components)/(.*)",
             "dest": "/frontend/$1/$2"
         }
