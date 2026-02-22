@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Exercise Library - MuscleMap</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <script src="../tailwind.config.js"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@300;400;600;800&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+
+    <!-- Custom Styles -->
+    <link href="../css/main.css" rel="stylesheet" />
+</head>
+
+<body class="bg-background-dark text-gray-100 font-sans antialiased overflow-x-hidden transition-colors duration-300">
+    <!-- Navigation -->
+    <nav class="fixed top-8 left-1/2 transform -translate-x-1/2 z-50 w-auto px-4">
+        <div
+            class="bg-black/90 backdrop-blur-md border border-white/10 rounded-full py-3 px-8 shadow-2xl flex justify-between items-center text-sm font-bold uppercase tracking-wider text-white min-w-[320px] md:min-w-[400px]">
+            <a class="hover:text-primary transition-colors" href="../index.html">Home</a>
+            <span class="text-primary mx-3 text-lg opacity-50">|</span>
+            <a class="hover:text-primary transition-colors" href="./exercises.html">Exercises</a>
+            <span class="text-primary mx-3 text-lg opacity-50">|</span>
+            <a class="hover:text-primary transition-colors" href="./calculator.html">Calculator</a>
+            <span class="text-primary mx-3 text-lg opacity-50">|</span>
+            <a class="hover:text-primary transition-colors" href="./pricing.html">Pricing</a>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-20 container mx-auto px-6">
+        <!-- Header -->
+        <div class="mb-12">
+            <h1 class="font-display text-6xl md:text-7xl uppercase text-white mb-4">
+                Exercise <span class="text-primary">Library</span>
+            </h1>
+            <p class="text-gray-400 text-lg max-w-2xl">
+                Browse our comprehensive database of exercises organized by muscle groups. Find the perfect movement for
+                your workout.
+            </p>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="mb-8 bg-surface-dark border border-white/10 rounded-2xl p-6">
+            <label class="block text-sm font-bold uppercase tracking-wider text-primary mb-4">Filter by Muscle
+                Group</label>
+            <div class="flex gap-3 flex-wrap">
+                <button class="filter-btn active px-4 py-2 rounded-lg bg-primary text-black font-bold transition-all"
+                    data-category="all">
+                    All Exercises
+                </button>
+                <button
+                    class="filter-btn px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold transition-all"
+                    data-category="chest">
+                    Chest
+                </button>
+                <button
+                    class="filter-btn px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold transition-all"
+                    data-category="back">
+                    Back
+                </button>
+                <button
+                    class="filter-btn px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold transition-all"
+                    data-category="legs">
+                    Legs
+                </button>
+                <button
+                    class="filter-btn px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold transition-all"
+                    data-category="shoulders">
+                    Shoulders
+                </button>
+                <button
+                    class="filter-btn px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold transition-all"
+                    data-category="arms">
+                    Arms
+                </button>
+            </div>
+        </div>
+
+        <!-- Exercise Count -->
+        <div class="mb-6 text-gray-400">
+            <span id="exercise-count">Loading exercises...</span>
+        </div>
+
+        <!-- Exercise Grid -->
+        <div id="exercises-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Exercises will be populated here by JavaScript -->
+        </div>
+    </main>
+
+    <!-- External Scripts -->
+    <script src="../js/exercises.js"></script>
+</body>
+
+</html>

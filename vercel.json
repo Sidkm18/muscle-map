@@ -2,14 +2,14 @@
     "routes": [
         {
             "src": "/",
-            "dest": "/frontend/pages/index.html"
+            "dest": "/frontend/index.html"
         },
         {
             "src": "/pages/(.*)",
             "dest": "/frontend/pages/$1"
         },
         {
-            "src": "/(css|js|assets)/(.*)",
+            "src": "/(css|js|assets|components)/(.*)",
             "dest": "/frontend/$1/$2"
         }
     ]

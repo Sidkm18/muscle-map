@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Workout Calculator - MuscleMap</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <script src="../tailwind.config.js"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@300;400;600;800&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+
+    <!-- Custom Styles -->
+    <link href="../css/main.css" rel="stylesheet" />
+</head>
+
+<body class="bg-background-dark text-gray-100 font-sans antialiased overflow-x-hidden transition-colors duration-300">
+    <!-- Navigation -->
+    <nav class="fixed top-8 left-1/2 transform -translate-x-1/2 z-50 w-auto px-4">
+        <div
+            class="bg-black/90 backdrop-blur-md border border-white/10 rounded-full py-3 px-8 shadow-2xl flex justify-between items-center text-sm font-bold uppercase tracking-wider text-white min-w-[320px] md:min-w-[400px]">
+            <a class="hover:text-primary transition-colors" href="../index.html">Home</a>
+            <span class="text-primary mx-3 text-lg opacity-50">|</span>
+            <a class="hover:text-primary transition-colors" href="./exercises.html">Exercises</a>
+            <span class="text-primary mx-3 text-lg opacity-50">|</span>
+            <a class="hover:text-primary transition-colors" href="./calculator.html">Calculator</a>
+            <span class="text-primary mx-3 text-lg opacity-50">|</span>
+            <a class="hover:text-primary transition-colors" href="./pricing.html">Pricing</a>
+        </div>
+    </nav>
+
+    <main class="pt-32 pb-20 container mx-auto px-6">
+        <!-- Header -->
+        <div class="mb-12">
+            <h1 class="font-display text-6xl md:text-7xl uppercase text-white mb-4">
+                Workout <span class="text-primary">Calculator</span>
+            </h1>
+            <p class="text-gray-400 text-lg max-w-2xl">
+                Calculate your total volume, estimated 1RM, and calories burned for your workout.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Input Section -->
+            <div class="lg:col-span-2">
+                <div class="bg-surface-dark border border-white/10 rounded-2xl p-8">
+                    <h2 class="font-display text-2xl uppercase text-primary mb-6">Add Exercises</h2>
+
+                    <form id="exercise-form" class="space-y-4 mb-6">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-gray-400 mb-2">Weight (lbs)</label>
+                                <input type="number" id="weight-input" placeholder="225"
+                                    class="w-full bg-background-dark border border-white/10 rounded-lg px-4 py-2 text-white focus:border-primary focus:outline-none"
+                                    min="0" />
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-gray-400 mb-2">Sets</label>
+                                <input type="number" id="sets-input" placeholder="3"
+                                    class="w-full bg-background-dark border border-white/10 rounded-lg px-4 py-2 text-white focus:border-primary focus:outline-none"
+                                    min="1" />
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-gray-400 mb-2">Reps</label>
+                                <input type="number" id="reps-input" placeholder="8"
+                                    class="w-full bg-background-dark border border-white/10 rounded-lg px-4 py-2 text-white focus:border-primary focus:outline-none"
+                                    min="1" />
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-gray-400 mb-2">&nbsp;</label>
+                                <button type="submit"
+                                    class="w-full bg-primary hover:bg-white text-black font-bold rounded-lg py-2 transition-colors">
+                                    Add
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Exercise List -->
+                    <div class="space-y-3">
+                        <h3 class="text-sm font-bold uppercase text-gray-400">Added Exercises</h3>
+                        <div id="exercise-list" class="space-y-3 max-h-96 overflow-y-auto">
+                            <!-- Exercises will be added here -->
+                        </div>
+                        <button id="clear-btn"
+                            class="w-full bg-red-500/20 hover:bg-red-500/30 text-red-400 font-bold rounded-lg py-2 transition-colors mt-4 hidden">
+                            Clear All
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="bg-surface-dark border border-white/10 rounded-2xl p-8 h-fit sticky top-32">
+                <h2 class="font-display text-2xl uppercase text-primary mb-6">Totals</h2>
+
+                <div class="space-y-6">
+                    <div class="bg-background-dark rounded-lg p-4 border border-primary/30">
+                        <p class="text-gray-400 text-sm uppercase tracking-wider mb-2">Total Volume</p>
+                        <p class="text-4xl font-bold text-primary" id="total-volume">0</p>
+                        <p class="text-xs text-gray-500 mt-1">lbs</p>
+                    </div>
+
+                    <div class="bg-background-dark rounded-lg p-4 border border-primary/30">
+                        <p class="text-gray-400 text-sm uppercase tracking-wider mb-2">Estimated 1RM</p>
+                        <p class="text-4xl font-bold text-primary" id="est-1rm">0</p>
+                        <p class="text-xs text-gray-500 mt-1">lbs (Epley Formula)</p>
+                    </div>
+
+                    <div class="bg-background-dark rounded-lg p-4 border border-primary/30">
+                        <p class="text-gray-400 text-sm uppercase tracking-wider mb-2">Est. Calories</p>
+                        <p class="text-4xl font-bold text-primary" id="est-calories">0</p>
+                        <p class="text-xs text-gray-500 mt-1">kcal (estimated)</p>
+                    </div>
+
+                    <div class="bg-background-dark rounded-lg p-4 border border-primary/30">
+                        <p class="text-gray-400 text-sm uppercase tracking-wider mb-2">Total Sets</p>
+                        <p class="text-4xl font-bold text-primary" id="total-sets">0</p>
+                        <p class="text-xs text-gray-500 mt-1">sets</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- External Scripts -->
+    <script src="../js/calculator.js"></script>
+</body>
+
+</html>

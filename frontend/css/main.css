@@ -1,0 +1,96 @@
+:root {
+  --primary: #DFFF00;
+  --background-light: #F3F4F6;
+  --background-dark: #0A0A0A;
+  --surface-dark: #121212;
+  --surface-light: #FFFFFF;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--background-dark);
+  color: #d1d5db;
+  font-family: "Inter", sans-serif;
+  font-smoothing: antialiased;
+  overflow-x: hidden;
+  transition: colors 300ms;
+}
+
+.text-outline {
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.2);
+}
+
+/* Decorative elements */
+.deco-top-left {
+  position: fixed;
+  top: 6rem;
+  left: 0;
+  width: 4rem;
+  height: 6rem;
+  background-color: var(--primary);
+  transform: skewY(-12deg) translateX(-2rem);
+  z-index: 40;
+  opacity: 0.6;
+  mix-blend-mode: overlay;
+  filter: blur(0.5rem);
+  display: none;
+}
+
+.deco-top-left.lg {
+  display: block;
+}
+
+.deco-bottom-right {
+  position: fixed;
+  bottom: 6rem;
+  right: 0;
+  width: 6rem;
+  height: 8rem;
+  background-color: var(--primary);
+  transform: skewY(12deg) translateX(3rem);
+  z-index: 40;
+  opacity: 0.6;
+  mix-blend-mode: overlay;
+  filter: blur(0.5rem);
+  display: none;
+}
+
+.deco-bottom-right.lg {
+  display: block;
+}
+
+/* Service cards */
+.service-card {
+  transition: all 300ms;
+}
+
+.service-card:hover {
+  transform: translateY(-0.5rem);
+  box-shadow: 0 10px 30px -10px rgba(223, 255, 0, 0.2);
+}
+
+.service-card .icon-corner {
+  transition: background-color 300ms;
+}
+
+.service-card:hover .icon-corner {
+  background-color: rgba(223, 255, 0, 0.2);
+}
+
+.service-card:hover .service-icon,
+.service-card:hover .learn-link {
+  color: var(--primary);
+}
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+  .deco-top-left,
+  .deco-bottom-right {
+    display: none !important;
+  }
+}

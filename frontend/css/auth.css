@@ -1,0 +1,123 @@
+/* Fix browser autofill making text invisible */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #18181b inset !important;
+    -webkit-text-fill-color: #f3f4f6 !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #111;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #2a2a2a;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #3a3a3a;
+}
+
+/* Glass Panel */
+.glass-panel {
+    background: rgba(18, 18, 18, 0.75);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Input Base */
+.input-glass {
+    background: rgba(20, 20, 22, 0.85) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #f3f4f6 !important;
+    transition: all 0.25s ease;
+}
+
+/* Placeholder */
+.input-glass::placeholder {
+    color: rgba(255, 255, 255, 0.35) !important;
+}
+
+/* Focus State (Subtle Premium Glow) */
+.input-glass:focus {
+    background: rgba(24, 24, 27, 0.95) !important;
+    border-color: rgba(163, 230, 53, 0.5) !important;
+    /* Soft Lime */
+    box-shadow: 0 0 12px rgba(163, 230, 53, 0.15) !important;
+    outline: none !important;
+}
+
+/* Success Icon */
+.icon-success {
+    color: #a3e635;
+    filter: drop-shadow(0 0 3px rgba(163, 230, 53, 0.3));
+    opacity: 0;
+    transform: scale(0.9);
+    transition: all 0.2s ease;
+}
+
+.icon-success.active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Error Icon */
+.icon-error {
+    color: #ef4444;
+    /* Softer red */
+    filter: drop-shadow(0 0 3px rgba(239, 68, 68, 0.3));
+    opacity: 0;
+    transform: scale(0.9);
+    transition: all 0.2s ease;
+}
+
+.icon-error.active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Strength Bars */
+.strength-bar {
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.strength-bar.active {
+    background: #a3e635;
+    /* Soft Lime */
+}
+
+/* Checkbox */
+.checkbox-neon:checked {
+    background-color: #a3e635;
+    /* Soft Lime */
+    border-color: #a3e635;
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.6s ease-out;
+}
