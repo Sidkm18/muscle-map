@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Muscle Map</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/profile.css">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav style="position: fixed; top: 2rem; left: 50%; transform: translateX(-50%); z-index: 100; padding: 0 1rem;">
+        <div
+            style="background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 9999px; padding: 0.75rem 2rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4); display: flex; justify-content: space-between; align-items: center; font-size: 0.875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: white; min-width: 320px; gap: 0.5rem;">
+            <a href="../index.html" style="color: white; text-decoration: none; transition: color 0.3s;"
+                onmouseover="this.style.color='#a3e635'" onmouseout="this.style.color='white'">Home</a>
+            <span style="color: #a3e635; opacity: 0.5;">|</span>
+            <a href="profile.html" style="color: #a3e635; text-decoration: none;">Profile</a>
+            <span style="color: #a3e635; opacity: 0.5;">|</span>
+            <a href="exercises.html" style="color: white; text-decoration: none; transition: color 0.3s;"
+                onmouseover="this.style.color='#a3e635'" onmouseout="this.style.color='white'">Exercises</a>
+            <span style="color: #a3e635; opacity: 0.5;">|</span>
+            <a href="pricing.html" style="color: white; text-decoration: none; transition: color 0.3s;"
+                onmouseover="this.style.color='#a3e635'" onmouseout="this.style.color='white'">Pricing</a>
+            <span style="color: #a3e635; opacity: 0.5;">|</span>
+            <a href="#" onclick="handleLogout(); return false;"
+                style="color: #ef4444; text-decoration: none; transition: color 0.3s;"
+                onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='#ef4444'">Logout</a>
+        </div>
+    </nav>
+
+    <div class="profile-container" style="padding-top: 6rem;">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="header-background"></div>
+            <div class="profile-main">
+                <div class="profile-photo-wrapper">
+                    <img id="profileImage" src="https://via.placeholder.com/150" alt="Profile Photo"
+                        class="profile-photo">
+                    <button class="edit-photo-btn" id="editPhotoBtn">
+                        <span>📷</span>
+                    </button>
+                    <input type="file" id="photoUpload" accept="image/*" hidden>
+                </div>
+
+                <div class="profile-info">
+                    <h1 id="displayName">John Doe</h1>
+                    <p class="username">@<span id="displayUsername">johndoe</span></p>
+                    <p class="user-bio" id="displayBio">Fitness enthusiast | Building strength one day at a time 💪</p>
+                </div>
+
+                <button class="edit-profile-btn" id="editProfileBtn">
+                    ✏️ Edit Profile
+                </button>
+            </div>
+        </div>
+
+        <!-- Profile Navigation Tabs -->
+        <div class="profile-tabs">
+            <button class="tab-btn active" data-tab="overview">Overview</button>
+            <button class="tab-btn" data-tab="fitness">Fitness Profile</button>
+            <button class="tab-btn" data-tab="account">Account Settings</button>
+            <button class="tab-btn" data-tab="privacy">Privacy</button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content-wrapper">
+
+            <!-- Overview Tab -->
+            <div class="tab-content active" id="overview">
+                <div class="profile-grid">
+                    <!-- Personal Information Card -->
+                    <div class="info-card">
+                        <div class="card-header">
+                            <h3>Personal Information</h3>
+                            <button class="edit-btn" data-section="personal">Edit</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-row">
+                                <span class="info-label">Full Name</span>
+                                <span class="info-value" id="fullName">John Doe</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Email</span>
+                                <span class="info-value" id="email">john.doe@example.com</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Phone Number</span>
+                                <span class="info-value" id="phone">+1 234 567 8900</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Gender</span>
+                                <span class="info-value" id="gender">Male</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Date of Birth</span>
+                                <span class="info-value" id="dob">January 15, 1995</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Physical Stats Card -->
+                    <div class="info-card">
+                        <div class="card-header">
+                            <h3>Physical Stats</h3>
+                            <button class="edit-btn" data-section="stats">Edit</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <span class="stat-icon">📏</span>
+                                    <span class="stat-label">Height</span>
+                                    <span class="stat-value" id="height">175 cm</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-icon">⚖️</span>
+                                    <span class="stat-label">Weight</span>
+                                    <span class="stat-value" id="weight">70 kg</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-icon">📊</span>
+                                    <span class="stat-label">BMI</span>
+                                    <span class="stat-value" id="bmi">22.9</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-icon">🔥</span>
+                                    <span class="stat-label">Daily Calories</span>
+                                    <span class="stat-value" id="calories">2000 kcal</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats Card -->
+                    <div class="info-card">
+                        <div class="card-header">
+                            <h3>Activity Summary</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="activity-stats">
+                                <div class="activity-item">
+                                    <div class="activity-icon">💪</div>
+                                    <div class="activity-info">
+                                        <span class="activity-value">24</span>
+                                        <span class="activity-label">Workouts This Month</span>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-icon">🔥</div>
+                                    <div class="activity-info">
+                                        <span class="activity-value">15,420</span>
+                                        <span class="activity-label">Calories Burned</span>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-icon">⏱️</div>
+                                    <div class="activity-info">
+                                        <span class="activity-value">18 hrs</span>
+                                        <span class="activity-label">Total Gym Time</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Membership Card -->
+                    <div class="info-card membership-card">
+                        <div class="card-header">
+                            <h3>Membership Status</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="membership-badge">
+                                <span class="badge-icon">👑</span>
+                                <span class="badge-text">Premium Member</span>
+                            </div>
+                            <div class="membership-details">
+                                <p><strong>Plan:</strong> Annual Pro</p>
+                                <p><strong>Renewal Date:</strong> February 24, 2027</p>
+                                <p><strong>Status:</strong> <span class="status-active">Active</span></p>
+                            </div>
+                            <button class="upgrade-btn">Manage Subscription</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fitness Profile Tab -->
+            <div class="tab-content" id="fitness">
+                <div class="profile-grid">
+                    <!-- Fitness Level Card -->
+                    <div class="info-card">
+                        <div class="card-header">
+                            <h3>Fitness Profile</h3>
+                            <button class="edit-btn" data-section="fitness">Edit</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-row">
+                                <span class="info-label">Gym Frequency</span>
+                                <span class="info-value" id="gymFrequency">3-4 times/week</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Expertise Level</span>
+                                <span class="info-value" id="expertiseLevel">Intermediate</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Workout Plan</span>
+                                <span class="info-value" id="workoutPlan">Push Pull Legs</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Preferred Time</span>
+                                <span class="info-value" id="workoutTime">Evening (5 PM - 8 PM)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nutrition Card -->
+                    <div class="info-card">
+                        <div class="card-header">
+                            <h3>Nutrition & Diet</h3>
+                            <button class="edit-btn" data-section="nutrition">Edit</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-row">
+                                <span class="info-label">Diet Preference</span>
+                                <span class="info-value" id="dietPreference">Non-Vegetarian</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Allergies</span>
+                                <span class="info-value" id="allergies">None</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Supplements</span>
+                                <span class="info-value" id="supplements">Protein Powder, Creatine</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Goals Card -->
+                    <div class="info-card full-width">
+                        <div class="card-header">
+                            <h3>Fitness Goals</h3>
+                            <button class="edit-btn" data-section="goals">Edit</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="goals-list" id="goalsList">
+                                <span class="goal-tag">💪 Muscle Gain</span>
+                                <span class="goal-tag">🏋️ Build Strength</span>
+                                <span class="goal-tag">✨ General Fitness</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Medical Info Card -->
+                    <div class="info-card full-width">
+                        <div class="card-header">
+                            <h3>Medical Information</h3>
+                            <button class="edit-btn" data-section="medical">Edit</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-row">
+                                <span class="info-label">Medical Conditions</span>
+                                <span class="info-value" id="medicalConditions">None reported</span>
+                            </div>
+                            <small class="info-note">This information helps us provide safer workout
+                                recommendations</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Settings Tab -->
+            <div class="tab-content" id="account">
+                <div class="profile-grid">
+                    <!-- Account Details Card -->
+                    <div class="info-card">
+                        <div class="card-header">
+                            <h3>Account Details</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-row">
+                                <span class="info-label">Username</span>
+                                <span class="info-value" id="accountUsername">@johndoe</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Email</span>
+                                <span class="info-value" id="accountEmail">john.doe@example.com</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Member Since</span>
+                                <span class="info-value">February 24, 2026</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Referral Code</span>
+                                <span class="info-value referral-code">JOHN2026 <button class="copy-btn">📋
+                                        Copy</button></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security Card -->
+                    <div class="info-card">
+                        <div class="card-header">
+                            <h3>Security</h3>
+                        </div>
+                        <div class="card-body">
+                            <button class="action-btn">🔒 Change Password</button>
+                            <button class="action-btn">📱 Two-Factor Authentication</button>
+                            <button class="action-btn">🔑 Manage Sessions</button>
+                            <button class="action-btn" onclick="handleLogout()"
+                                style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); margin-top: 10px;">🚪
+                                Logout</button>
+                        </div>
+                    </div>
+
+                    <!-- Preferences Card -->
+                    <div class="info-card full-width">
+                        <div class="card-header">
+                            <h3>Preferences</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="preference-row">
+                                <div class="preference-info">
+                                    <span class="preference-label">Email Notifications</span>
+                                    <small>Receive workout reminders and updates</small>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="preference-row">
+                                <div class="preference-info">
+                                    <span class="preference-label">Push Notifications</span>
+                                    <small>Get notified about achievements and milestones</small>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="preference-row">
+                                <div class="preference-info">
+                                    <span class="preference-label">Weekly Progress Reports</span>
+                                    <small>Receive weekly fitness summaries</small>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Privacy Tab -->
+            <div class="tab-content" id="privacy">
+                <div class="profile-grid">
+                    <!-- Privacy Settings Card -->
+                    <div class="info-card full-width">
+                        <div class="card-header">
+                            <h3>Privacy Settings</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="preference-row">
+                                <div class="preference-info">
+                                    <span class="preference-label">Public Profile</span>
+                                    <small>Allow others to view your profile</small>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="preference-row">
+                                <div class="preference-info">
+                                    <span class="preference-label">Show Activity Status</span>
+                                    <small>Let friends see when you're working out</small>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="preference-row">
+                                <div class="preference-info">
+                                    <span class="preference-label">Share Progress</span>
+                                    <small>Allow friends to see your workout progress</small>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="preference-row">
+                                <div class="preference-info">
+                                    <span class="preference-label">Data Analytics</span>
+                                    <small>Help us improve by sharing anonymous usage data</small>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Management Card -->
+                    <div class="info-card">
+                        <div class="card-header">
+                            <h3>Data Management</h3>
+                        </div>
+                        <div class="card-body">
+                            <button class="action-btn">📥 Download My Data</button>
+                            <button class="action-btn">🗑️ Delete Account</button>
+                        </div>
+                    </div>
+
+                    <!-- Connected Apps Card -->
+                    <div class="info-card">
+                        <div class="card-header">
+                            <h3>Connected Apps</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="connected-app">
+                                <span>Google Fit</span>
+                                <button class="disconnect-btn">Disconnect</button>
+                            </div>
+                            <div class="connected-app">
+                                <span>Apple Health</span>
+                                <button class="disconnect-btn">Disconnect</button>
+                            </div>
+                            <button class="action-btn">➕ Connect New App</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Profile</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editProfileForm">
+                    <div class="form-group">
+                        <label for="editFullName">Full Name</label>
+                        <input type="text" id="editFullName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEmail">Email</label>
+                        <input type="email" id="editEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editPhone">Phone Number</label>
+                        <input type="tel" id="editPhone">
+                    </div>
+                    <div class="form-group">
+                        <label for="editBio">Bio</label>
+                        <textarea id="editBio" rows="3" maxlength="200"></textarea>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-cancel">Cancel</button>
+                        <button type="submit" class="btn-save">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/profile.js"></script>
+</body>
+
+</html>

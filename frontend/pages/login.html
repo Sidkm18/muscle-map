@@ -47,11 +47,29 @@
                     Sign in to continue your fitness journey.
                 </p>
             </div>
+
+            <!-- Demo Credentials Info -->
+            <div class="glass-panel rounded-2xl p-4 mb-6 border border-primary/30">
+                <div class="flex items-start gap-3">
+                    <span class="material-symbols-outlined text-primary" style="font-size: 24px;">info</span>
+                    <div>
+                        <h3 class="text-sm font-bold text-white mb-1">Demo Credentials</h3>
+                        <p class="text-xs text-gray-400 mb-2">Use these credentials to test the platform:</p>
+                        <div class="space-y-1 text-xs">
+                            <p class="text-gray-300"><span class="text-gray-500">Email:</span> <span
+                                    class="text-primary font-mono">demo@musclemap.com</span></p>
+                            <p class="text-gray-300"><span class="text-gray-500">Password:</span> <span
+                                    class="text-primary font-mono">Demo@123</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="glass-panel rounded-2xl p-6 md:p-8 shadow-2xl relative overflow-hidden group">
                 <div
                     class="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-50">
                 </div>
-                <form class="space-y-6" onsubmit="event.preventDefault();">
+                <form class="space-y-6" onsubmit="handleLogin(event)">
                     <!-- Email Input -->
                     <div class="space-y-2">
                         <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 ml-1">
@@ -74,7 +92,8 @@
                             <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 ml-1">
                                 Password
                             </label>
-                            <a href="#" class="text-xs text-primary hover:underline">Forgot Password?</a>
+                            <a href="forgot-password.html" class="text-xs text-primary hover:underline">Forgot
+                                Password?</a>
                         </div>
                         <div class="relative group/input">
                             <input

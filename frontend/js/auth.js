@@ -1,4 +1,135 @@
 /**
+ * Demo User Credentials
+ * Email: demo@musclemap.com
+ * Password: Demo@123
+ */
+const DEMO_USER = {
+    email: 'demo@musclemap.com',
+    password: 'Demo@123',
+    name: 'Demo User',
+    userId: 'demo_user_001'
+};
+
+/**
+ * Check if user is logged in
+ */
+function isLoggedIn() {
+    return localStorage.getItem('isLoggedIn') === 'true';
+}
+
+/**
+ * Handle login form submission
+ */
+function handleLogin(event) {
+    event.preventDefault();
+
+    const emailInput = document.getElementById('login-email');
+    const passwordInput = document.getElementById('login-password');
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+
+    // Clear previous errors
+    clearLoginErrors();
+
+    // Validate inputs
+    if (!email || !password) {
+        showLoginError('Please enter both email and password');
+        return;
+    }
+
+    // Check demo credentials
+    if (email === DEMO_USER.email && password === DEMO_USER.password) {
+        // Successful login
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('currentUser', JSON.stringify(DEMO_USER));
+
+        // Check if user has completed onboarding
+        const onboardingCompleted = localStorage.getItem('userOnboardingData');
+
+        // Show success message
+        showLoginSuccess();
+
+        // Redirect after short delay
+        setTimeout(() => {
+            if (onboardingCompleted) {
+                window.location.href = '../index.html'; // Go to dashboard
+            } else {
+                window.location.href = 'onboarding.html'; // Go to onboarding
+            }
+        }, 1000);
+    } else {
+        // Invalid credentials
+        showLoginError('Invalid email or password. Try demo@musclemap.com / Demo@123');
+    }
+}
+
+/**
+ * Show login error message
+ */
+function showLoginError(message) {
+    const emailInput = document.getElementById('login-email');
+    const passwordInput = document.getElementById('login-password');
+
+    emailInput.classList.add('border-red-500/50');
+    passwordInput.classList.add('border-red-500/50');
+
+    // Create or update error message
+    let errorDiv = document.getElementById('login-error');
+    if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.id = 'login-error';
+        errorDiv.className = 'mt-4 p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-red-400 text-sm';
+        const form = emailInput.closest('form');
+        form.appendChild(errorDiv);
+    }
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+}
+
+/**
+ * Clear login errors
+ */
+function clearLoginErrors() {
+    const emailInput = document.getElementById('login-email');
+    const passwordInput = document.getElementById('login-password');
+    const errorDiv = document.getElementById('login-error');
+
+    if (emailInput) emailInput.classList.remove('border-red-500/50');
+    if (passwordInput) passwordInput.classList.remove('border-red-500/50');
+    if (errorDiv) errorDiv.style.display = 'none';
+}
+
+/**
+ * Show login success message
+ */
+function showLoginSuccess() {
+    const form = document.querySelector('form');
+    let successDiv = document.getElementById('login-success');
+
+    if (!successDiv) {
+        successDiv = document.createElement('div');
+        successDiv.id = 'login-success';
+        successDiv.className = 'mt-4 p-3 bg-primary/10 border border-primary/50 rounded-lg text-primary text-sm flex items-center gap-2';
+        form.appendChild(successDiv);
+    }
+
+    successDiv.innerHTML = `
+        <span class="material-symbols-outlined text-primary" style="font-size: 20px;">check_circle</span>
+        <span>Login successful! Redirecting...</span>
+    `;
+    successDiv.style.display = 'flex';
+}
+
+/**
+ * Handle logout
+ */
+function handleLogout() {
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('currentUser');
+    window.location.href = 'pages/login.html';
+}
+
+/**
  * Password validation and strength checker
  */
 function validatePassword(value) {

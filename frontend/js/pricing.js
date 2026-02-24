@@ -127,3 +127,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial calculation
     calculatePrice();
 });
+
+/**
+ * Proceed to payment page with selected plan
+ */
+function proceedToPayment() {
+    // Get selected values
+    const membership = document.querySelector('input[name="membership"]:checked').value;
+    const duration = document.querySelector('input[name="duration"]:checked').value;
+
+    // Redirect to payment page with plan details
+    window.location.href = `payment.html?plan=${membership}&duration=${duration}`;
+}

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Payment - Muscle Map</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/payment.css">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav style="position: fixed; top: 2rem; left: 50%; transform: translateX(-50%); z-index: 100; padding: 0 1rem;">
+        <div
+            style="background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 9999px; padding: 0.75rem 2rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4); display: flex; justify-content: space-between; align-items: center; font-size: 0.875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: white; min-width: 320px; gap: 0.5rem;">
+            <a href="../index.html" style="color: white; text-decoration: none; transition: color 0.3s;"
+                onmouseover="this.style.color='#a3e635'" onmouseout="this.style.color='white'">Home</a>
+            <span style="color: #a3e635; opacity: 0.5;">|</span>
+            <a href="profile.html" style="color: white; text-decoration: none; transition: color 0.3s;"
+                onmouseover="this.style.color='#a3e635'" onmouseout="this.style.color='white'">Profile</a>
+            <span style="color: #a3e635; opacity: 0.5;">|</span>
+            <a href="exercises.html" style="color: white; text-decoration: none; transition: color 0.3s;"
+                onmouseover="this.style.color='#a3e635'" onmouseout="this.style.color='white'">Exercises</a>
+            <span style="color: #a3e635; opacity: 0.5;">|</span>
+            <a href="pricing.html" style="color: white; text-decoration: none; transition: color 0.3s;"
+                onmouseover="this.style.color='#a3e635'" onmouseout="this.style.color='white'">Pricing</a>
+            <span style="color: #a3e635; opacity: 0.5;">|</span>
+            <a href="#" onclick="handleLogout(); return false;"
+                style="color: #ef4444; text-decoration: none; transition: color 0.3s;"
+                onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='#ef4444'">Logout</a>
+        </div>
+    </nav>
+
+    <div class="payment-container" style="padding-top: 6rem;">
+        <!-- Header -->
+        <div class="payment-header">
+            <div class="header-content">
+                <a href="pricing.html" class="back-btn">
+                    <span>←</span> Back
+                </a>
+                <div class="logo">
+                    <span class="logo-icon">💪</span>
+                    <span class="logo-text">Muscle Map</span>
+                </div>
+                <div class="secure-badge">
+                    <span>🔒</span> Secure Checkout
+                </div>
+            </div>
+        </div>
+
+        <div class="payment-wrapper">
+            <!-- Order Summary Sidebar -->
+            <div class="order-summary">
+                <h2>Order Summary</h2>
+
+                <div class="plan-details">
+                    <div class="plan-header">
+                        <div class="plan-icon">👑</div>
+                        <div class="plan-info">
+                            <h3 id="planName">Premium Plan</h3>
+                            <p id="planDuration">Annual Subscription</p>
+                        </div>
+                    </div>
+
+                    <div class="plan-features">
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>Unlimited Workout Plans</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>Personalized Meal Plans</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>Progress Tracking</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span>Expert Support</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="price-breakdown">
+                    <div class="price-row">
+                        <span>Plan Price</span>
+                        <span id="planPrice">₹5,999</span>
+                    </div>
+                    <div class="price-row discount">
+                        <span>Discount (20%)</span>
+                        <span id="discount">-₹1,200</span>
+                    </div>
+                    <div class="price-row">
+                        <span>GST (18%)</span>
+                        <span id="gst">₹864</span>
+                    </div>
+                    <div class="price-row total">
+                        <span>Total Amount</span>
+                        <span id="totalAmount">₹5,663</span>
+                    </div>
+                </div>
+
+                <div class="promo-code">
+                    <input type="text" placeholder="Enter promo code" id="promoInput">
+                    <button onclick="applyPromo()">Apply</button>
+                </div>
+
+                <div class="trust-badges">
+                    <div class="badge">
+                        <span>🔒</span>
+                        <small>Secure Payment</small>
+                    </div>
+                    <div class="badge">
+                        <span>↩️</span>
+                        <small>Easy Refunds</small>
+                    </div>
+                    <div class="badge">
+                        <span>✓</span>
+                        <small>Trusted by 10k+</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Methods -->
+            <div class="payment-content">
+                <h1>Choose Payment Method</h1>
+                <p class="payment-subtitle">All transactions are secure and encrypted</p>
+
+                <!-- Payment Tabs -->
+                <div class="payment-tabs">
+                    <button class="payment-tab active" onclick="switchPaymentMethod('card')" data-method="card">
+                        <span class="tab-icon">💳</span>
+                        <span>Card</span>
+                    </button>
+                    <button class="payment-tab" onclick="switchPaymentMethod('upi')" data-method="upi">
+                        <span class="tab-icon">📱</span>
+                        <span>UPI</span>
+                    </button>
+                    <button class="payment-tab" onclick="switchPaymentMethod('netbanking')" data-method="netbanking">
+                        <span class="tab-icon">🏦</span>
+                        <span>Net Banking</span>
+                    </button>
+                    <button class="payment-tab" onclick="switchPaymentMethod('wallet')" data-method="wallet">
+                        <span class="tab-icon">👛</span>
+                        <span>Wallet</span>
+                    </button>
+                </div>
+
+                <!-- Payment Forms -->
+                <div class="payment-forms">
+
+                    <!-- Card Payment Form -->
+                    <div class="payment-form active" id="cardForm">
+                        <div class="card-types">
+                            <span class="accepted-card">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg"
+                                    alt="Visa">
+                            </span>
+                            <span class="accepted-card">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg"
+                                    alt="Mastercard">
+                            </span>
+                            <span class="accepted-card">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/American_Express_logo_%282018%29.svg"
+                                    alt="AMEX">
+                            </span>
+                            <span class="accepted-card">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/8/8a/RuPay.svg" alt="RuPay">
+                            </span>
+                        </div>
+
+                        <form id="cardPaymentForm">
+                            <div class="form-group">
+                                <label for="cardNumber">Card Number</label>
+                                <div class="input-with-icon">
+                                    <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19"
+                                        required oninput="formatCardNumber(this)">
+                                    <span class="card-brand-icon" id="cardBrandIcon">💳</span>
+                                </div>
+                                <span class="error-message"></span>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="cardExpiry">Expiry Date</label>
+                                    <input type="text" id="cardExpiry" placeholder="MM/YY" maxlength="5" required
+                                        oninput="formatExpiry(this)">
+                                    <span class="error-message"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="cardCVV">CVV</label>
+                                    <input type="text" id="cardCVV" placeholder="123" maxlength="4" required
+                                        oninput="this.value = this.value.replace(/\D/g, '')">
+                                    <span class="error-message"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="cardName">Cardholder Name</label>
+                                <input type="text" id="cardName" placeholder="John Doe" required
+                                    oninput="this.value = this.value.toUpperCase()">
+                                <span class="error-message"></span>
+                            </div>
+
+                            <div class="form-checkbox">
+                                <input type="checkbox" id="saveCard">
+                                <label for="saveCard">Save this card for future payments</label>
+                            </div>
+
+                            <button type="submit" class="pay-button" onclick="processCardPayment(event)">
+                                Pay ₹5,663
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- UPI Payment Form -->
+                    <div class="payment-form" id="upiForm">
+                        <div class="upi-options">
+                            <button class="upi-option" onclick="selectUPIOption('gpay')">
+                                <span class="upi-icon">🔵</span>
+                                <span>Google Pay</span>
+                            </button>
+                            <button class="upi-option" onclick="selectUPIOption('phonepe')">
+                                <span class="upi-icon">🟣</span>
+                                <span>PhonePe</span>
+                            </button>
+                            <button class="upi-option" onclick="selectUPIOption('paytm')">
+                                <span class="upi-icon">🔵</span>
+                                <span>Paytm</span>
+                            </button>
+                            <button class="upi-option" onclick="selectUPIOption('bhim')">
+                                <span class="upi-icon">🟠</span>
+                                <span>BHIM UPI</span>
+                            </button>
+                        </div>
+
+                        <div class="divider">
+                            <span>OR</span>
+                        </div>
+
+                        <form id="upiPaymentForm">
+                            <div class="form-group">
+                                <label for="upiId">UPI ID</label>
+                                <input type="text" id="upiId" placeholder="yourname@upi" required>
+                                <span class="error-message"></span>
+                            </div>
+
+                            <button type="submit" class="pay-button" onclick="processUPIPayment(event)">
+                                Pay ₹5,663
+                            </button>
+                        </form>
+
+                        <div class="qr-code-section">
+                            <p>Or scan QR code with any UPI app</p>
+                            <div class="qr-code">
+                                <div class="qr-placeholder">
+                                    📱<br>QR Code
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Net Banking Form -->
+                    <div class="payment-form" id="netbankingForm">
+                        <form id="netbankingPaymentForm">
+                            <div class="form-group">
+                                <label for="bankSelect">Select Your Bank</label>
+                                <select id="bankSelect" required>
+                                    <option value="">Choose your bank</option>
+                                    <option value="sbi">State Bank of India</option>
+                                    <option value="hdfc">HDFC Bank</option>
+                                    <option value="icici">ICICI Bank</option>
+                                    <option value="axis">Axis Bank</option>
+                                    <option value="kotak">Kotak Mahindra Bank</option>
+                                    <option value="pnb">Punjab National Bank</option>
+                                    <option value="bob">Bank of Baroda</option>
+                                    <option value="idbi">IDBI Bank</option>
+                                    <option value="yes">Yes Bank</option>
+                                    <option value="other">Other Banks</option>
+                                </select>
+                                <span class="error-message"></span>
+                            </div>
+
+                            <div class="popular-banks">
+                                <p>Popular Banks</p>
+                                <div class="bank-grid">
+                                    <button type="button" class="bank-option" onclick="selectBank('sbi')">
+                                        <span class="bank-logo">🏛️</span>
+                                        <span>SBI</span>
+                                    </button>
+                                    <button type="button" class="bank-option" onclick="selectBank('hdfc')">
+                                        <span class="bank-logo">🏦</span>
+                                        <span>HDFC</span>
+                                    </button>
+                                    <button type="button" class="bank-option" onclick="selectBank('icici')">
+                                        <span class="bank-logo">🏦</span>
+                                        <span>ICICI</span>
+                                    </button>
+                                    <button type="button" class="bank-option" onclick="selectBank('axis')">
+                                        <span class="bank-logo">🏦</span>
+                                        <span>Axis</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="pay-button" onclick="processNetBanking(event)">
+                                Pay ₹5,663
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Wallet Payment Form -->
+                    <div class="payment-form" id="walletForm">
+                        <div class="wallet-options">
+                            <button class="wallet-option" onclick="selectWallet('paytm')">
+                                <span class="wallet-icon">💙</span>
+                                <div class="wallet-info">
+                                    <span class="wallet-name">Paytm Wallet</span>
+                                    <span class="wallet-balance">Balance: ₹10,250</span>
+                                </div>
+                            </button>
+
+                            <button class="wallet-option" onclick="selectWallet('mobikwik')">
+                                <span class="wallet-icon">💛</span>
+                                <div class="wallet-info">
+                                    <span class="wallet-name">Mobikwik</span>
+                                    <span class="wallet-balance">Balance: ₹5,120</span>
+                                </div>
+                            </button>
+
+                            <button class="wallet-option" onclick="selectWallet('freecharge')">
+                                <span class="wallet-icon">💚</span>
+                                <div class="wallet-info">
+                                    <span class="wallet-name">Freecharge</span>
+                                    <span class="wallet-balance">Balance: ₹3,450</span>
+                                </div>
+                            </button>
+
+                            <button class="wallet-option" onclick="selectWallet('amazonpay')">
+                                <span class="wallet-icon">🧡</span>
+                                <div class="wallet-info">
+                                    <span class="wallet-name">Amazon Pay</span>
+                                    <span class="wallet-balance">Balance: ₹8,900</span>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Info -->
+                <div class="security-info">
+                    <div class="security-item">
+                        <span>🔒</span>
+                        <small>256-bit SSL encryption</small>
+                    </div>
+                    <div class="security-item">
+                        <span>🛡️</span>
+                        <small>PCI DSS compliant</small>
+                    </div>
+                    <div class="security-item">
+                        <span>✓</span>
+                        <small>100% secure payments</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Processing Modal -->
+    <div id="processingModal" class="modal">
+        <div class="modal-content">
+            <div class="processing-animation">
+                <div class="spinner"></div>
+                <h3>Processing Payment...</h3>
+                <p>Please do not close or refresh this page</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content success">
+            <div class="success-icon">✓</div>
+            <h2>Payment Successful!</h2>
+            <p>Your subscription has been activated</p>
+            <div class="transaction-details">
+                <div class="detail-row">
+                    <span>Transaction ID:</span>
+                    <span id="transactionId">TXN123456789</span>
+                </div>
+                <div class="detail-row">
+                    <span>Amount Paid:</span>
+                    <span>₹5,663</span>
+                </div>
+            </div>
+            <button class="btn-primary" onclick="window.location.href='../index.html'">
+                Go to Dashboard
+            </button>
+        </div>
+    </div>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/payment.js"></script>
+</body>
+
+</html>
