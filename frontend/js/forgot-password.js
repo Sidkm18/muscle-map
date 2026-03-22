@@ -333,7 +333,7 @@ function validatePassword(password) {
 /**
  * Reset password
  */
-function resetPassword() {
+function resetPassword(event) {
     const newPassword = document.getElementById('newPassword').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
 
@@ -380,18 +380,26 @@ function resetPassword() {
  */
 function showSuccessModal() {
     const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4';
-    modal.style.background = 'rgba(0, 0, 0, 0.8)';
-    modal.style.backdropFilter = 'blur(8px)';
+    modal.style.cssText = `
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(8px);
+    `;
 
     modal.innerHTML = `
-        <div class="glass-panel rounded-2xl p-8 max-w-md text-center animate-fadeIn">
-            <div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span class="material-symbols-outlined text-green-500" style="font-size: 40px;">check_circle</span>
+        <div class="glass-panel p-4 p-md-5 text-center animate-fadeIn" style="max-width: 32rem;">
+            <div style="width: 4rem; height: 4rem; border-radius: 999px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; background: rgba(34, 197, 94, 0.16); color: #86efac; font-size: 2rem; font-weight: 800;">
+                ✓
             </div>
-            <h2 class="text-2xl font-bold text-white mb-2">Password Reset Successful!</h2>
-            <p class="text-gray-400 mb-6">Your password has been reset successfully. You can now login with your new password.</p>
-            <a href="login.html" class="btn-primary inline-block px-8 py-3 rounded-lg font-semibold">
+            <h2 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem;">Password Reset Successful!</h2>
+            <p style="color: #9ca3af; margin-bottom: 1.5rem;">Your password has been reset successfully. You can now login with your new password.</p>
+            <a href="login.html" class="btn-primary" style="display: inline-block; width: auto; padding: 0.9rem 1.6rem; text-decoration: none;">
                 Go to Login
             </a>
         </div>
@@ -407,14 +415,13 @@ function showSuccessModal() {
  */
 function togglePasswordVisibility(inputId, button) {
     const input = document.getElementById(inputId);
-    const icon = button.querySelector('.material-symbols-outlined');
 
     if (input.type === 'password') {
         input.type = 'text';
-        icon.textContent = 'visibility';
+        button.textContent = 'Hide';
     } else {
         input.type = 'password';
-        icon.textContent = 'visibility_off';
+        button.textContent = 'Show';
     }
 }
 
@@ -425,7 +432,7 @@ function togglePasswordVisibility(inputId, button) {
  */
 function showError(element, message) {
     element.textContent = message;
-    element.style.display = 'block';
+    element.classList.add('visible');
 }
 
 /**
@@ -434,7 +441,7 @@ function showError(element, message) {
  */
 function clearError(element) {
     element.textContent = '';
-    element.style.display = 'none';
+    element.classList.remove('visible');
 }
 
 /**
@@ -444,9 +451,18 @@ function clearError(element) {
  */
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
-    notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg animate-fadeIn`;
-    notification.style.background = type === 'success' ? '#10b981' : '#3b82f6';
-    notification.style.color = 'white';
+    notification.className = 'animate-fadeIn';
+    notification.style.cssText = `
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 10000;
+        padding: 0.85rem 1.2rem;
+        border-radius: 0.85rem;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+        background: ${type === 'success' ? '#10b981' : '#3b82f6'};
+        color: white;
+    `;
     notification.textContent = message;
 
     document.body.appendChild(notification);

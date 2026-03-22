@@ -57,9 +57,9 @@ function updateDisplay() {
     // Show/hide clear button
     const clearBtn = document.getElementById('clear-btn');
     if (workoutExercises.length > 0) {
-        clearBtn.classList.remove('hidden');
+        clearBtn.classList.remove('d-none');
     } else {
-        clearBtn.classList.add('hidden');
+        clearBtn.classList.add('d-none');
     }
 }
 
@@ -68,7 +68,7 @@ function renderExerciseList() {
     const listContainer = document.getElementById('exercise-list');
     
     if (workoutExercises.length === 0) {
-        listContainer.innerHTML = '<p class="text-gray-500 text-sm py-4">No exercises added yet</p>';
+        listContainer.innerHTML = '<p class="mm-copy mb-0 py-3">No exercises added yet.</p>';
         return;
     }
     
@@ -78,26 +78,26 @@ function renderExerciseList() {
         const calories = calculateCaloriesBurned(exercise.weight, exercise.reps, exercise.sets);
         
         return `
-            <div class="bg-background-dark border border-white/10 rounded-lg p-4 flex justify-between items-start hover:border-primary/50 transition-colors">
-                <div class="flex-1">
-                    <p class="font-bold text-white mb-2">${exercise.weight} lbs × ${exercise.reps} reps × ${exercise.sets} sets</p>
-                    <div class="grid grid-cols-3 gap-2 text-xs">
-                        <div>
-                            <span class="text-gray-400">Volume:</span>
-                            <p class="text-primary font-bold">${volume} lbs</p>
+            <div class="calculator-entry p-3 d-flex justify-content-between align-items-start gap-3">
+                <div class="flex-grow-1">
+                    <p class="fw-bold mb-2">${exercise.weight} lbs × ${exercise.reps} reps × ${exercise.sets} sets</p>
+                    <div class="row row-cols-1 row-cols-md-3 g-2 small">
+                        <div class="col">
+                            <span class="mm-copy d-block">Volume</span>
+                            <strong class="mm-highlight">${volume} lbs</strong>
                         </div>
-                        <div>
-                            <span class="text-gray-400">Est. 1RM:</span>
-                            <p class="text-primary font-bold">${est1rm} lbs</p>
+                        <div class="col">
+                            <span class="mm-copy d-block">Est. 1RM</span>
+                            <strong class="mm-highlight">${est1rm} lbs</strong>
                         </div>
-                        <div>
-                            <span class="text-gray-400">Calories:</span>
-                            <p class="text-primary font-bold">${calories} kcal</p>
+                        <div class="col">
+                            <span class="mm-copy d-block">Calories</span>
+                            <strong class="mm-highlight">${calories} kcal</strong>
                         </div>
                     </div>
                 </div>
-                <button class="ml-4 text-red-400 hover:text-red-300 transition-colors" onclick="removeExercise(${index})">
-                    <span class="material-symbols-outlined">close</span>
+                <button class="calculator-entry-remove" onclick="removeExercise(${index})" type="button" aria-label="Remove exercise">
+                    ×
                 </button>
             </div>
         `;

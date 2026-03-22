@@ -20,7 +20,7 @@ function isLoggedIn() {
 /**
  * Handle login form submission
  */
-function handleLogin(event) {
+async function handleLogin(event) {
     event.preventDefault();
 
     const emailInput = document.getElementById('login-email');
@@ -37,29 +37,64 @@ function handleLogin(event) {
         return;
     }
 
-    // Check demo credentials
-    if (email === DEMO_USER.email && password === DEMO_USER.password) {
-        // Successful login
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('currentUser', JSON.stringify(DEMO_USER));
+    try {
+        const response = await fetch('http://localhost:8000/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+        });
 
-        // Check if user has completed onboarding
-        const onboardingCompleted = localStorage.getItem('userOnboardingData');
+        const data = await response.json();
 
-        // Show success message
-        showLoginSuccess();
+        if (response.ok) {
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('currentUser', JSON.stringify(data.user));
 
-        // Redirect after short delay
-        setTimeout(() => {
-            if (onboardingCompleted) {
-                window.location.href = '../index.html'; // Go to dashboard
-            } else {
-                window.location.href = 'onboarding.html'; // Go to onboarding
-            }
-        }, 1000);
-    } else {
-        // Invalid credentials
-        showLoginError('Invalid email or password. Try demo@musclemap.com / Demo@123');
+            showLoginSuccess();
+
+            setTimeout(() => {
+                window.location.href = '../index.html';
+            }, 1000);
+        } else {
+            showLoginError(data.error || 'Invalid credentials');
+        }
+    } catch (error) {
+        showLoginError('Network error. Please try again.');
+    }
+}
+
+/**
+ * Handle registration form submission
+ */
+async function handleRegister(event) {
+    event.preventDefault();
+
+    const emailInput = document.querySelector('input[type="email"]');
+    const passwordInput = document.getElementById('password-input');
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+
+    try {
+        const response = await fetch('http://localhost:8000/api/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert('Registration successful! Please login.');
+            window.location.href = './login.html';
+        } else {
+            alert(data.error || 'Registration failed');
+        }
+    } catch (error) {
+        alert('Network error. Please try again.');
     }
 }
 
@@ -70,15 +105,14 @@ function showLoginError(message) {
     const emailInput = document.getElementById('login-email');
     const passwordInput = document.getElementById('login-password');
 
-    emailInput.classList.add('border-red-500/50');
-    passwordInput.classList.add('border-red-500/50');
+    emailInput.classList.add('border-danger');
+    passwordInput.classList.add('border-danger');
 
-    // Create or update error message
     let errorDiv = document.getElementById('login-error');
     if (!errorDiv) {
         errorDiv = document.createElement('div');
         errorDiv.id = 'login-error';
-        errorDiv.className = 'mt-4 p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-red-400 text-sm';
+        errorDiv.className = 'status-box error mt-3';
         const form = emailInput.closest('form');
         form.appendChild(errorDiv);
     }
@@ -94,8 +128,8 @@ function clearLoginErrors() {
     const passwordInput = document.getElementById('login-password');
     const errorDiv = document.getElementById('login-error');
 
-    if (emailInput) emailInput.classList.remove('border-red-500/50');
-    if (passwordInput) passwordInput.classList.remove('border-red-500/50');
+    if (emailInput) emailInput.classList.remove('border-danger');
+    if (passwordInput) passwordInput.classList.remove('border-danger');
     if (errorDiv) errorDiv.style.display = 'none';
 }
 
@@ -109,15 +143,12 @@ function showLoginSuccess() {
     if (!successDiv) {
         successDiv = document.createElement('div');
         successDiv.id = 'login-success';
-        successDiv.className = 'mt-4 p-3 bg-primary/10 border border-primary/50 rounded-lg text-primary text-sm flex items-center gap-2';
+        successDiv.className = 'status-box success mt-3';
         form.appendChild(successDiv);
     }
 
-    successDiv.innerHTML = `
-        <span class="material-symbols-outlined text-primary" style="font-size: 20px;">check_circle</span>
-        <span>Login successful! Redirecting...</span>
-    `;
-    successDiv.style.display = 'flex';
+    successDiv.textContent = 'Login successful. Redirecting...';
+    successDiv.style.display = 'block';
 }
 
 /**
@@ -142,21 +173,8 @@ function validatePassword(value) {
     // Update UI Helper
     function updateRequirement(id, isValid) {
         const el = document.getElementById(id);
-        const checkIcon = el.querySelector('.icon-check');
-        const circleIcon = el.querySelector('.icon-circle');
-        const text = el.querySelector('span:last-child');
-
-        if (isValid) {
-            checkIcon.classList.remove('hidden');
-            circleIcon.classList.add('hidden');
-            text.classList.remove('text-gray-500');
-            text.classList.add('text-gray-300');
-        } else {
-            checkIcon.classList.add('hidden');
-            circleIcon.classList.remove('hidden');
-            text.classList.remove('text-gray-300');
-            text.classList.add('text-gray-500');
-        }
+        if (!el) return;
+        el.classList.toggle('is-valid', isValid);
     }
 
     updateRequirement('req-length', hasLength);
@@ -169,11 +187,9 @@ function validatePassword(value) {
     for (let i = 1; i <= 4; i++) {
         const bar = document.getElementById(`strength-bar-${i}`);
         if (i <= score) {
-            bar.classList.remove('bg-white/10');
-            bar.classList.add('bg-primary', 'shadow-neon');
+            bar.classList.add('active');
         } else {
-            bar.classList.remove('bg-primary', 'shadow-neon');
-            bar.classList.add('bg-white/10');
+            bar.classList.remove('active');
         }
     }
 }
@@ -183,16 +199,15 @@ function validatePassword(value) {
  */
 function togglePasswordVisibility(buttonElement) {
     const input = document.getElementById('password-input');
-    const icon = buttonElement.querySelector('span');
 
     if (input.type === 'password') {
         input.type = 'text';
-        icon.textContent = 'visibility';
-        icon.classList.add('text-primary');
+        buttonElement.textContent = 'Hide';
+        buttonElement.classList.add('text-primary');
     } else {
         input.type = 'password';
-        icon.textContent = 'visibility_off';
-        icon.classList.remove('text-primary');
+        buttonElement.textContent = 'Show';
+        buttonElement.classList.remove('text-primary');
     }
 }
 
@@ -207,25 +222,20 @@ function validateConfirmPassword() {
     const errorIcon = document.getElementById('confirm-error-icon');
 
     if (confirmInput.value === '') {
-        // Default/Empty state
-        confirmInput.classList.remove('border-red-500/50', 'shadow-error', 'border-primary/50', 'shadow-neon');
-        errorMsg.classList.add('hidden');
-        successIcon.classList.add('hidden');
-        errorIcon.classList.add('hidden');
+        confirmInput.classList.remove('border-danger');
+        errorMsg.classList.remove('visible');
+        successIcon.classList.add('is-hidden');
+        errorIcon.classList.add('is-hidden');
     } else if (confirmInput.value !== pwd) {
-        // Error state
-        confirmInput.classList.add('border-red-500/50', 'shadow-error');
-        confirmInput.classList.remove('border-primary/50', 'shadow-neon');
-        errorMsg.classList.remove('hidden');
-        successIcon.classList.add('hidden');
-        errorIcon.classList.remove('hidden');
+        confirmInput.classList.add('border-danger');
+        errorMsg.classList.add('visible');
+        successIcon.classList.add('is-hidden');
+        errorIcon.classList.remove('is-hidden');
     } else {
-        // Success state
-        confirmInput.classList.remove('border-red-500/50', 'shadow-error');
-        confirmInput.classList.add('border-primary/50', 'shadow-neon');
-        errorMsg.classList.add('hidden');
-        successIcon.classList.remove('hidden');
-        errorIcon.classList.add('hidden');
+        confirmInput.classList.remove('border-danger');
+        errorMsg.classList.remove('visible');
+        successIcon.classList.remove('is-hidden');
+        errorIcon.classList.add('is-hidden');
     }
 }
 
@@ -234,16 +244,15 @@ function validateConfirmPassword() {
  */
 function toggleLoginPasswordVisibility(buttonElement) {
     const input = document.getElementById('login-password');
-    const icon = buttonElement.querySelector('span');
 
     if (input.type === 'password') {
         input.type = 'text';
-        icon.textContent = 'visibility';
-        icon.classList.add('text-primary');
+        buttonElement.textContent = 'Hide';
+        buttonElement.classList.add('text-primary');
     } else {
         input.type = 'password';
-        icon.textContent = 'visibility_off';
-        icon.classList.remove('text-primary');
+        buttonElement.textContent = 'Show';
+        buttonElement.classList.remove('text-primary');
     }
 }
 

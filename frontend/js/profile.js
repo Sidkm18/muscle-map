@@ -28,24 +28,59 @@ document.addEventListener('DOMContentLoaded', () => {
 /**
  * Load user data from localStorage or API
  */
-function loadUserData() {
-    // Try to get onboarding data
-    const onboardingData = localStorage.getItem('userOnboardingData');
-    const userData = localStorage.getItem('userData');
+async function loadUserData() {
+    try {
+        const response = await fetch('http://localhost:8000/api/profile', {
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            
+            // Map backend data to frontend structure
+            const mappedData = {
+                username: data.user.username,
+                fullName: data.user.full_name,
+                email: data.user.email,
+                phone: data.user.phone,
+                bio: data.user.bio,
+                height: data.stats?.height,
+                weight: data.stats?.weight,
+                dailyCalories: data.stats?.daily_calories,
+                gymFrequency: data.fitness?.gym_frequency,
+                expertiseLevel: data.fitness?.expertise_level,
+                workoutPlan: data.fitness?.workout_plan,
+                workoutTime: data.fitness?.workout_time,
+                dietPreference: data.fitness?.diet_preference,
+                allergies: data.fitness?.allergies,
+                supplements: data.fitness?.supplements ? data.fitness.supplements.split(',') : [],
+                goals: data.fitness?.goals ? data.fitness.goals.split(',') : [],
+                medicalConditions: data.fitness?.medical_conditions
+            };
 
-    let data = {};
+            // Also save to localStorage for sync with other scripts if needed
+            localStorage.setItem('userData', JSON.stringify(mappedData));
 
-    if (onboardingData) {
-        data = { ...data, ...JSON.parse(onboardingData) };
-    }
-
-    if (userData) {
-        data = { ...data, ...JSON.parse(userData) };
-    }
-
-    // Populate profile with data
-    if (Object.keys(data).length > 0) {
-        populateProfile(data);
+            populateProfile(mappedData);
+            
+            if (data.membership) {
+                // Update membership UI manually
+                const mCard = document.querySelector('.membership-details');
+                if (mCard) {
+                    mCard.innerHTML = `
+                        <p><strong>Plan:</strong> ${capitalizeFirst(data.membership.plan_name)} Plan</p>
+                        <p><strong>Renewal Date:</strong> ${data.membership.renewal_date}</p>
+                        <p><strong>Status:</strong> <span class="status-active">Active</span></p>
+                    `;
+                }
+            }
+        } else if (response.status === 401) {
+            window.location.href = 'login.html';
+        }
+    } catch (e) {
+        console.error('Failed to load profile', e);
     }
 }
 
@@ -392,45 +427,54 @@ function handlePhotoChange(event) {
 /**
  * Handle profile update form submission
  */
-function handleProfileUpdate(event) {
+async function handleProfileUpdate(event) {
     event.preventDefault();
 
-    const formData = new FormData(event.target);
-    const userData = getUserData();
+    const fullName = document.getElementById('editFullName').value;
+    const email = document.getElementById('editEmail').value;
+    const phone = document.getElementById('editPhone').value;
+    const bio = document.getElementById('editBio').value;
 
-    // Update user data
-    userData.fullName = document.getElementById('editFullName').value;
-    userData.email = document.getElementById('editEmail').value;
-    userData.phone = document.getElementById('editPhone').value;
-    userData.bio = document.getElementById('editBio').value;
+    try {
+        const response = await fetch('http://localhost:8000/api/profile', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                full_name: fullName,
+                phone: phone,
+                bio: bio
+            })
+        });
 
-    // Save to localStorage
-    localStorage.setItem('userData', JSON.stringify(userData));
+        if (response.ok) {
+            // Update display
+            document.getElementById('displayName').textContent = fullName;
+            document.getElementById('fullName').textContent = fullName;
+            document.getElementById('email').textContent = email;
+            document.getElementById('accountEmail').textContent = email;
+            
+            if (phone) document.getElementById('phone').textContent = phone;
+            if (bio) document.getElementById('displayBio').textContent = bio;
 
-    // Update display
-    if (userData.fullName) {
-        document.getElementById('displayName').textContent = userData.fullName;
-        document.getElementById('fullName').textContent = userData.fullName;
+            // Save to localStorage 
+            const userData = getUserData();
+            userData.fullName = fullName;
+            userData.email = email;
+            userData.phone = phone;
+            userData.bio = bio;
+            localStorage.setItem('userData', JSON.stringify(userData));
+
+            closeEditModal();
+            showNotification('Profile updated successfully!', 'success');
+        } else {
+            const data = await response.json();
+            alert(data.error || 'Failed to update profile');
+        }
+    } catch (error) {
+        alert('Network error. Please try again.');
     }
-
-    if (userData.email) {
-        document.getElementById('email').textContent = userData.email;
-        document.getElementById('accountEmail').textContent = userData.email;
-    }
-
-    if (userData.phone) {
-        document.getElementById('phone').textContent = userData.phone;
-    }
-
-    if (userData.bio) {
-        document.getElementById('displayBio').textContent = userData.bio;
-    }
-
-    // Close modal
-    closeEditModal();
-
-    // Show success message
-    showNotification('Profile updated successfully!', 'success');
 }
 
 /**

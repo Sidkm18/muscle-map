@@ -1,209 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>MuscleMap - Unlock Your Strength</title>
-
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
-    <script src="./tailwind.config.js"></script>
-
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@300;400;600;800&display=swap"
-        rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet" />
-
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
-
-    <!-- Custom Styles -->
-    <link href="./css/main.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="./css/main.css" rel="stylesheet">
 </head>
-
-<body class="bg-background-dark text-gray-100 font-sans antialiased overflow-x-hidden transition-colors duration-300">
-    <!-- Navigation -->
-    <nav class="fixed top-8 left-1/2 transform -translate-x-1/2 z-50 w-auto px-4">
-        <div
-            class="bg-black/90 backdrop-blur-md border border-white/10 rounded-full py-3 px-8 shadow-2xl flex justify-between items-center text-sm font-bold uppercase tracking-wider text-white min-w-[320px] md:min-w-[600px]">
-            <a class="hover:text-primary transition-colors" href="#home">Home</a>
-            <span class="text-primary mx-3 text-lg opacity-50">|</span>
-            <a class="hover:text-primary transition-colors" href="./pages/exercises.html">Exercises</a>
-            <span class="text-primary mx-3 text-lg opacity-50">|</span>
-            <a class="hover:text-primary transition-colors" href="./pages/calculator.html">Calculator</a>
-            <span class="text-primary mx-3 text-lg opacity-50">|</span>
-            <a class="hover:text-primary transition-colors" href="./pages/pricing.html">Pricing</a>
-            <span class="text-primary mx-3 text-lg opacity-50">|</span>
-            <a class="hover:text-primary transition-colors" href="./pages/login.html">Login</a>
-        </div>
-    </nav>
-
-    <!-- Decorative Elements -->
-    <div class="deco-top-left lg"></div>
-    <div class="deco-bottom-right lg"></div>
-
-    <!-- Hero Section -->
-    <section
-        class="relative h-screen min-h-[700px] flex items-center bg-gym-hero bg-cover bg-center bg-no-repeat bg-fixed"
-        id="home">
-        <div class="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent"></div>
-        <div
-            class="absolute inset-0 bg-gradient-to-t from-background-dark via-transparent to-transparent h-48 bottom-0">
-        </div>
-        <div class="container mx-auto px-6 relative z-10 flex flex-col md:flex-row items-center h-full">
-            <div class="w-full md:w-3/5 mt-20 md:mt-0">
-                <div class="inline-flex items-center gap-2 mb-4">
-                    <span class="w-12 h-1 bg-primary"></span>
-                    <p class="text-white font-display text-2xl uppercase tracking-widest opacity-90">MuscleMap</p>
+<body>
+    <div class="mm-navbar-wrap">
+        <nav class="navbar navbar-expand-lg mm-navbar">
+            <div class="container-fluid px-0">
+                <a class="navbar-brand mm-brand text-white" href="#home">MuscleMap</a>
+                <button class="navbar-toggler border-0 text-white" data-bs-target="#mainNav" data-bs-toggle="collapse" type="button">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="mainNav">
+                    <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+                        <li class="nav-item"><a class="nav-link active" href="#home">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="./pages/exercises.html">Exercises</a></li>
+                        <li class="nav-item"><a class="nav-link" href="./pages/calculator.html">Calculator</a></li>
+                        <li class="nav-item"><a class="nav-link" href="./pages/pricing.html">Pricing</a></li>
+                        <li class="nav-item"><a class="nav-link" href="./pages/login.html">Login</a></li>
+                    </ul>
                 </div>
-                <h1 class="font-display text-7xl md:text-9xl uppercase leading-[0.85] text-white mb-6 drop-shadow-2xl">
-                    Unlock <br />
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-lime-400">Your</span>
-                    <br />
-                    Strength
-                </h1>
-                <p class="text-gray-300 text-lg md:text-xl max-w-lg mb-10 font-light leading-relaxed">
-                    Precision tracking, AI-powered form correction, and analytics built for the modern athlete.
+            </div>
+        </nav>
+    </div>
+
+    <div class="deco-top-left"></div>
+    <div class="deco-bottom-right"></div>
+
+    <section class="mm-hero" id="home">
+        <div class="container mm-hero-content">
+            <div class="row align-items-center gy-5">
+                <div class="col-lg-7">
+                    <span class="mm-badge mb-4">Strength Tracking Platform</span>
+                    <h1 class="mm-title-xl mb-4">
+                        Unlock
+                        <span class="mm-highlight d-block">Your</span>
+                        Strength
+                    </h1>
+                    <p class="mm-lead fs-5 mb-4">
+                        Plain JavaScript, focused workout tools, and clean interfaces for logging sessions, calculating totals, and choosing the right membership.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <a class="btn btn-lg mm-btn-primary px-4" href="./pages/login.html">Try for free</a>
+                        <a class="btn btn-lg mm-btn-outline px-4" href="#services">Explore features</a>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="mm-card p-4 p-md-5">
+                        <span class="mm-badge mb-3">What You Get</span>
+                        <div class="d-grid gap-3">
+                            <div class="d-flex gap-3 align-items-start">
+                                <span class="mm-icon-block">1</span>
+                                <div>
+                                    <h2 class="h5 mb-1">Exercise logging</h2>
+                                    <p class="mm-copy mb-0">Track your work sets, reps, and weights without a framework dependency chain.</p>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-3 align-items-start">
+                                <span class="mm-icon-block">2</span>
+                                <div>
+                                    <h2 class="h5 mb-1">Workout calculator</h2>
+                                    <p class="mm-copy mb-0">Estimate total volume, calories, and one-rep max using a simple browser-based workflow.</p>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-3 align-items-start">
+                                <span class="mm-icon-block">3</span>
+                                <div>
+                                    <h2 class="h5 mb-1">Membership pricing</h2>
+                                    <p class="mm-copy mb-0">Compare plans and discounts with plain HTML forms and local JavaScript logic.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="mm-section border-top border-secondary-subtle" id="services">
+        <div class="container">
+            <div class="row align-items-end mb-5 gy-3">
+                <div class="col-lg-7">
+                    <span class="mm-badge mb-3">Core Tools</span>
+                    <h2 class="mm-title-lg">Our <span class="mm-highlight">Services</span></h2>
+                </div>
+                <div class="col-lg-5">
+                    <p class="mm-copy mb-0">A lightweight frontend stack with local JavaScript for the parts that need interaction and custom CSS for the parts that need style.</p>
+                </div>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6 col-xl-4">
+                    <div class="mm-card mm-card-hover p-4">
+                        <span class="mm-icon-block mb-4">L</span>
+                        <h3 class="mm-title-md mb-3">Exercise Logging</h3>
+                        <p class="mm-copy">Record sets, reps, and weights quickly with a focused library and clear categorization.</p>
+                        <a class="mm-link fw-bold" href="./pages/exercises.html">Open exercise library</a>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-4">
+                    <div class="mm-card mm-card-hover p-4">
+                        <span class="mm-icon-block mb-4">C</span>
+                        <h3 class="mm-title-md mb-3">Workout Calculator</h3>
+                        <p class="mm-copy">Add workout entries and calculate totals in the browser with no build tool required.</p>
+                        <a class="mm-link fw-bold" href="./pages/calculator.html">Open calculator</a>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-4">
+                    <div class="mm-card mm-card-hover p-4">
+                        <span class="mm-icon-block mb-4">P</span>
+                        <h3 class="mm-title-md mb-3">Premium Plans</h3>
+                        <p class="mm-copy">See membership tiers, duration discounts, and payment flow using plain static pages.</p>
+                        <a class="mm-link fw-bold" href="./pages/pricing.html">View pricing</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="mm-section">
+        <div class="container">
+            <div class="mm-card p-4 p-md-5 text-center">
+                <span class="mm-badge mb-3">About MuscleMap</span>
+                <h2 class="mm-title-lg mb-4">Built For <span class="mm-highlight">Consistency</span></h2>
+                <p class="mm-copy fs-5 mx-auto mb-5" style="max-width: 56rem;">
+                    MuscleMap keeps the frontend simple: static pages, browser JavaScript, custom CSS, and Bootstrap for layout. That makes the project easier to understand, deploy, and maintain.
                 </p>
-                <div class="flex items-center space-x-6">
-                    <a href="./pages/login.html"
-                        class="bg-primary hover:bg-white text-black font-display text-xl uppercase px-12 py-4 rounded-full transition-all duration-300 hover:scale-105 shadow-[0_0_25px_rgba(223,255,0,0.4)] inline-block text-center">
-                        Try For Free
-                    </a>
-                </div>
-            </div>
-            <div class="w-full md:w-2/5 h-full hidden md:flex items-end justify-center pb-0"></div>
-        </div>
-    </section>
-
-    <!-- Services Section -->
-    <section class="py-24 bg-background-dark relative overflow-hidden border-t border-white/5" id="services">
-        <div
-            class="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-white/5 to-transparent pointer-events-none">
-        </div>
-        <div class="container mx-auto px-6 relative z-10">
-            <div class="flex flex-col md:flex-row justify-between items-end mb-16">
-                <div>
-                    <h2 class="font-display text-5xl md:text-7xl uppercase text-white mb-2">Our <span
-                            class="text-primary">Services</span></h2>
-                    <div class="h-1 w-32 bg-primary mt-4"></div>
-                </div>
-                <p class="text-gray-400 max-w-md mt-6 md:mt-0 text-lg text-right">
-                    Comprehensive tools designed to maximize your potential. From tracking to form correction, we have
-                    you covered.
-                </p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Service Card 1 -->
-                <div
-                    class="service-card group relative bg-surface-dark border border-white/10 hover:border-primary p-8 rounded-2xl">
-                    <div class="icon-corner absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-bl-[4rem] -mr-4 -mt-4">
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="mm-stat">
+                            <span class="mm-stat-value">50k+</span>
+                            <span class="mm-copy text-uppercase">Active Users</span>
+                        </div>
                     </div>
-                    <span
-                        class="service-icon material-symbols-outlined text-6xl text-white mb-6 transition-colors">edit_note</span>
-                    <h3 class="font-display text-3xl uppercase mb-4 text-white">Exercise Logging</h3>
-                    <p class="text-gray-400 leading-relaxed mb-6 font-light">
-                        Effortlessly record sets, reps, and weights. Our intuitive interface makes tracking your daily
-                        workouts seamless and distraction-free.
-                    </p>
-                    <a class="learn-link inline-flex items-center font-bold uppercase text-xs tracking-widest text-white transition-colors"
-                        href="./pages/exercises.html">
-                        Learn More <span class="material-symbols-outlined ml-2 text-sm">arrow_forward</span>
-                    </a>
-                </div>
-
-                <!-- Service Card 2 -->
-                <div
-                    class="service-card group relative bg-surface-dark border border-white/10 hover:border-primary p-8 rounded-2xl">
-                    <div class="icon-corner absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-bl-[4rem] -mr-4 -mt-4">
+                    <div class="col-md-4">
+                        <div class="mm-stat">
+                            <span class="mm-stat-value">1M+</span>
+                            <span class="mm-copy text-uppercase">Workouts Logged</span>
+                        </div>
                     </div>
-                    <span
-                        class="service-icon material-symbols-outlined text-6xl text-white mb-6 transition-colors">calculate</span>
-                    <h3 class="font-display text-3xl uppercase mb-4 text-white">Workout Calculator</h3>
-                    <p class="text-gray-400 leading-relaxed mb-6 font-light">
-                        Calculate your total volume, estimated 1RM, and calories burned. Get actionable insights from
-                        your workouts.
-                    </p>
-                    <a class="learn-link inline-flex items-center font-bold uppercase text-xs tracking-widest text-white transition-colors"
-                        href="./pages/calculator.html">
-                        Learn More <span class="material-symbols-outlined ml-2 text-sm">arrow_forward</span>
-                    </a>
-                </div>
-
-                <div
-                    class="service-card group relative bg-surface-dark border border-white/10 hover:border-primary p-8 rounded-2xl">
-                    <div class="icon-corner absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-bl-[4rem] -mr-4 -mt-4">
+                    <div class="col-md-4">
+                        <div class="mm-stat">
+                            <span class="mm-stat-value">4.9</span>
+                            <span class="mm-copy text-uppercase">Average Rating</span>
+                        </div>
                     </div>
-                    <span
-                        class="service-icon material-symbols-outlined text-6xl text-white mb-6 transition-colors">card_membership</span>
-                    <h3 class="font-display text-3xl uppercase mb-4 text-white">Premium Membership</h3>
-                    <p class="text-gray-400 leading-relaxed mb-6 font-light">
-                        Choose from multiple membership tiers with flexible billing options and exclusive discounts for
-                        long-term commits.
-                    </p>
-                    <a class="learn-link inline-flex items-center font-bold uppercase text-xs tracking-widest text-white transition-colors"
-                        href="./pages/pricing.html">
-                        Learn More <span class="material-symbols-outlined ml-2 text-sm">arrow_forward</span>
-                    </a>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- About Section -->
-    <section class="py-32 bg-gym-about bg-cover bg-fixed relative" id="about">
-        <div class="absolute inset-0 bg-black/80"></div>
-        <div class="container mx-auto px-6 relative z-10 text-center max-w-5xl">
-            <span
-                class="inline-block py-1 px-4 border border-primary text-primary rounded-full text-xs font-bold uppercase tracking-widest mb-6 bg-black/50 backdrop-blur-sm">About
-                MuscleMap</span>
-            <h2 class="font-display text-5xl md:text-8xl uppercase text-white mb-8 leading-tight">
-                Forged in <br /><span class="text-primary">Discipline</span>
-            </h2>
-            <div class="w-24 h-1 bg-primary mx-auto mb-10"></div>
-            <p class="text-xl md:text-2xl text-gray-300 font-light leading-relaxed mb-12">
-                MuscleMap wasn't built in a boardroom. It was built in the squat rack. Our mission is simple: strip away
-                the noise and provide the most effective, data-driven tools for serious athletes to construct their
-                ultimate physique.
-            </p>
-
-            <div class="flex flex-col md:flex-row justify-center gap-12 mt-16 border-t border-white/10 pt-12">
-                <div class="text-center group cursor-default">
-                    <span
-                        class="block font-display text-6xl text-white mb-2 group-hover:text-primary transition-colors">50k+</span>
-                    <span class="text-gray-400 uppercase tracking-widest text-xs font-bold">Active Users</span>
-                </div>
-                <div class="hidden md:block w-px h-24 bg-white/10"></div>
-                <div class="text-center group cursor-default">
-                    <span
-                        class="block font-display text-6xl text-white mb-2 group-hover:text-primary transition-colors">1M+</span>
-                    <span class="text-gray-400 uppercase tracking-widest text-xs font-bold">Workouts Logged</span>
-                </div>
-                <div class="hidden md:block w-px h-24 bg-white/10"></div>
-                <div class="text-center group cursor-default">
-                    <span
-                        class="block font-display text-6xl text-white mb-2 group-hover:text-primary transition-colors">4.9</span>
-                    <span class="text-gray-400 uppercase tracking-widest text-xs font-bold">App Rating</span>
-                </div>
+    <footer class="mm-footer">
+        <div class="container text-center">
+            <p class="mm-brand text-white mb-3">MuscleMap</p>
+            <div class="d-flex justify-content-center gap-4 flex-wrap mb-3">
+                <a class="mm-copy text-decoration-none" href="#">Privacy</a>
+                <a class="mm-copy text-decoration-none" href="#">Terms</a>
+                <a class="mm-copy text-decoration-none" href="#">Cookies</a>
             </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="bg-black py-12 border-t border-white/10">
-        <div class="container mx-auto px-6 flex flex-col items-center">
-            <p class="font-display text-3xl uppercase text-white mb-4 tracking-widest">MuscleMap</p>
-            <div class="flex space-x-6 mb-8 text-sm text-gray-400 font-bold uppercase tracking-wider">
-                <a class="hover:text-primary transition-colors" href="#">Privacy</a>
-                <a class="hover:text-primary transition-colors" href="#">Terms</a>
-                <a class="hover:text-primary transition-colors" href="#">Cookies</a>
-            </div>
-            <p class="text-xs text-gray-600">© 2026 MuscleMap Inc. All rights reserved.</p>
+            <p class="mm-copy small mb-0">© 2026 MuscleMap Inc. All rights reserved.</p>
         </div>
     </footer>
-</body>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>

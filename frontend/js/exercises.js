@@ -3,32 +3,7 @@
  */
 
 // Exercise Database
-const exercises = [
-    { id: 1, name: 'Barbell Bench Press', category: 'chest', difficulty: 'Intermediate', reps: '6-8' },
-    { id: 2, name: 'Dumbbell Flyes', category: 'chest', difficulty: 'Beginner', reps: '10-12' },
-    { id: 3, name: 'Cable Crossover', category: 'chest', difficulty: 'Beginner', reps: '12-15' },
-    { id: 4, name: 'Incline Bench Press', category: 'chest', difficulty: 'Intermediate', reps: '8-10' },
-
-    { id: 5, name: 'Deadlift', category: 'back', difficulty: 'Advanced', reps: '4-6' },
-    { id: 6, name: 'Barbell Rows', category: 'back', difficulty: 'Intermediate', reps: '6-8' },
-    { id: 7, name: 'Pull-ups', category: 'back', difficulty: 'Intermediate', reps: '8-12' },
-    { id: 8, name: 'Lat Pulldown', category: 'back', difficulty: 'Beginner', reps: '10-15' },
-
-    { id: 9, name: 'Barbell Squats', category: 'legs', difficulty: 'Advanced', reps: '6-8' },
-    { id: 10, name: 'Leg Press', category: 'legs', difficulty: 'Beginner', reps: '8-12' },
-    { id: 11, name: 'Leg Curls', category: 'legs', difficulty: 'Beginner', reps: '12-15' },
-    { id: 12, name: 'Leg Extensions', category: 'legs', difficulty: 'Beginner', reps: '12-15' },
-
-    { id: 13, name: 'Overhead Press', category: 'shoulders', difficulty: 'Intermediate', reps: '6-8' },
-    { id: 14, name: 'Lateral Raises', category: 'shoulders', difficulty: 'Beginner', reps: '12-15' },
-    { id: 15, name: 'Shoulder Shrugs', category: 'shoulders', difficulty: 'Beginner', reps: '10-12' },
-    { id: 16, name: 'Face Pulls', category: 'shoulders', difficulty: 'Beginner', reps: '15-20' },
-
-    { id: 17, name: 'Barbell Curls', category: 'arms', difficulty: 'Beginner', reps: '8-10' },
-    { id: 18, name: 'Tricep Dips', category: 'arms', difficulty: 'Intermediate', reps: '8-12' },
-    { id: 19, name: 'Hammer Curls', category: 'arms', difficulty: 'Beginner', reps: '10-12' },
-    { id: 20, name: 'Rope Pushdowns', category: 'arms', difficulty: 'Beginner', reps: '12-15' }
-];
+let exercises = [];
 
 // Current filter state
 let currentFilter = 'all';
@@ -36,9 +11,32 @@ let currentFilter = 'all';
 /**
  * Display exercises based on current filter
  */
-function displayExercises() {
+async function displayExercises() {
     const container = document.getElementById('exercises-container');
     const countElement = document.getElementById('exercise-count');
+    
+    // Fetch exercises if empty
+    if (exercises.length === 0) {
+        try {
+            const response = await fetch('http://localhost:8000/api/exercises');
+            if (response.ok) {
+                const data = await response.json();
+                // Map the backend structure to the frontend structure
+                exercises = data.exercises.map(e => ({
+                    id: e.id,
+                    name: e.name,
+                    category: e.muscle_group,
+                    description: e.description,
+                    difficulty: 'Intermediate', // Mock
+                    reps: '8-12' // Mock
+                }));
+            }
+        } catch (e) {
+            console.error('Failed to load exercises', e);
+            countElement.textContent = `Error loading exercises.`;
+            return;
+        }
+    }
 
     // Filter exercises
     let filteredExercises = exercises;
@@ -51,34 +49,34 @@ function displayExercises() {
 
     // Display each exercise as a card
     filteredExercises.forEach(exercise => {
-        const difficultyColor = exercise.difficulty === 'Beginner' ? 'bg-green-500/20 text-green-400' :
-            exercise.difficulty === 'Intermediate' ? 'bg-yellow-500/20 text-yellow-400' :
-                'bg-red-500/20 text-red-400';
+        const difficultyColor = exercise.difficulty === 'Beginner' ? 'difficulty-beginner' :
+            exercise.difficulty === 'Intermediate' ? 'difficulty-intermediate' :
+                'difficulty-advanced';
 
         const card = document.createElement('div');
-        card.className = 'group bg-surface-dark border border-white/10 hover:border-primary p-6 rounded-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(223,255,0,0.2)]';
+        card.className = 'col-md-6 col-xl-4';
         card.innerHTML = `
-            <div class="flex items-start justify-between mb-4">
-                <h3 class="font-display text-xl uppercase text-white group-hover:text-primary transition-colors">${exercise.name}</h3>
-                <span class="material-symbols-outlined text-primary text-2xl">fitness_center</span>
+            <div class="mm-card mm-card-hover exercise-card p-4">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h3 class="h5 text-uppercase mb-0">${exercise.name}</h3>
+                    <span class="mm-icon-block">EX</span>
+                </div>
+                <div class="d-grid gap-2">
+                    <div class="d-flex justify-content-between small">
+                        <span class="mm-copy">Category</span>
+                        <span class="mm-highlight fw-bold text-capitalize">${exercise.category}</span>
+                    </div>
+                    <div class="d-flex justify-content-between small">
+                        <span class="mm-copy">Difficulty</span>
+                        <span class="badge ${difficultyColor}">${exercise.difficulty}</span>
+                    </div>
+                    <div class="d-flex justify-content-between small">
+                        <span class="mm-copy">Rep Range</span>
+                        <span>${exercise.reps}</span>
+                    </div>
+                </div>
+                <button class="btn mm-btn-primary w-100 mt-4" type="button">Add to Workout</button>
             </div>
-            <div class="space-y-3">
-                <div class="flex justify-between text-sm">
-                    <span class="text-gray-400">Category:</span>
-                    <span class="text-primary font-bold capitalize">${exercise.category}</span>
-                </div>
-                <div class="flex justify-between text-sm">
-                    <span class="text-gray-400">Difficulty:</span>
-                    <span class="px-3 py-1 rounded-full text-xs font-bold ${difficultyColor}">${exercise.difficulty}</span>
-                </div>
-                <div class="flex justify-between text-sm">
-                    <span class="text-gray-400">Rep Range:</span>
-                    <span class="text-gray-300 font-mono">${exercise.reps}</span>
-                </div>
-            </div>
-            <button class="w-full mt-6 px-4 py-2 bg-primary hover:bg-white text-black font-bold rounded-lg transition-colors">
-                Add to Workout
-            </button>
         `;
         container.appendChild(card);
     });
@@ -95,17 +93,12 @@ function setupFilterButtons() {
 
     buttons.forEach(button => {
         button.addEventListener('click', function () {
-            // Remove active class from all buttons
             buttons.forEach(btn => {
-                btn.classList.remove('bg-primary', 'text-black');
-                btn.classList.add('bg-white/10', 'text-white');
+                btn.classList.remove('active');
             });
 
-            // Add active class to clicked button
-            this.classList.add('bg-primary', 'text-black');
-            this.classList.remove('bg-white/10', 'text-white');
+            this.classList.add('active');
 
-            // Update filter and display
             currentFilter = this.getAttribute('data-category');
             displayExercises();
         });

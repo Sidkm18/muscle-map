@@ -6,7 +6,7 @@ muscle-map/
 ├── README.md
 ├── .gitignore
 │
-├── frontend/                         # Current HTML/CSS/JS (later replace with React)
+├── frontend/                         # Static HTML, CSS, JavaScript frontend
 │   ├── index.html
 │   ├── pages/
 │   │   ├── login.html

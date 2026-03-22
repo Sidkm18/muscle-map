@@ -337,27 +337,46 @@ function selectWallet(wallet) {
 /**
  * Process payment (simulate)
  */
-function processPayment() {
+async function processPayment() {
     // Show processing modal
     const processingModal = document.getElementById('processingModal');
-    processingModal.classList.add('active');
+    if(processingModal) processingModal.classList.add('active');
 
-    // Simulate payment processing
-    setTimeout(() => {
-        processingModal.classList.remove('active');
+    const urlParams = new URLSearchParams(window.location.search);
+    const plan = urlParams.get('plan') || 'premium';
 
-        // Generate transaction ID
-        const transactionId = 'TXN' + Date.now();
-        document.getElementById('transactionId').textContent = transactionId;
+    try {
+        const response = await fetch('http://localhost:8000/api/subscribe', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ plan_name: plan })
+        });
 
-        // Show success modal
-        const successModal = document.getElementById('successModal');
-        successModal.classList.add('active');
+        if (response.ok) {
+            if(processingModal) processingModal.classList.remove('active');
 
-        // Save payment data
-        localStorage.setItem('paymentCompleted', 'true');
-        localStorage.setItem('transactionId', transactionId);
-    }, 2000);
+            // Generate transaction ID
+            const transactionId = 'TXN' + Date.now();
+            const txEl = document.getElementById('transactionId');
+            if(txEl) txEl.textContent = transactionId;
+
+            // Show success modal
+            const successModal = document.getElementById('successModal');
+            if(successModal) successModal.classList.add('active');
+
+            // Save payment data
+            localStorage.setItem('paymentCompleted', 'true');
+            localStorage.setItem('transactionId', transactionId);
+        } else {
+            if(processingModal) processingModal.classList.remove('active');
+            alert('Failed to subscribe. Please try again.');
+        }
+    } catch (e) {
+        if(processingModal) processingModal.classList.remove('active');
+        alert('Network error during subscription.');
+    }
 }
 
 /**
