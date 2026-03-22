@@ -1,160 +1,118 @@
-/**
- * Workout Calculator - Calculations and DOM Updates
- */
+(function () {
+  const form = document.getElementById('calculator-form');
+  const list = document.getElementById('exercise-list');
+  const clearAllBtn = document.getElementById('clear-all');
+  const emptyState = document.getElementById('empty-state');
 
-// Store exercises
-let workoutExercises = [];
+  if (!form || !list || !clearAllBtn || !emptyState) {
+    return;
+  }
 
-// Epley Formula for 1RM: 1RM = weight × (1 + reps/30)
-function calculate1RM(weight, reps) {
-    if (reps === 1) return weight;
+  const weightInput = document.getElementById('weight');
+  const setsInput = document.getElementById('sets');
+  const repsInput = document.getElementById('reps');
+
+  const totalVolumeEl = document.getElementById('metric-volume');
+  const est1RmEl = document.getElementById('metric-1rm');
+  const totalCaloriesEl = document.getElementById('metric-calories');
+  const totalSetsEl = document.getElementById('metric-sets');
+
+  let items = [];
+
+  function calculate1RM(weight, reps) {
+    if (reps === 1) {
+      return weight;
+    }
     return Math.round(weight * (1 + reps / 30));
-}
+  }
 
-// Calculate calories burned (rough estimate: 0.07 × weight × reps × sets)
-function calculateCaloriesBurned(weight, reps, sets) {
+  function calcCalories(weight, reps, sets) {
     return Math.round(0.07 * weight * reps * sets);
-}
+  }
 
-// Calculate total volume
-function calculateTotalVolume() {
-    return workoutExercises.reduce((total, exercise) => {
-        return total + (exercise.weight * exercise.reps * exercise.sets);
+  function updateMetrics() {
+    const totalVolume = items.reduce(function (sum, item) {
+      return sum + item.weight * item.reps * item.sets;
     }, 0);
-}
 
-// Calculate total sets
-function calculateTotalSets() {
-    return workoutExercises.reduce((total, exercise) => {
-        return total + exercise.sets;
+    const totalSets = items.reduce(function (sum, item) {
+      return sum + item.sets;
     }, 0);
-}
 
-// Calculate average 1RM (from all exercises)
-function calculateEstimated1RM() {
-    if (workoutExercises.length === 0) return 0;
-    
-    const maxWeight = Math.max(...workoutExercises.map(ex => ex.weight));
-    const maxReps = workoutExercises.find(ex => ex.weight === maxWeight)?.reps || 1;
-    
-    return calculate1RM(maxWeight, maxReps);
-}
-
-// Calculate total calories
-function calculateTotalCalories() {
-    return workoutExercises.reduce((total, exercise) => {
-        return total + calculateCaloriesBurned(exercise.weight, exercise.reps, exercise.sets);
+    const totalCalories = items.reduce(function (sum, item) {
+      return sum + calcCalories(item.weight, item.reps, item.sets);
     }, 0);
-}
 
-// Update the display
-function updateDisplay() {
-    document.getElementById('total-volume').textContent = calculateTotalVolume().toLocaleString();
-    document.getElementById('est-1rm').textContent = calculateEstimated1RM();
-    document.getElementById('est-calories').textContent = calculateTotalCalories();
-    document.getElementById('total-sets').textContent = calculateTotalSets();
-    
-    // Show/hide clear button
-    const clearBtn = document.getElementById('clear-btn');
-    if (workoutExercises.length > 0) {
-        clearBtn.classList.remove('d-none');
-    } else {
-        clearBtn.classList.add('d-none');
-    }
-}
+    const heaviest = items.reduce(function (max, item) {
+      if (!max || item.weight > max.weight) {
+        return item;
+      }
+      return max;
+    }, null);
 
-// Render exercise list
-function renderExerciseList() {
-    const listContainer = document.getElementById('exercise-list');
-    
-    if (workoutExercises.length === 0) {
-        listContainer.innerHTML = '<p class="mm-copy mb-0 py-3">No exercises added yet.</p>';
-        return;
-    }
-    
-    listContainer.innerHTML = workoutExercises.map((exercise, index) => {
-        const volume = exercise.weight * exercise.reps * exercise.sets;
-        const est1rm = calculate1RM(exercise.weight, exercise.reps);
-        const calories = calculateCaloriesBurned(exercise.weight, exercise.reps, exercise.sets);
-        
+    const est1RM = heaviest ? calculate1RM(heaviest.weight, heaviest.reps) : 0;
+
+    totalVolumeEl.textContent = totalVolume.toLocaleString();
+    est1RmEl.textContent = est1RM.toLocaleString();
+    totalCaloriesEl.textContent = totalCalories.toLocaleString();
+    totalSetsEl.textContent = totalSets.toLocaleString();
+  }
+
+  function renderList() {
+    list.innerHTML = items
+      .map(function (item, index) {
         return `
-            <div class="calculator-entry p-3 d-flex justify-content-between align-items-start gap-3">
-                <div class="flex-grow-1">
-                    <p class="fw-bold mb-2">${exercise.weight} lbs × ${exercise.reps} reps × ${exercise.sets} sets</p>
-                    <div class="row row-cols-1 row-cols-md-3 g-2 small">
-                        <div class="col">
-                            <span class="mm-copy d-block">Volume</span>
-                            <strong class="mm-highlight">${volume} lbs</strong>
-                        </div>
-                        <div class="col">
-                            <span class="mm-copy d-block">Est. 1RM</span>
-                            <strong class="mm-highlight">${est1rm} lbs</strong>
-                        </div>
-                        <div class="col">
-                            <span class="mm-copy d-block">Calories</span>
-                            <strong class="mm-highlight">${calories} kcal</strong>
-                        </div>
-                    </div>
-                </div>
-                <button class="calculator-entry-remove" onclick="removeExercise(${index})" type="button" aria-label="Remove exercise">
-                    ×
-                </button>
+          <div class="glass-card" style="display:flex; align-items:center; justify-content:space-between; padding:.8rem;">
+            <div style="display:flex; gap:.9rem; flex-wrap:wrap;">
+              <span class="muted">#${index + 1}</span>
+              <span><strong>${item.weight}</strong> lbs</span>
+              <span><strong>${item.sets}</strong> sets</span>
+              <span><strong>${item.reps}</strong> reps</span>
             </div>
+            <button class="pill" type="button" data-remove="${item.id}" style="color:var(--danger)">Delete</button>
+          </div>
         `;
-    }).join('');
-}
+      })
+      .join('');
 
-// Add exercise from form
-function addExercise(weight, sets, reps) {
-    if (!weight || !sets || !reps) {
-        alert('Please fill in all fields');
-        return;
+    emptyState.style.display = items.length ? 'none' : 'block';
+    clearAllBtn.style.visibility = items.length ? 'visible' : 'hidden';
+    updateMetrics();
+  }
+
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    const payload = {
+      id: Date.now(),
+      weight: Number(weightInput.value),
+      sets: Number(setsInput.value),
+      reps: Number(repsInput.value)
+    };
+
+    if (payload.weight > 0 && payload.sets > 0 && payload.reps > 0) {
+      items.push(payload);
+      form.reset();
+      renderList();
     }
-    
-    workoutExercises.push({
-        weight: parseFloat(weight),
-        sets: parseInt(sets),
-        reps: parseInt(reps)
+  });
+
+  list.addEventListener('click', function (event) {
+    const btn = event.target.closest('[data-remove]');
+    if (!btn) {
+      return;
+    }
+    const id = Number(btn.getAttribute('data-remove'));
+    items = items.filter(function (item) {
+      return item.id !== id;
     });
-    
-    // Clear form
-    document.getElementById('weight-input').value = '';
-    document.getElementById('sets-input').value = '';
-    document.getElementById('reps-input').value = '';
-    
-    renderExerciseList();
-    updateDisplay();
-}
+    renderList();
+  });
 
-// Remove exercise
-function removeExercise(index) {
-    workoutExercises.splice(index, 1);
-    renderExerciseList();
-    updateDisplay();
-}
+  clearAllBtn.addEventListener('click', function () {
+    items = [];
+    renderList();
+  });
 
-// Clear all exercises
-function clearAllExercises() {
-    workoutExercises = [];
-    renderExerciseList();
-    updateDisplay();
-}
-
-// Setup event listeners
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('exercise-form');
-    const clearBtn = document.getElementById('clear-btn');
-    
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const weight = document.getElementById('weight-input').value;
-        const sets = document.getElementById('sets-input').value;
-        const reps = document.getElementById('reps-input').value;
-        addExercise(weight, sets, reps);
-    });
-    
-    clearBtn.addEventListener('click', clearAllExercises);
-    
-    // Initialize display
-    updateDisplay();
-});
+  renderList();
+})();

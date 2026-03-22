@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Catalogue | MuscleMap</title>
+    <link rel="stylesheet" href="../css/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <div class="bg-grid"></div>
+      <header id="site-nav"></header>
+
+      <main>
+        <section class="container">
+          <span class="badge">Catalogue</span>
+          <h1 class="page-title" style="font-size:clamp(2.3rem,5vw,4.4rem); margin:.8rem 0;">Workout <span class="primary-text">Catalogue</span></h1>
+          <p class="lead">Search structured training templates and find a plan that fits your current goal and schedule.</p>
+
+          <div class="glass-card card" style="margin:1.2rem 0;">
+            <div style="display:flex; gap:.6rem; flex-wrap:wrap;">
+              <input id="catalogue-search" type="text" placeholder="Search programs..." />
+            </div>
+          </div>
+
+          <div class="catalogue-grid" id="catalogue-grid"></div>
+        </section>
+      </main>
+
+      <div id="site-footer"></div>
+    </div>
+
+    <script src="../js/site.js" defer></script>
+    <script src="../js/catalogue.js" defer></script>
+  </body>
+</html>

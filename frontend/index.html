@@ -1,170 +1,115 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>MuscleMap - Unlock Your Strength</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="./css/main.css" rel="stylesheet">
-</head>
-<body>
-    <div class="mm-navbar-wrap">
-        <nav class="navbar navbar-expand-lg mm-navbar">
-            <div class="container-fluid px-0">
-                <a class="navbar-brand mm-brand text-white" href="#home">MuscleMap</a>
-                <button class="navbar-toggler border-0 text-white" data-bs-target="#mainNav" data-bs-toggle="collapse" type="button">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="mainNav">
-                    <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
-                        <li class="nav-item"><a class="nav-link active" href="#home">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="./pages/exercises.html">Exercises</a></li>
-                        <li class="nav-item"><a class="nav-link" href="./pages/calculator.html">Calculator</a></li>
-                        <li class="nav-item"><a class="nav-link" href="./pages/pricing.html">Pricing</a></li>
-                        <li class="nav-item"><a class="nav-link" href="./pages/login.html">Login</a></li>
-                    </ul>
-                </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MuscleMap | Strength Tracking</title>
+    <meta name="description" content="MuscleMap is a vanilla JS strength tracking platform with exercise logging, calculator tools, and membership pricing." />
+    <link rel="stylesheet" href="./css/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <div class="bg-grid"></div>
+      <header id="site-nav"></header>
+
+      <main>
+        <section class="container hero-grid">
+          <div>
+            <span class="badge">Strength Training Companion</span>
+            <h1 class="hero-title">Train Better. <span class="primary-text">Track Clearly.</span></h1>
+            <p class="lead">MuscleMap gives you practical tools for real training: a usable exercise library, a fast workout calculator, and pricing that is easy to understand.</p>
+            <div class="cta-row">
+              <a class="button button-primary" href="./pages/login.html">Get Started</a>
+              <a class="button button-outline" href="#services">See Features</a>
             </div>
-        </nav>
+          </div>
+
+          <div class="glass-card card">
+            <span class="badge">What You Get</span>
+            <div style="display:grid; gap:1rem; margin-top:1rem;">
+              <div style="display:flex; gap:.8rem;">
+                <div class="pill-badge" style="width:38px; height:38px; border-radius:10px; display:grid; place-items:center; background:rgba(197,255,47,.12); color:var(--primary);">1</div>
+                <div>
+                  <h3 class="page-title" style="font-size:1.1rem; margin:.2rem 0;">Exercise Library</h3>
+                  <p class="muted" style="margin:0;">Quickly find movements by muscle group, level, and rep range.</p>
+                </div>
+              </div>
+              <div style="display:flex; gap:.8rem;">
+                <div class="pill-badge" style="width:38px; height:38px; border-radius:10px; display:grid; place-items:center; background:rgba(197,255,47,.12); color:var(--primary);">2</div>
+                <div>
+                  <h3 class="page-title" style="font-size:1.1rem; margin:.2rem 0;">Workout Calculator</h3>
+                  <p class="muted" style="margin:0;">Calculate volume, estimated 1RM, calories, and sets in one place.</p>
+                </div>
+              </div>
+              <div style="display:flex; gap:.8rem;">
+                <div class="pill-badge" style="width:38px; height:38px; border-radius:10px; display:grid; place-items:center; background:rgba(197,255,47,.12); color:var(--primary);">3</div>
+                <div>
+                  <h3 class="page-title" style="font-size:1.1rem; margin:.2rem 0;">Transparent Pricing</h3>
+                  <p class="muted" style="margin:0;">Compare plans side by side and instantly see duration discounts.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="services" class="section section-bordered">
+          <div class="container">
+            <div class="section-header">
+              <div>
+                <span class="badge">Core Tools</span>
+                <h2 class="section-title">What You Can <span class="primary-text">Use Today</span></h2>
+              </div>
+              <p class="muted">Built for people who care more about consistency than noise. Open a tool, log your session, and move on.</p>
+            </div>
+
+            <div class="grid-3">
+              <article class="glass-card card">
+                <h3 class="page-title" style="font-size:1.3rem;">Exercise Logging</h3>
+                <p class="muted">Browse tried-and-tested movements and filter quickly by the muscle group you want to train.</p>
+                <a class="primary-text" href="./pages/exercises.html">Browse Exercises</a>
+              </article>
+              <article class="glass-card card">
+                <h3 class="page-title" style="font-size:1.3rem;">Workout Calculator</h3>
+                <p class="muted">Log each lift and instantly see workload, estimated max strength, and energy cost.</p>
+                <a class="primary-text" href="./pages/calculator.html">Open Calculator</a>
+              </article>
+              <article class="glass-card card">
+                <h3 class="page-title" style="font-size:1.3rem;">Premium Plans</h3>
+                <p class="muted">Review plans and pick the one that fits your schedule and training stage.</p>
+                <a class="primary-text" href="./pages/pricing.html">View Pricing</a>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="container">
+            <div class="glass-card card" style="padding:2rem; text-align:center;">
+              <span class="badge">About MuscleMap</span>
+              <h2 class="section-title" style="margin-top:.7rem;">Built For <span class="primary-text">Lifters</span></h2>
+              <p class="lead" style="margin:1rem auto 1.4rem; max-width:700px;">This project started as a practical training log for people who lift regularly and wanted cleaner tools than bloated apps.</p>
+              <div class="stats-grid">
+                <div>
+                  <div class="metric-value">50k+</div>
+                  <div class="mini-label">Active Users</div>
+                </div>
+                <div>
+                  <div class="metric-value">1M+</div>
+                  <div class="mini-label">Workouts Logged</div>
+                </div>
+                <div>
+                  <div class="metric-value">4.9</div>
+                  <div class="mini-label">Average Rating</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <div id="site-footer"></div>
     </div>
 
-    <div class="deco-top-left"></div>
-    <div class="deco-bottom-right"></div>
-
-    <section class="mm-hero" id="home">
-        <div class="container mm-hero-content">
-            <div class="row align-items-center gy-5">
-                <div class="col-lg-7">
-                    <span class="mm-badge mb-4">Strength Tracking Platform</span>
-                    <h1 class="mm-title-xl mb-4">
-                        Unlock
-                        <span class="mm-highlight d-block">Your</span>
-                        Strength
-                    </h1>
-                    <p class="mm-lead fs-5 mb-4">
-                        Plain JavaScript, focused workout tools, and clean interfaces for logging sessions, calculating totals, and choosing the right membership.
-                    </p>
-                    <div class="d-flex flex-wrap gap-3">
-                        <a class="btn btn-lg mm-btn-primary px-4" href="./pages/login.html">Try for free</a>
-                        <a class="btn btn-lg mm-btn-outline px-4" href="#services">Explore features</a>
-                    </div>
-                </div>
-                <div class="col-lg-5">
-                    <div class="mm-card p-4 p-md-5">
-                        <span class="mm-badge mb-3">What You Get</span>
-                        <div class="d-grid gap-3">
-                            <div class="d-flex gap-3 align-items-start">
-                                <span class="mm-icon-block">1</span>
-                                <div>
-                                    <h2 class="h5 mb-1">Exercise logging</h2>
-                                    <p class="mm-copy mb-0">Track your work sets, reps, and weights without a framework dependency chain.</p>
-                                </div>
-                            </div>
-                            <div class="d-flex gap-3 align-items-start">
-                                <span class="mm-icon-block">2</span>
-                                <div>
-                                    <h2 class="h5 mb-1">Workout calculator</h2>
-                                    <p class="mm-copy mb-0">Estimate total volume, calories, and one-rep max using a simple browser-based workflow.</p>
-                                </div>
-                            </div>
-                            <div class="d-flex gap-3 align-items-start">
-                                <span class="mm-icon-block">3</span>
-                                <div>
-                                    <h2 class="h5 mb-1">Membership pricing</h2>
-                                    <p class="mm-copy mb-0">Compare plans and discounts with plain HTML forms and local JavaScript logic.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="mm-section border-top border-secondary-subtle" id="services">
-        <div class="container">
-            <div class="row align-items-end mb-5 gy-3">
-                <div class="col-lg-7">
-                    <span class="mm-badge mb-3">Core Tools</span>
-                    <h2 class="mm-title-lg">Our <span class="mm-highlight">Services</span></h2>
-                </div>
-                <div class="col-lg-5">
-                    <p class="mm-copy mb-0">A lightweight frontend stack with local JavaScript for the parts that need interaction and custom CSS for the parts that need style.</p>
-                </div>
-            </div>
-            <div class="row g-4">
-                <div class="col-md-6 col-xl-4">
-                    <div class="mm-card mm-card-hover p-4">
-                        <span class="mm-icon-block mb-4">L</span>
-                        <h3 class="mm-title-md mb-3">Exercise Logging</h3>
-                        <p class="mm-copy">Record sets, reps, and weights quickly with a focused library and clear categorization.</p>
-                        <a class="mm-link fw-bold" href="./pages/exercises.html">Open exercise library</a>
-                    </div>
-                </div>
-                <div class="col-md-6 col-xl-4">
-                    <div class="mm-card mm-card-hover p-4">
-                        <span class="mm-icon-block mb-4">C</span>
-                        <h3 class="mm-title-md mb-3">Workout Calculator</h3>
-                        <p class="mm-copy">Add workout entries and calculate totals in the browser with no build tool required.</p>
-                        <a class="mm-link fw-bold" href="./pages/calculator.html">Open calculator</a>
-                    </div>
-                </div>
-                <div class="col-md-6 col-xl-4">
-                    <div class="mm-card mm-card-hover p-4">
-                        <span class="mm-icon-block mb-4">P</span>
-                        <h3 class="mm-title-md mb-3">Premium Plans</h3>
-                        <p class="mm-copy">See membership tiers, duration discounts, and payment flow using plain static pages.</p>
-                        <a class="mm-link fw-bold" href="./pages/pricing.html">View pricing</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="mm-section">
-        <div class="container">
-            <div class="mm-card p-4 p-md-5 text-center">
-                <span class="mm-badge mb-3">About MuscleMap</span>
-                <h2 class="mm-title-lg mb-4">Built For <span class="mm-highlight">Consistency</span></h2>
-                <p class="mm-copy fs-5 mx-auto mb-5" style="max-width: 56rem;">
-                    MuscleMap keeps the frontend simple: static pages, browser JavaScript, custom CSS, and Bootstrap for layout. That makes the project easier to understand, deploy, and maintain.
-                </p>
-                <div class="row g-4">
-                    <div class="col-md-4">
-                        <div class="mm-stat">
-                            <span class="mm-stat-value">50k+</span>
-                            <span class="mm-copy text-uppercase">Active Users</span>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="mm-stat">
-                            <span class="mm-stat-value">1M+</span>
-                            <span class="mm-copy text-uppercase">Workouts Logged</span>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="mm-stat">
-                            <span class="mm-stat-value">4.9</span>
-                            <span class="mm-copy text-uppercase">Average Rating</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <footer class="mm-footer">
-        <div class="container text-center">
-            <p class="mm-brand text-white mb-3">MuscleMap</p>
-            <div class="d-flex justify-content-center gap-4 flex-wrap mb-3">
-                <a class="mm-copy text-decoration-none" href="#">Privacy</a>
-                <a class="mm-copy text-decoration-none" href="#">Terms</a>
-                <a class="mm-copy text-decoration-none" href="#">Cookies</a>
-            </div>
-            <p class="mm-copy small mb-0">© 2026 MuscleMap Inc. All rights reserved.</p>
-        </div>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+    <script src="./js/site.js" defer></script>
+  </body>
 </html>

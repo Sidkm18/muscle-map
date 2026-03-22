@@ -1,114 +1,72 @@
-/**
- * Exercise Library - DOM Manipulation and Filtering
- */
+(function () {
+  const mount = document.getElementById('exercise-grid');
+  const count = document.getElementById('exercise-count');
+  const filterRow = document.getElementById('filter-row');
+  if (!mount || !count || !filterRow) {
+    return;
+  }
 
-// Exercise Database
-let exercises = [];
+  const exercises = [
+    { name: 'Bench Press', category: 'chest', difficulty: 'Intermediate', reps: '8-12', description: 'Classic compound movement for chest development.' },
+    { name: 'Incline Dumbbell Press', category: 'chest', difficulty: 'Intermediate', reps: '8-12', description: 'Targets upper chest with adjustable angle.' },
+    { name: 'Cable Fly', category: 'chest', difficulty: 'Beginner', reps: '12-15', description: 'Isolation movement for chest definition.' },
+    { name: 'Deadlift', category: 'back', difficulty: 'Advanced', reps: '5-8', description: 'Full body posterior chain builder.' },
+    { name: 'Pull-ups', category: 'back', difficulty: 'Intermediate', reps: '8-12', description: 'Bodyweight lat builder and grip strength.' },
+    { name: 'Barbell Row', category: 'back', difficulty: 'Intermediate', reps: '8-12', description: 'Thick back developer with barbell.' },
+    { name: 'Squat', category: 'legs', difficulty: 'Advanced', reps: '5-8', description: 'King of leg exercises, full lower body.' },
+    { name: 'Leg Press', category: 'legs', difficulty: 'Beginner', reps: '10-15', description: 'Machine-based quad dominant movement.' },
+    { name: 'Romanian Deadlift', category: 'legs', difficulty: 'Intermediate', reps: '8-12', description: 'Hamstring and glute focused hip hinge.' },
+    { name: 'Overhead Press', category: 'shoulders', difficulty: 'Intermediate', reps: '6-10', description: 'Standing barbell press for shoulder mass.' },
+    { name: 'Lateral Raise', category: 'shoulders', difficulty: 'Beginner', reps: '12-15', description: 'Isolation movement for side delts.' },
+    { name: 'Barbell Curl', category: 'arms', difficulty: 'Beginner', reps: '10-12', description: 'Classic bicep builder with barbell.' },
+    { name: 'Tricep Pushdown', category: 'arms', difficulty: 'Beginner', reps: '12-15', description: 'Cable isolation for tricep development.' },
+    { name: 'Dips', category: 'chest', difficulty: 'Intermediate', reps: '8-12', description: 'Compound pushing movement for chest and triceps.' },
+    { name: 'Face Pull', category: 'shoulders', difficulty: 'Beginner', reps: '15-20', description: 'Rear delt and rotator cuff health.' }
+  ];
 
-// Current filter state
-let currentFilter = 'all';
+  const colorByLevel = {
+    Beginner: 'pill-beginner',
+    Intermediate: 'pill-intermediate',
+    Advanced: 'pill-advanced'
+  };
 
-/**
- * Display exercises based on current filter
- */
-async function displayExercises() {
-    const container = document.getElementById('exercises-container');
-    const countElement = document.getElementById('exercise-count');
-    
-    // Fetch exercises if empty
-    if (exercises.length === 0) {
-        try {
-            const response = await fetch('http://localhost:8000/api/exercises');
-            if (response.ok) {
-                const data = await response.json();
-                // Map the backend structure to the frontend structure
-                exercises = data.exercises.map(e => ({
-                    id: e.id,
-                    name: e.name,
-                    category: e.muscle_group,
-                    description: e.description,
-                    difficulty: 'Intermediate', // Mock
-                    reps: '8-12' // Mock
-                }));
-            }
-        } catch (e) {
-            console.error('Failed to load exercises', e);
-            countElement.textContent = `Error loading exercises.`;
-            return;
-        }
-    }
+  let currentFilter = 'all';
 
-    // Filter exercises
-    let filteredExercises = exercises;
-    if (currentFilter !== 'all') {
-        filteredExercises = exercises.filter(exercise => exercise.category === currentFilter);
-    }
+  function render() {
+    const filtered = currentFilter === 'all'
+      ? exercises
+      : exercises.filter((item) => item.category === currentFilter);
 
-    // Clear container
-    container.innerHTML = '';
-
-    // Display each exercise as a card
-    filteredExercises.forEach(exercise => {
-        const difficultyColor = exercise.difficulty === 'Beginner' ? 'difficulty-beginner' :
-            exercise.difficulty === 'Intermediate' ? 'difficulty-intermediate' :
-                'difficulty-advanced';
-
-        const card = document.createElement('div');
-        card.className = 'col-md-6 col-xl-4';
-        card.innerHTML = `
-            <div class="mm-card mm-card-hover exercise-card p-4">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <h3 class="h5 text-uppercase mb-0">${exercise.name}</h3>
-                    <span class="mm-icon-block">EX</span>
-                </div>
-                <div class="d-grid gap-2">
-                    <div class="d-flex justify-content-between small">
-                        <span class="mm-copy">Category</span>
-                        <span class="mm-highlight fw-bold text-capitalize">${exercise.category}</span>
-                    </div>
-                    <div class="d-flex justify-content-between small">
-                        <span class="mm-copy">Difficulty</span>
-                        <span class="badge ${difficultyColor}">${exercise.difficulty}</span>
-                    </div>
-                    <div class="d-flex justify-content-between small">
-                        <span class="mm-copy">Rep Range</span>
-                        <span>${exercise.reps}</span>
-                    </div>
-                </div>
-                <button class="btn mm-btn-primary w-100 mt-4" type="button">Add to Workout</button>
+    count.textContent = `Showing ${filtered.length} exercise${filtered.length === 1 ? '' : 's'}`;
+    mount.innerHTML = filtered
+      .map(function (item) {
+        return `
+          <article class="glass-card card">
+            <div style="display:flex; gap:.5rem; margin-bottom:.6rem; flex-wrap:wrap;">
+              <span class="pill-badge ${colorByLevel[item.difficulty]}">${item.difficulty}</span>
+              <span class="pill-badge" style="background:rgba(197,255,47,.12); color:var(--primary); text-transform:capitalize;">${item.category}</span>
             </div>
+            <h3 class="page-title" style="font-size:1.2rem; margin:0 0 .4rem;">${item.name}</h3>
+            <p class="muted" style="margin:0 0 .6rem;">${item.description}</p>
+            <p class="mini-label">Recommended: <span class="primary-text">${item.reps} reps</span></p>
+          </article>
         `;
-        container.appendChild(card);
+      })
+      .join('');
+  }
+
+  filterRow.addEventListener('click', function (event) {
+    const btn = event.target.closest('button[data-filter]');
+    if (!btn) {
+      return;
+    }
+    currentFilter = btn.getAttribute('data-filter') || 'all';
+    filterRow.querySelectorAll('.pill').forEach(function (node) {
+      node.classList.remove('active');
     });
+    btn.classList.add('active');
+    render();
+  });
 
-    // Update count
-    countElement.textContent = `Showing ${filteredExercises.length} of ${exercises.length} exercises`;
-}
-
-/**
- * Setup filter button event listeners
- */
-function setupFilterButtons() {
-    const buttons = document.querySelectorAll('.filter-btn');
-
-    buttons.forEach(button => {
-        button.addEventListener('click', function () {
-            buttons.forEach(btn => {
-                btn.classList.remove('active');
-            });
-
-            this.classList.add('active');
-
-            currentFilter = this.getAttribute('data-category');
-            displayExercises();
-        });
-    });
-}
-
-/**
- * Initialize on page load
- */
-document.addEventListener('DOMContentLoaded', () => {
-    displayExercises();
-    setupFilterButtons();
-});
+  render();
+})();
