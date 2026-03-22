@@ -458,12 +458,62 @@ function handleSubmit(event) {
   submitBtn.disabled = true;
   submitBtn.textContent = 'Saving...';
 
-  window.setTimeout(function () {
+  // Prepare data to send to backend
+  const onboardingPayload = {
+    gymFrequency: formData['gymFrequency'] || '',
+    expertiseLevel: formData['expertiseLevel'] || '',
+    height: formData['height'] || '',
+    weight: formData['weight'] || '',
+    dailyCalories: formData['dailyCalories'] || '',
+    dietPreference: formData['dietPreference'] || '',
+    workoutPlan: formData['workoutPlan'] || '',
+    workoutTime: formData['workoutTime'] || '',
+    goals: formData['goals'] || [],
+    allergies: formData['allergies'] || '',
+    supplements: formData['supplements'] || '',
+    medicalConditions: formData['medicalConditions'] || '',
+    referralCode: formData['referralCode'] || '',
+    addFriends: formData['addFriends'] || '',
+    username: formData['username'] || '',
+    bio: formData['bio'] || '',
+    profilePhoto: formData['profilePhoto'] || ''
+  };
+
+  // Send to backend API
+  fetch('../api/onboarding', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(onboardingPayload)
+  })
+  .then(function(response) {
+    if (!response.ok) {
+      return response.json().then(function(error) {
+        throw new Error(error.error || 'Failed to save onboarding data');
+      });
+    }
+    return response.json();
+  })
+  .then(function(data) {
+    // Clear local storage and redirect
     localStorage.setItem('userOnboardingData', JSON.stringify(formData));
     localStorage.setItem('onboardingComplete', 'true');
     localStorage.removeItem('onboardingProgress');
+    
+    if (typeof window.showToast === 'function') {
+      window.showToast('Profile setup complete!', 'success');
+    }
+    
     window.location.href = './menu.html';
-  }, 900);
+  })
+  .catch(function(error) {
+    if (typeof window.showToast === 'function') {
+      window.showToast(error.message || 'Failed to save onboarding data', 'error');
+    }
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Complete Setup';
+  });
 }
 
 document.addEventListener('keydown', function (e) {

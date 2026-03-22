@@ -41,23 +41,80 @@
   form.addEventListener('submit', function (event) {
     event.preventDefault();
 
-    const name = document.getElementById('reg-name');
-    const email = document.getElementById('reg-email');
+    const name = document.getElementById('reg-name').value;
+    const email = document.getElementById('reg-email').value;
+    const password = document.getElementById('reg-password').value;
 
-    localStorage.setItem('isLoggedIn', 'true');
-    if (name && name.value) {
-      localStorage.setItem('userName', name.value);
-    }
-    if (email && email.value) {
-      localStorage.setItem('userEmail', email.value);
-    }
-
-    if (typeof window.showToast === 'function') {
-      window.showToast('Account created successfully.', 'success');
+    // Validate password strength
+    const passwordScore = evaluatePasswordStrengthScore(password);
+    if (passwordScore < 2) {
+      if (typeof window.showToast === 'function') {
+        window.showToast('Please use a stronger password', 'error');
+      }
+      return;
     }
 
-    window.setTimeout(function () {
-      window.location.href = './onboarding.html';
-    }, 500);
+    const registerData = {
+      full_name: name,
+      email: email,
+      password: password
+    };
+
+    // Disable submit button
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Creating account...';
+
+    fetch('../api/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(registerData)
+    })
+    .then(function(response) {
+      if (!response.ok) {
+        return response.json().then(function(error) {
+          throw new Error(error.error || 'Registration failed');
+        });
+      }
+      return response.json();
+    })
+    .then(function(data) {
+      if (typeof window.showToast === 'function') {
+        window.showToast('Account created successfully!', 'success');
+      }
+
+      // Store user info in localStorage
+      localStorage.setItem('isLoggedIn', 'true');
+      if (name) {
+        localStorage.setItem('userName', name);
+      }
+      if (email) {
+        localStorage.setItem('userEmail', email);
+      }
+
+      // Redirect to onboarding
+      window.setTimeout(function () {
+        window.location.href = './onboarding.html';
+      }, 500);
+    })
+    .catch(function(error) {
+      if (typeof window.showToast === 'function') {
+        window.showToast(error.message || 'Registration failed', 'error');
+      }
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Create Account';
+    });
   });
+
+  // Helper function to calculate password strength score
+  function evaluatePasswordStrengthScore(password) {
+    let score = 0;
+    if (password.length >= 8) score += 1;
+    if (/[A-Z]/.test(password) && /[a-z]/.test(password)) score += 1;
+    if (/\d/.test(password)) score += 1;
+    if (/[^A-Za-z0-9]/.test(password)) score += 1;
+    return score;
+  }
 })();

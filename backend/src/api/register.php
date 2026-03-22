@@ -35,10 +35,12 @@ $password_hash = password_hash($data->password, PASSWORD_DEFAULT);
 $username = explode('@', $data->email)[0] . rand(1000, 9999);
 
 try {
-    $stmt = $db->prepare("INSERT INTO users (username, email, password_hash) VALUES (:username, :email, :password_hash)");
+    $full_name = isset($data->full_name) ? $data->full_name : '';
+    $stmt = $db->prepare("INSERT INTO users (username, email, password_hash, full_name) VALUES (:username, :email, :password_hash, :full_name)");
     $stmt->bindParam(':username', $username);
     $stmt->bindParam(':email', $data->email);
     $stmt->bindParam(':password_hash', $password_hash);
+    $stmt->bindParam(':full_name', $full_name);
     
     if ($stmt->execute()) {
         $user_id = $db->lastInsertId();
@@ -48,7 +50,7 @@ try {
         $db->query("INSERT INTO user_fitness_profiles (user_id) VALUES ($user_id)");
 
         http_response_code(201);
-        echo json_encode(['message' => 'User registered successfully']);
+        echo json_encode(['message' => 'User registered successfully', 'user_id' => $user_id]);
     } else {
         http_response_code(500);
         echo json_encode(['error' => 'Registration failed']);
