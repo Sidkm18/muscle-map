@@ -15,6 +15,10 @@
         {
             "src": "/(css|js|assets|components)/(.*)",
             "dest": "/frontend/$1/$2"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/frontend/index.html"
         }
     ]
 }
