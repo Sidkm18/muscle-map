@@ -11,6 +11,39 @@ if (!isset($_SESSION['user_id'])) {
 $data = mm_request_body();
 $userId = (int) $_SESSION['user_id'];
 $db = mm_db();
+$allowedGenders = ['Male', 'Female', 'Other', 'Prefer Not to Say'];
+
+$fullName = array_key_exists('fullName', $data) ? trim((string) $data['fullName']) : null;
+$phone = array_key_exists('phone', $data) ? trim((string) $data['phone']) : null;
+$gender = array_key_exists('gender', $data) ? trim((string) $data['gender']) : null;
+$dob = array_key_exists('dob', $data) ? trim((string) $data['dob']) : null;
+
+if ($fullName !== null && $fullName === '') {
+    mm_json(['error' => 'Full name is required'], 400);
+}
+
+if ($phone !== null && $phone !== '' && !preg_match('/^[0-9+\-\s()]{7,20}$/', $phone)) {
+    mm_json(['error' => 'Invalid phone number'], 400);
+}
+
+if ($gender !== null && $gender !== '' && !in_array($gender, $allowedGenders, true)) {
+    mm_json(['error' => 'Invalid gender selection'], 400);
+}
+
+$normalizedDob = null;
+if ($dob !== null && $dob !== '') {
+    $dobObject = DateTime::createFromFormat('Y-m-d', $dob);
+    if (!$dobObject || $dobObject->format('Y-m-d') !== $dob) {
+        mm_json(['error' => 'Invalid date of birth'], 400);
+    }
+
+    $today = new DateTime('today');
+    if ($dobObject > $today) {
+        mm_json(['error' => 'Date of birth cannot be in the future'], 400);
+    }
+
+    $normalizedDob = $dobObject->format('Y-m-d');
+}
 
 try {
     $db->beginTransaction();
@@ -110,23 +143,51 @@ try {
     }
 
     // Update user profile information if provided
-    if (array_key_exists('username', $data) || array_key_exists('bio', $data) || array_key_exists('profilePhoto', $data)) {
+    if (
+        array_key_exists('fullName', $data) ||
+        array_key_exists('phone', $data) ||
+        array_key_exists('gender', $data) ||
+        array_key_exists('dob', $data) ||
+        array_key_exists('username', $data) ||
+        array_key_exists('bio', $data) ||
+        array_key_exists('profilePhoto', $data)
+    ) {
         $updateFields = [];
         $params = [':id' => $userId];
 
+        if ($fullName !== null) {
+            $updateFields[] = "full_name = :full_name";
+            $params[':full_name'] = $fullName;
+        }
+
+        if ($phone !== null) {
+            $updateFields[] = "phone = :phone";
+            $params[':phone'] = $phone !== '' ? $phone : null;
+        }
+
+        if ($gender !== null) {
+            $updateFields[] = "gender = :gender";
+            $params[':gender'] = $gender !== '' ? $gender : 'Prefer Not to Say';
+        }
+
+        if ($dob !== null) {
+            $updateFields[] = "dob = :dob";
+            $params[':dob'] = $normalizedDob;
+        }
+
         if (isset($data['username']) && $data['username'] !== '') {
             $updateFields[] = "username = :username";
-            $params[':username'] = $data['username'];
+            $params[':username'] = trim((string) $data['username']);
         }
 
         if (isset($data['bio']) && $data['bio'] !== '') {
             $updateFields[] = "bio = :bio";
-            $params[':bio'] = $data['bio'];
+            $params[':bio'] = trim((string) $data['bio']);
         }
 
         if (isset($data['profilePhoto']) && $data['profilePhoto'] !== '') {
             $updateFields[] = "profile_photo = :profile_photo";
-            $params[':profile_photo'] = $data['profilePhoto'];
+            $params[':profile_photo'] = trim((string) $data['profilePhoto']);
         }
 
         if (!empty($updateFields)) {

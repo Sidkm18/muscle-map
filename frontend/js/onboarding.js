@@ -4,528 +4,652 @@ if (localStorage.getItem('isLoggedIn') !== 'true') {
   window.location.href = './login.html';
 }
 
-const app = window.MuscleMap || {};
-let currentStep = 1;
-const totalSteps = 10;
-const formData = {};
+(function () {
+  const app = window.MuscleMap || {};
+  const form = document.getElementById('onboardingForm');
+  const steps = Array.from(document.querySelectorAll('.form-step'));
+  const progressFill = document.getElementById('progressFill');
+  const currentStepDisplay = document.getElementById('currentStep');
+  const totalStepsDisplay = document.getElementById('totalSteps');
+  const nextBtn = document.getElementById('nextBtn');
+  const prevBtn = document.getElementById('prevBtn');
+  const skipBtn = document.getElementById('skipBtn');
+  const submitBtn = document.getElementById('submitBtn');
+  const bioInput = document.getElementById('bio');
+  const photoPreview = document.getElementById('photoPreview');
+  const totalSteps = steps.length;
+  const formData = {};
+  let currentStep = 1;
 
-const form = document.getElementById('onboardingForm');
-const steps = document.querySelectorAll('.form-step');
-const progressFill = document.getElementById('progressFill');
-const currentStepDisplay = document.getElementById('currentStep');
-const nextBtn = document.getElementById('nextBtn');
-const prevBtn = document.getElementById('prevBtn');
-const skipBtn = document.getElementById('skipBtn');
-const submitBtn = document.getElementById('submitBtn');
-
-document.addEventListener('DOMContentLoaded', function () {
-  initializeForm();
-  attachEventListeners();
-  updateProgress();
-  updateNavigationButtons();
-});
-
-function initializeForm() {
-  const savedData = localStorage.getItem('onboardingProgress');
-  if (savedData) {
-    const data = JSON.parse(savedData);
-    Object.assign(formData, data);
-    populateFormFromData();
-  }
-}
-
-function attachEventListeners() {
-  if (!form || !nextBtn || !prevBtn || !skipBtn || !submitBtn) {
+  if (!form || !steps.length || !nextBtn || !prevBtn || !skipBtn || !submitBtn) {
     return;
   }
 
-  nextBtn.addEventListener('click', handleNext);
-  prevBtn.addEventListener('click', handlePrevious);
-  skipBtn.addEventListener('click', handleSkip);
-  form.addEventListener('submit', handleSubmit);
-
-  const textInputs = form.querySelectorAll('input[type="text"], input[type="number"], input[type="email"], textarea');
-  textInputs.forEach(function (input) {
-    input.addEventListener('input', function (e) {
-      validateField(e.target);
-    });
-    input.addEventListener('blur', function (e) {
-      validateField(e.target);
-    });
+  document.addEventListener('DOMContentLoaded', function () {
+    initializeForm();
+    attachEventListeners();
+    updateProgress();
+    updateNavigationButtons();
+    syncAvatarPreview();
   });
 
-  const photoInput = document.getElementById('profilePhoto');
-  if (photoInput) {
-    photoInput.addEventListener('change', handlePhotoUpload);
+  function initializeForm() {
+    const savedData = localStorage.getItem('onboardingProgress');
+    if (savedData) {
+      Object.assign(formData, JSON.parse(savedData));
+    }
+
+    if (!formData.fullName) {
+      formData.fullName = localStorage.getItem('userName') || '';
+    }
+
+    populateFormFromData();
+    updateBioCounter();
+    if (totalStepsDisplay) {
+      totalStepsDisplay.textContent = String(totalSteps);
+    }
   }
 
-  const bioInput = document.getElementById('bio');
-  if (bioInput) {
-    bioInput.addEventListener('input', updateBioCounter);
+  function attachEventListeners() {
+    nextBtn.addEventListener('click', handleNext);
+    prevBtn.addEventListener('click', handlePrevious);
+    skipBtn.addEventListener('click', handleSkip);
+    form.addEventListener('submit', handleSubmit);
+
+    form.querySelectorAll('input[type="text"], input[type="number"], input[type="email"], input[type="tel"], input[type="date"], textarea, select').forEach(function (input) {
+      input.addEventListener('input', function (event) {
+        validateField(event.target);
+      });
+      input.addEventListener('blur', function (event) {
+        validateField(event.target);
+      });
+      input.addEventListener('change', function (event) {
+        validateField(event.target);
+      });
+    });
+
+    const photoInput = document.getElementById('profilePhoto');
+    if (photoInput) {
+      photoInput.addEventListener('change', handlePhotoUpload);
+    }
+
+    if (bioInput) {
+      bioInput.addEventListener('input', updateBioCounter);
+    }
+
+    form.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(function (field) {
+      field.addEventListener('change', clearStepError);
+    });
   }
 
-  const radioButtons = form.querySelectorAll('input[type="radio"]');
-  radioButtons.forEach(function (radio) {
-    radio.addEventListener('change', clearStepError);
-  });
+  function handleNext() {
+    if (!validateCurrentStep()) {
+      return;
+    }
 
-  const goalCheckboxes = form.querySelectorAll('input[name="goals"]');
-  goalCheckboxes.forEach(function (checkbox) {
-    checkbox.addEventListener('change', clearStepError);
-  });
-}
-
-function handleNext() {
-  if (validateCurrentStep()) {
     saveCurrentStepData();
     saveProgress();
+
     if (currentStep < totalSteps) {
       goToStep(currentStep + 1);
     }
   }
-}
 
-function handlePrevious() {
-  if (currentStep > 1) {
-    goToStep(currentStep - 1);
-  }
-}
-
-function handleSkip() {
-  saveCurrentStepData();
-  if (currentStep < totalSteps) {
-    goToStep(currentStep + 1);
-  }
-}
-
-function goToStep(stepNumber) {
-  if (!steps.length) {
-    return;
-  }
-  steps[currentStep - 1].classList.remove('active');
-  steps[stepNumber - 1].classList.add('active');
-
-  currentStep = stepNumber;
-  updateProgress();
-  updateNavigationButtons();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function updateProgress() {
-  const progress = (currentStep / totalSteps) * 100;
-  if (progressFill) {
-    progressFill.style.width = progress + '%';
-  }
-  if (currentStepDisplay) {
-    currentStepDisplay.textContent = String(currentStep);
-  }
-}
-
-function updateNavigationButtons() {
-  if (!prevBtn || !nextBtn || !submitBtn || !skipBtn) {
-    return;
+  function handlePrevious() {
+    if (currentStep > 1) {
+      goToStep(currentStep - 1);
+    }
   }
 
-  prevBtn.style.display = currentStep === 1 ? 'none' : 'inline-flex';
+  function handleSkip() {
+    saveCurrentStepData();
+    saveProgress();
 
-  if (currentStep === totalSteps) {
-    nextBtn.style.display = 'none';
-    submitBtn.style.display = 'inline-flex';
-  } else {
-    nextBtn.style.display = 'inline-flex';
-    submitBtn.style.display = 'none';
+    if (currentStep < totalSteps) {
+      goToStep(currentStep + 1);
+    }
   }
 
-  const requiredSteps = [1, 2, 3, 9];
-  skipBtn.style.display = requiredSteps.includes(currentStep) ? 'none' : 'inline-flex';
-}
-
-function validateCurrentStep() {
-  const currentStepElement = steps[currentStep - 1];
-  const errorElement = currentStepElement.querySelector('.error-message');
-  if (errorElement) {
-    errorElement.textContent = '';
+  function goToStep(stepNumber) {
+    steps[currentStep - 1].classList.remove('active');
+    steps[stepNumber - 1].classList.add('active');
+    currentStep = stepNumber;
+    updateProgress();
+    updateNavigationButtons();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  switch (currentStep) {
-    case 1:
-      return validateRadioGroup('gymFrequency', 'Please select how often you visit the gym');
-    case 2:
-      return validateRadioGroup('expertiseLevel', 'Please select your fitness level');
-    case 3:
-      return validatePhysicalStats();
-    case 4:
-      return validateRadioGroup('dietPreference', 'Please select your eating preference');
-    case 5:
-      return validateRadioGroup('workoutPlan', 'Please select your workout plan');
-    case 6:
-      return validateRadioGroup('workoutTime', 'Please select your preferred workout time');
-    case 7:
-      return validateCheckboxGroup('goals', 'Please select at least one fitness goal');
-    case 8:
-      return validateReferral();
-    case 9:
-      return validateProfile();
-    case 10:
-      return true;
-    default:
-      return true;
-  }
-}
-
-function validateRadioGroup(name, errorMsg) {
-  const selected = form.querySelector('input[name="' + name + '"]:checked');
-  if (!selected) {
-    showStepError(errorMsg);
-    return false;
-  }
-  return true;
-}
-
-function validateCheckboxGroup(name, errorMsg) {
-  const checkboxes = form.querySelectorAll('input[name="' + name + '"]:checked');
-  if (checkboxes.length === 0) {
-    showStepError(errorMsg);
-    return false;
-  }
-  return true;
-}
-
-function validatePhysicalStats() {
-  const height = document.getElementById('height');
-  const weight = document.getElementById('weight');
-  const calories = document.getElementById('dailyCalories');
-  let isValid = true;
-
-  if (!height.value || Number(height.value) < 100 || Number(height.value) > 250) {
-    setError(height, 'Please enter a valid height (100-250 cm)');
-    isValid = false;
-  } else {
-    setSuccess(height);
+  function updateProgress() {
+    const progress = (currentStep / totalSteps) * 100;
+    if (progressFill) {
+      progressFill.style.width = progress + '%';
+    }
+    if (currentStepDisplay) {
+      currentStepDisplay.textContent = String(currentStep);
+    }
   }
 
-  if (!weight.value || Number(weight.value) < 30 || Number(weight.value) > 200) {
-    setError(weight, 'Please enter a valid weight (30-200 kg)');
-    isValid = false;
-  } else {
-    setSuccess(weight);
+  function updateNavigationButtons() {
+    prevBtn.style.display = currentStep === 1 ? 'none' : 'inline-flex';
+
+    if (currentStep === totalSteps) {
+      nextBtn.style.display = 'none';
+      submitBtn.style.display = 'inline-flex';
+    } else {
+      nextBtn.style.display = 'inline-flex';
+      submitBtn.style.display = 'none';
+    }
+
+    const requiredSteps = [1, 2, 3, 4, 10];
+    skipBtn.style.display = requiredSteps.includes(currentStep) ? 'none' : 'inline-flex';
   }
 
-  if (calories.value && (Number(calories.value) < 1000 || Number(calories.value) > 5000)) {
-    setError(calories, 'Please enter a valid calorie range (1000-5000)');
-    isValid = false;
-  } else if (calories.value) {
-    setSuccess(calories);
+  function validateCurrentStep() {
+    const currentStepElement = steps[currentStep - 1];
+    const errorElement = currentStepElement.querySelector('.error-message');
+    if (errorElement) {
+      errorElement.textContent = '';
+    }
+
+    switch (currentStep) {
+      case 1:
+        return validateDemographics();
+      case 2:
+        return validateRadioGroup('gymFrequency', 'Please select how often you visit the gym');
+      case 3:
+        return validateRadioGroup('expertiseLevel', 'Please select your fitness level');
+      case 4:
+        return validatePhysicalStats();
+      case 5:
+        return validateRadioGroup('dietPreference', 'Please select your eating preference');
+      case 6:
+        return validateRadioGroup('workoutPlan', 'Please select your workout plan');
+      case 7:
+        return validateRadioGroup('workoutTime', 'Please select your preferred workout time');
+      case 8:
+        return validateCheckboxGroup('goals', 'Please select at least one fitness goal');
+      case 9:
+        return validateReferral();
+      case 10:
+        return validateProfile();
+      default:
+        return true;
+    }
   }
 
-  return isValid;
-}
+  function validateDemographics() {
+    const fullName = document.getElementById('fullName');
+    const phone = document.getElementById('phone');
+    const gender = document.getElementById('gender');
+    const dob = document.getElementById('dob');
+    let isValid = true;
 
-function validateReferral() {
-  const referralInput = document.getElementById('referralCode');
-  const emailInput = document.getElementById('addFriends');
+    if (!fullName.value.trim() || fullName.value.trim().length < 2) {
+      setError(fullName, 'Please enter your full name');
+      isValid = false;
+    } else {
+      setSuccess(fullName);
+    }
 
-  if (referralInput.value) {
-    const pattern = /^[A-Z0-9]{6,10}$/;
-    if (!pattern.test(referralInput.value.toUpperCase())) {
-      setError(referralInput, 'Invalid referral code format');
+    if (phone.value.trim() && !/^[0-9+\-\s()]{7,20}$/.test(phone.value.trim())) {
+      setError(phone, 'Please enter a valid phone number');
+      isValid = false;
+    } else if (phone.value.trim()) {
+      setSuccess(phone);
+    }
+
+    if (!gender.value) {
+      setError(gender, 'Please select your gender');
+      isValid = false;
+    } else {
+      setSuccess(gender);
+    }
+
+    if (!isValidDateOfBirth(dob.value)) {
+      setError(dob, 'Please select a valid date of birth');
+      isValid = false;
+    } else {
+      setSuccess(dob);
+    }
+
+    return isValid;
+  }
+
+  function validateRadioGroup(name, errorMessage) {
+    const selected = form.querySelector('input[name="' + name + '"]:checked');
+    if (!selected) {
+      showStepError(errorMessage);
       return false;
     }
-    setSuccess(referralInput);
+    return true;
   }
 
-  if (emailInput.value) {
-    if (!validateEmail(emailInput.value)) {
-      setError(emailInput, 'Please enter a valid email address');
+  function validateCheckboxGroup(name, errorMessage) {
+    const selected = form.querySelectorAll('input[name="' + name + '"]:checked');
+    if (!selected.length) {
+      showStepError(errorMessage);
       return false;
     }
-    setSuccess(emailInput);
+    return true;
   }
 
-  return true;
-}
+  function validatePhysicalStats() {
+    const height = document.getElementById('height');
+    const weight = document.getElementById('weight');
+    const calories = document.getElementById('dailyCalories');
+    let isValid = true;
 
-function validateProfile() {
-  const username = document.getElementById('username');
-  let isValid = true;
-
-  if (!username.value) {
-    setError(username, 'Username is required');
-    isValid = false;
-  } else if (username.value.length < 3 || username.value.length > 20) {
-    setError(username, 'Username must be 3-20 characters');
-    isValid = false;
-  } else if (!/^[a-zA-Z0-9_]+$/.test(username.value)) {
-    setError(username, 'Username can only contain letters, numbers, and underscores');
-    isValid = false;
-  } else {
-    setSuccess(username);
-  }
-
-  return isValid;
-}
-
-function validateField(field) {
-  if (!field.value) return;
-
-  if (field.name === 'height') {
-    if (Number(field.value) < 100 || Number(field.value) > 250) {
-      setError(field, 'Height must be between 100-250 cm');
+    if (!height.value || Number(height.value) < 100 || Number(height.value) > 250) {
+      setError(height, 'Please enter a valid height (100-250 cm)');
+      isValid = false;
     } else {
-      setSuccess(field);
+      setSuccess(height);
     }
-  }
 
-  if (field.name === 'weight') {
-    if (Number(field.value) < 30 || Number(field.value) > 200) {
-      setError(field, 'Weight must be between 30-200 kg');
+    if (!weight.value || Number(weight.value) < 30 || Number(weight.value) > 200) {
+      setError(weight, 'Please enter a valid weight (30-200 kg)');
+      isValid = false;
     } else {
-      setSuccess(field);
+      setSuccess(weight);
     }
-  }
 
-  if (field.name === 'dailyCalories') {
-    if (field.value && (Number(field.value) < 1000 || Number(field.value) > 5000)) {
-      setError(field, 'Calories must be between 1000-5000');
-    } else {
-      setSuccess(field);
+    if (calories.value && (Number(calories.value) < 1000 || Number(calories.value) > 5000)) {
+      setError(calories, 'Please enter a valid calorie range (1000-5000)');
+      isValid = false;
+    } else if (calories.value) {
+      setSuccess(calories);
     }
+
+    return isValid;
   }
 
-  if (field.name === 'addFriends') {
-    if (field.value && !validateEmail(field.value)) {
-      setError(field, 'Please enter a valid email address');
-    } else {
-      setSuccess(field);
-    }
-  }
+  function validateReferral() {
+    const referralInput = document.getElementById('referralCode');
+    const emailInput = document.getElementById('addFriends');
 
-  if (field.name === 'username') {
-    if (field.value.length < 3) {
-      setError(field, 'Username must be at least 3 characters');
-    } else if (!/^[a-zA-Z0-9_]+$/.test(field.value)) {
-      setError(field, 'Only letters, numbers, and underscores allowed');
-    } else {
-      setSuccess(field);
-    }
-  }
-}
-
-function validateEmail(email) {
-  const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return pattern.test(email);
-}
-
-function setError(element, message) {
-  element.classList.add('error');
-  element.classList.remove('success');
-
-  const errorElement = element.parentElement.querySelector('.error-message');
-  if (errorElement) {
-    errorElement.textContent = message;
-  }
-}
-
-function setSuccess(element) {
-  element.classList.remove('error');
-  element.classList.add('success');
-
-  const errorElement = element.parentElement.querySelector('.error-message');
-  if (errorElement) {
-    errorElement.textContent = '';
-  }
-}
-
-function showStepError(message) {
-  const currentStepElement = steps[currentStep - 1];
-  const errorElement = currentStepElement.querySelector('.error-message');
-  if (errorElement) {
-    errorElement.textContent = message;
-  }
-}
-
-function clearStepError() {
-  const currentStepElement = steps[currentStep - 1];
-  const errorElement = currentStepElement.querySelector('.error-message');
-  if (errorElement) {
-    errorElement.textContent = '';
-  }
-}
-
-function saveCurrentStepData() {
-  const currentStepElement = steps[currentStep - 1];
-  const inputs = currentStepElement.querySelectorAll('input, textarea, select');
-
-  inputs.forEach(function (input) {
-    if (input.type === 'radio' || input.type === 'checkbox') {
-      if (input.checked) {
-        if (input.type === 'checkbox') {
-          if (!formData[input.name]) {
-            formData[input.name] = [];
-          }
-          if (!formData[input.name].includes(input.value)) {
-            formData[input.name].push(input.value);
-          }
-        } else {
-          formData[input.name] = input.value;
-        }
+    if (referralInput.value.trim()) {
+      if (!/^[A-Z0-9]{6,10}$/.test(referralInput.value.trim().toUpperCase())) {
+        setError(referralInput, 'Invalid referral code format');
+        return false;
       }
-    } else if (input.type === 'file') {
-      if (input.files[0]) {
-        formData[input.name] = input.files[0].name;
+      setSuccess(referralInput);
+    }
+
+    if (emailInput.value.trim()) {
+      if (!validateEmail(emailInput.value.trim())) {
+        setError(emailInput, 'Please enter a valid email address');
+        return false;
       }
+      setSuccess(emailInput);
+    }
+
+    return true;
+  }
+
+  function validateProfile() {
+    const username = document.getElementById('username');
+    let isValid = true;
+
+    if (!username.value.trim()) {
+      setError(username, 'Username is required');
+      isValid = false;
+    } else if (username.value.trim().length < 3 || username.value.trim().length > 20) {
+      setError(username, 'Username must be 3-20 characters');
+      isValid = false;
+    } else if (!/^[a-zA-Z0-9_]+$/.test(username.value.trim())) {
+      setError(username, 'Username can only contain letters, numbers, and underscores');
+      isValid = false;
     } else {
-      formData[input.name] = input.value;
+      setSuccess(username);
     }
-  });
-}
 
-function saveProgress() {
-  localStorage.setItem('onboardingProgress', JSON.stringify(formData));
-}
-
-function populateFormFromData() {
-  Object.keys(formData).forEach(function (key) {
-    const value = formData[key];
-    if (Array.isArray(value)) {
-      value.forEach(function (entry) {
-        const checkbox = form.querySelector('input[name="' + key + '"][value="' + entry + '"]');
-        if (checkbox) {
-          checkbox.checked = true;
-        }
-      });
-    } else {
-      const input = form.querySelector('[name="' + key + '"]');
-      if (input) {
-        if (input.type === 'radio') {
-          const radio = form.querySelector('input[name="' + key + '"][value="' + value + '"]');
-          if (radio) {
-            radio.checked = true;
-          }
-        } else {
-          input.value = value;
-        }
-      }
-    }
-  });
-}
-
-function handlePhotoUpload(event) {
-  const file = event.target.files[0];
-  if (!file) {
-    return;
+    return isValid;
   }
 
-  if (!file.type.startsWith('image/')) {
-    if (typeof window.showToast === 'function') {
-      window.showToast('Please upload an image file.', 'error');
-    }
-    return;
-  }
-
-  if (file.size > 5 * 1024 * 1024) {
-    if (typeof window.showToast === 'function') {
-      window.showToast('Image size should not exceed 5MB.', 'error');
-    }
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    const preview = document.getElementById('photoPreview');
-    if (preview) {
-      preview.src = e.target.result;
-    }
-  };
-  reader.readAsDataURL(file);
-}
-
-function updateBioCounter() {
-  const bioInput = document.getElementById('bio');
-  const counter = document.getElementById('bioCount');
-  if (bioInput && counter) {
-    counter.textContent = String(bioInput.value.length);
-  }
-}
-
-function handleSubmit(event) {
-  event.preventDefault();
-
-  if (!validateCurrentStep()) {
-    return;
-  }
-
-  saveCurrentStepData();
-  if (typeof app.setButtonBusy === 'function') {
-    app.setButtonBusy(submitBtn, true, 'Saving...');
-  } else {
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Saving...';
-  }
-
-  // Prepare data to send to backend
-  const onboardingPayload = {
-    gymFrequency: formData['gymFrequency'] || '',
-    expertiseLevel: formData['expertiseLevel'] || '',
-    height: formData['height'] || '',
-    weight: formData['weight'] || '',
-    dailyCalories: formData['dailyCalories'] || '',
-    dietPreference: formData['dietPreference'] || '',
-    workoutPlan: formData['workoutPlan'] || '',
-    workoutTime: formData['workoutTime'] || '',
-    goals: formData['goals'] || [],
-    allergies: formData['allergies'] || '',
-    supplements: formData['supplements'] || '',
-    medicalConditions: formData['medicalConditions'] || '',
-    referralCode: formData['referralCode'] || '',
-    addFriends: formData['addFriends'] || '',
-    username: formData['username'] || '',
-    bio: formData['bio'] || '',
-    profilePhoto: formData['profilePhoto'] || ''
-  };
-
-  (typeof app.requestJson === 'function'
-    ? app.requestJson('onboarding', {
-        method: 'POST',
-        body: onboardingPayload
-      })
-    : Promise.reject(new Error('Onboarding unavailable'))
-  )
-  .then(function(data) {
-    // Clear local storage and redirect
-    localStorage.setItem('userOnboardingData', JSON.stringify(formData));
-    localStorage.setItem('onboardingComplete', 'true');
-    localStorage.removeItem('onboardingProgress');
-    
-    if (typeof window.showToast === 'function') {
-      window.showToast('Profile setup complete!', 'success');
-    }
-    
-    window.location.href = './menu.html';
-  })
-  .catch(function(error) {
-    if (typeof window.showToast === 'function') {
-      window.showToast(error.message || 'Failed to save onboarding data', 'error');
-    }
-    if (typeof app.setButtonBusy === 'function') {
-      app.setButtonBusy(submitBtn, false);
-    } else {
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Finish Setup';
-    }
-  });
-}
-
-document.addEventListener('keydown', function (e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    const activeElement = document.activeElement;
-    if (activeElement && activeElement.tagName === 'TEXTAREA') {
+  function validateField(field) {
+    if (!field || !field.name) {
       return;
     }
 
-    e.preventDefault();
-    if (currentStep < totalSteps) {
-      handleNext();
+    if (field.name === 'fullName' && field.value.trim()) {
+      if (field.value.trim().length < 2) {
+        setError(field, 'Please enter your full name');
+      } else {
+        setSuccess(field);
+      }
+    }
+
+    if (field.name === 'phone' && field.value.trim()) {
+      if (!/^[0-9+\-\s()]{7,20}$/.test(field.value.trim())) {
+        setError(field, 'Please enter a valid phone number');
+      } else {
+        setSuccess(field);
+      }
+    }
+
+    if (field.name === 'gender' && field.value) {
+      setSuccess(field);
+    }
+
+    if (field.name === 'dob' && field.value) {
+      if (!isValidDateOfBirth(field.value)) {
+        setError(field, 'Please select a valid date of birth');
+      } else {
+        setSuccess(field);
+      }
+    }
+
+    if (field.name === 'height' && field.value) {
+      if (Number(field.value) < 100 || Number(field.value) > 250) {
+        setError(field, 'Height must be between 100-250 cm');
+      } else {
+        setSuccess(field);
+      }
+    }
+
+    if (field.name === 'weight' && field.value) {
+      if (Number(field.value) < 30 || Number(field.value) > 200) {
+        setError(field, 'Weight must be between 30-200 kg');
+      } else {
+        setSuccess(field);
+      }
+    }
+
+    if (field.name === 'dailyCalories' && field.value) {
+      if (Number(field.value) < 1000 || Number(field.value) > 5000) {
+        setError(field, 'Calories must be between 1000-5000');
+      } else {
+        setSuccess(field);
+      }
+    }
+
+    if (field.name === 'addFriends' && field.value) {
+      if (!validateEmail(field.value.trim())) {
+        setError(field, 'Please enter a valid email address');
+      } else {
+        setSuccess(field);
+      }
+    }
+
+    if (field.name === 'username' && field.value.trim()) {
+      if (field.value.trim().length < 3) {
+        setError(field, 'Username must be at least 3 characters');
+      } else if (!/^[a-zA-Z0-9_]+$/.test(field.value.trim())) {
+        setError(field, 'Only letters, numbers, and underscores allowed');
+      } else {
+        setSuccess(field);
+      }
     }
   }
-});
+
+  function validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  function isValidDateOfBirth(value) {
+    if (!value) {
+      return false;
+    }
+
+    const parsedDate = new Date(value + 'T00:00:00');
+    const today = new Date();
+    return !Number.isNaN(parsedDate.getTime()) && parsedDate <= today;
+  }
+
+  function setError(element, message) {
+    element.classList.add('error');
+    element.classList.remove('success');
+
+    const errorElement = element.parentElement.querySelector('.error-message');
+    if (errorElement) {
+      errorElement.textContent = message;
+    }
+  }
+
+  function setSuccess(element) {
+    element.classList.remove('error');
+    element.classList.add('success');
+
+    const errorElement = element.parentElement.querySelector('.error-message');
+    if (errorElement) {
+      errorElement.textContent = '';
+    }
+  }
+
+  function showStepError(message) {
+    const currentStepElement = steps[currentStep - 1];
+    const errorElement = currentStepElement.querySelector('.error-message');
+    if (errorElement) {
+      errorElement.textContent = message;
+    }
+  }
+
+  function clearStepError() {
+    const currentStepElement = steps[currentStep - 1];
+    const errorElement = currentStepElement.querySelector('.error-message');
+    if (errorElement) {
+      errorElement.textContent = '';
+    }
+  }
+
+  function saveCurrentStepData() {
+    const currentStepElement = steps[currentStep - 1];
+    const inputs = Array.from(currentStepElement.querySelectorAll('input, textarea, select'));
+    const resettableNames = new Set();
+
+    inputs.forEach(function (input) {
+      if (input.name && (input.type === 'radio' || input.type === 'checkbox')) {
+        resettableNames.add(input.name);
+      }
+    });
+
+    resettableNames.forEach(function (name) {
+      delete formData[name];
+    });
+
+    inputs.forEach(function (input) {
+      if (!input.name) {
+        return;
+      }
+
+      if (input.type === 'radio') {
+        if (input.checked) {
+          formData[input.name] = input.value;
+        }
+        return;
+      }
+
+      if (input.type === 'checkbox') {
+        if (input.checked) {
+          if (!Array.isArray(formData[input.name])) {
+            formData[input.name] = [];
+          }
+          formData[input.name].push(input.value);
+        }
+        return;
+      }
+
+      if (input.type === 'file') {
+        if (input.files && input.files[0]) {
+          formData[input.name] = input.files[0].name;
+        }
+        return;
+      }
+
+      formData[input.name] = input.value;
+    });
+  }
+
+  function saveProgress() {
+    localStorage.setItem('onboardingProgress', JSON.stringify(formData));
+  }
+
+  function populateFormFromData() {
+    Object.keys(formData).forEach(function (key) {
+      const value = formData[key];
+
+      if (Array.isArray(value)) {
+        value.forEach(function (entry) {
+          const checkbox = form.querySelector('input[name="' + key + '"][value="' + entry + '"]');
+          if (checkbox) {
+            checkbox.checked = true;
+          }
+        });
+        return;
+      }
+
+      const input = form.querySelector('[name="' + key + '"]');
+      if (!input) {
+        return;
+      }
+
+      if (input.type === 'radio') {
+        const radio = form.querySelector('input[name="' + key + '"][value="' + value + '"]');
+        if (radio) {
+          radio.checked = true;
+        }
+        return;
+      }
+
+      input.value = value;
+    });
+  }
+
+  function handlePhotoUpload(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) {
+      syncAvatarPreview();
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      window.showToast && window.showToast('Please upload an image file.', 'error');
+      event.target.value = '';
+      syncAvatarPreview();
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      window.showToast && window.showToast('Image size should not exceed 5MB.', 'error');
+      event.target.value = '';
+      syncAvatarPreview();
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function (loadEvent) {
+      const dataUrl = loadEvent.target && loadEvent.target.result ? String(loadEvent.target.result) : '';
+      if (photoPreview && dataUrl) {
+        photoPreview.src = dataUrl;
+      }
+      if (typeof app.cacheAvatarPreview === 'function' && dataUrl) {
+        app.cacheAvatarPreview(dataUrl);
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function syncAvatarPreview() {
+    if (!photoPreview) {
+      return;
+    }
+
+    if (typeof app.resolveProfilePhoto === 'function') {
+      photoPreview.src = app.resolveProfilePhoto('', formData.fullName || formData.username || localStorage.getItem('userName') || 'MuscleMap User');
+    }
+  }
+
+  function updateBioCounter() {
+    const counter = document.getElementById('bioCount');
+    if (bioInput && counter) {
+      counter.textContent = String(bioInput.value.length);
+    }
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+
+    if (!validateCurrentStep()) {
+      return;
+    }
+
+    saveCurrentStepData();
+
+    if (typeof app.setButtonBusy === 'function') {
+      app.setButtonBusy(submitBtn, true, 'Saving...');
+    } else {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Saving...';
+    }
+
+    const onboardingPayload = {
+      fullName: formData.fullName || '',
+      phone: formData.phone || '',
+      gender: formData.gender || '',
+      dob: formData.dob || '',
+      gymFrequency: formData.gymFrequency || '',
+      expertiseLevel: formData.expertiseLevel || '',
+      height: formData.height || '',
+      weight: formData.weight || '',
+      dailyCalories: formData.dailyCalories || '',
+      dietPreference: formData.dietPreference || '',
+      workoutPlan: formData.workoutPlan || '',
+      workoutTime: formData.workoutTime || '',
+      goals: formData.goals || [],
+      allergies: formData.allergies || '',
+      supplements: formData.supplements || '',
+      medicalConditions: formData.medicalConditions || '',
+      referralCode: formData.referralCode || '',
+      addFriends: formData.addFriends || '',
+      username: formData.username || '',
+      bio: formData.bio || '',
+      profilePhoto: formData.profilePhoto || ''
+    };
+
+    (typeof app.requestJson === 'function'
+      ? app.requestJson('onboarding', {
+          method: 'POST',
+          body: onboardingPayload
+        })
+      : Promise.reject(new Error('Onboarding unavailable'))
+    )
+      .then(function () {
+        localStorage.setItem('userOnboardingData', JSON.stringify(formData));
+        localStorage.setItem('onboardingComplete', 'true');
+        localStorage.setItem('userName', onboardingPayload.fullName || formData.username || localStorage.getItem('userName') || '');
+        localStorage.removeItem('onboardingProgress');
+
+        if (window.showToast) {
+          window.showToast('Profile setup complete!', 'success');
+        }
+
+        window.location.href = './profile.html';
+      })
+      .catch(function (error) {
+        if (window.showToast) {
+          window.showToast(error.message || 'Failed to save onboarding data', 'error');
+        }
+
+        if (typeof app.setButtonBusy === 'function') {
+          app.setButtonBusy(submitBtn, false);
+        } else {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Finish Setup';
+        }
+      });
+  }
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      const activeElement = document.activeElement;
+      if (activeElement && activeElement.tagName === 'TEXTAREA') {
+        return;
+      }
+
+      event.preventDefault();
+      if (currentStep < totalSteps) {
+        handleNext();
+      }
+    }
+  });
+})();

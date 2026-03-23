@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS users (
     gender ENUM('Male', 'Female', 'Other', 'Prefer Not to Say') DEFAULT 'Prefer Not to Say',
     dob DATE,
     bio TEXT,
-    profile_photo VARCHAR(255),
+    profile_photo MEDIUMTEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

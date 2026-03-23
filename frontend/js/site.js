@@ -8,6 +8,7 @@
     pricing: './pages/pricing.html',
     login: './pages/login.html',
     register: './pages/register.html',
+    profile: './pages/profile.html',
     onboarding: './pages/onboarding.html',
     about: './pages/about.html',
     contact: './pages/contact.html',
@@ -18,6 +19,9 @@
 
   const navHost = document.getElementById('site-nav');
   const footerHost = document.getElementById('site-footer');
+  const isLoggedIn = window.localStorage.getItem('isLoggedIn') === 'true';
+  const accountLink = isLoggedIn ? links.profile : links.login;
+  const accountLabel = isLoggedIn ? 'Profile' : 'Login';
 
   function getActiveKey() {
     const path = (window.location.pathname || '').toLowerCase();
@@ -32,6 +36,7 @@
     if (path.includes('pricing')) return 'pricing';
     if (path.includes('login')) return 'login';
     if (path.includes('register')) return 'register';
+    if (path.includes('profile')) return 'profile';
     if (path.includes('onboarding')) return 'onboarding';
     if (path.includes('about')) return 'about';
     if (path.includes('contact')) return 'contact';
@@ -58,12 +63,13 @@
                   <a class="nav-link nav-menu-item" data-nav="about" href="${links.about}">About</a>
                   <a class="nav-link nav-menu-item" data-nav="contact" href="${links.contact}">Contact</a>
                   <a class="nav-link nav-menu-item" data-nav="register" href="${links.register}">Register</a>
+                  <a class="nav-link nav-menu-item" data-nav="profile" href="${links.profile}">Profile</a>
                   <a class="nav-link nav-menu-item" data-nav="onboarding" href="${links.onboarding}">Onboarding</a>
                   <a class="nav-link nav-menu-item" data-nav="privacy" href="${links.privacy}">Privacy</a>
                   <a class="nav-link nav-menu-item" data-nav="terms" href="${links.terms}">Terms</a>
                 </div>
               </div>
-              <a class="button button-primary" href="${links.login}">Login</a>
+              <a class="button button-primary" href="${accountLink}">${accountLabel}</a>
             </div>
             <button class="mobile-toggle" id="mobile-toggle" type="button" aria-label="Toggle menu">☰</button>
           </div>
@@ -76,10 +82,11 @@
             <a class="nav-link" data-nav="about" href="${links.about}">About</a>
             <a class="nav-link" data-nav="contact" href="${links.contact}">Contact</a>
             <a class="nav-link" data-nav="register" href="${links.register}">Register</a>
+            <a class="nav-link" data-nav="profile" href="${links.profile}">Profile</a>
             <a class="nav-link" data-nav="onboarding" href="${links.onboarding}">Onboarding</a>
             <a class="nav-link" data-nav="privacy" href="${links.privacy}">Privacy</a>
             <a class="nav-link" data-nav="terms" href="${links.terms}">Terms</a>
-            <a class="button button-primary" href="${links.login}">Login</a>
+            <a class="button button-primary" href="${accountLink}">${accountLabel}</a>
           </div>
         </nav>
       </div>
@@ -113,7 +120,7 @@
       item.classList.add('active');
     });
 
-    if (['catalogue', 'about', 'contact', 'register', 'onboarding', 'privacy', 'terms'].includes(activeKey)) {
+    if (['catalogue', 'about', 'contact', 'register', 'profile', 'onboarding', 'privacy', 'terms'].includes(activeKey)) {
       const moreTrigger = document.querySelector('[data-nav="more"]');
       if (moreTrigger) {
         moreTrigger.classList.add('active');

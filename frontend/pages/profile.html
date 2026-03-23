@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile | MuscleMap</title>
+    <link rel="stylesheet" href="../css/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <div class="bg-grid"></div>
+      <header id="site-nav"></header>
+
+      <main>
+        <section class="container profile-shell">
+          <div class="glass-card profile-hero">
+            <div class="profile-avatar-wrap">
+              <button id="profile-avatar-trigger" class="profile-avatar-button" type="button" aria-label="Change profile photo">
+                <img id="profile-avatar" class="profile-avatar" alt="User avatar" />
+                <span class="profile-avatar-overlay">Click To Change</span>
+              </button>
+              <input id="profile-photo-input" type="file" accept="image/*" hidden />
+              <div class="profile-photo-actions">
+                <button id="profile-photo-delete" class="button button-outline" type="button">Delete Photo</button>
+              </div>
+            </div>
+
+            <div class="profile-identity">
+              <span class="badge">Member Profile</span>
+              <h1 id="profile-name" class="page-title profile-name">Loading Profile</h1>
+              <p id="profile-subtitle" class="profile-subtitle">Pulling your training profile and account details.</p>
+              <div class="profile-meta-grid">
+                <div class="profile-meta-card">
+                  <span class="profile-meta-label">Email</span>
+                  <strong id="profile-meta-email">--</strong>
+                </div>
+                <div class="profile-meta-card">
+                  <span class="profile-meta-label">Phone</span>
+                  <strong id="profile-meta-phone">--</strong>
+                </div>
+                <div class="profile-meta-card">
+                  <span class="profile-meta-label">Birthday</span>
+                  <strong id="profile-meta-dob">--</strong>
+                </div>
+                <div class="profile-meta-card">
+                  <span class="profile-meta-label">Setup Status</span>
+                  <strong id="profile-meta-status">--</strong>
+                </div>
+              </div>
+              <div class="chip-row" id="profile-badges"></div>
+            </div>
+
+            <div class="profile-actions">
+              <button id="profile-logout" class="button button-outline" type="button">Logout</button>
+            </div>
+          </div>
+
+          <div id="profile-banner" class="profile-banner" hidden>
+            <h2 class="page-title profile-panel-title">Finish Your Setup</h2>
+            <p class="muted profile-panel-copy">Your account is live, but a few onboarding answers are still missing. Complete the quiz to fill your training profile and recommendations.</p>
+            <a class="button button-primary" href="./onboarding.html">Resume Onboarding</a>
+          </div>
+
+          <div class="profile-grid">
+            <section class="glass-card card">
+              <h2 class="page-title profile-panel-title">Edit Account Profile</h2>
+              <p class="muted profile-panel-copy">Update your identity, demographics, public bio, and profile photo. Click the avatar to upload an image when you want to replace the placeholder.</p>
+
+              <form id="profile-form" class="profile-field-grid">
+                <div class="form-row">
+                  <div>
+                    <label class="mini-label" for="profile-full-name">Full Name</label>
+                    <input id="profile-full-name" name="full_name" type="text" placeholder="John Doe" />
+                  </div>
+                  <div>
+                    <label class="mini-label" for="profile-username">Username</label>
+                    <input id="profile-username" name="username" type="text" placeholder="musclemap_user" />
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div>
+                    <label class="mini-label" for="profile-email">Email Address</label>
+                    <input id="profile-email" type="email" readonly />
+                  </div>
+                  <div>
+                    <label class="mini-label" for="profile-phone">Phone</label>
+                    <input id="profile-phone" name="phone" type="tel" placeholder="+91 98765 43210" />
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div>
+                    <label class="mini-label" for="profile-gender">Gender</label>
+                    <select id="profile-gender" name="gender">
+                      <option value="Prefer Not to Say">Prefer Not to Say</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="mini-label" for="profile-dob">Date of Birth</label>
+                    <input id="profile-dob" name="dob" type="date" />
+                  </div>
+                </div>
+
+                <div>
+                  <label class="mini-label" for="profile-bio">Bio</label>
+                  <textarea id="profile-bio" name="bio" rows="4" maxlength="180" placeholder="What are you training for right now?"></textarea>
+                </div>
+
+                <button id="profile-save" class="button button-primary" type="submit">Save Profile</button>
+              </form>
+            </section>
+
+            <aside class="profile-stack">
+              <section class="glass-card card">
+                <h2 class="page-title profile-panel-title">Current Stats</h2>
+                <div class="profile-stat-grid">
+                  <div class="profile-stat-card">
+                    <div id="profile-height" class="profile-stat-value">--</div>
+                    <div class="profile-stat-label">Height</div>
+                  </div>
+                  <div class="profile-stat-card">
+                    <div id="profile-weight" class="profile-stat-value">--</div>
+                    <div class="profile-stat-label">Weight</div>
+                  </div>
+                  <div class="profile-stat-card">
+                    <div id="profile-bmi" class="profile-stat-value">--</div>
+                    <div class="profile-stat-label">BMI</div>
+                  </div>
+                  <div class="profile-stat-card">
+                    <div id="profile-calories" class="profile-stat-value">--</div>
+                    <div class="profile-stat-label">Daily Calories</div>
+                  </div>
+                </div>
+              </section>
+
+              <section class="glass-card card">
+                <h2 class="page-title profile-panel-title">Training Snapshot</h2>
+                <div class="profile-kv">
+                  <div class="profile-kv-row">
+                    <span class="profile-kv-label">Gym Frequency</span>
+                    <strong id="profile-frequency">--</strong>
+                  </div>
+                  <div class="profile-kv-row">
+                    <span class="profile-kv-label">Experience</span>
+                    <strong id="profile-expertise">--</strong>
+                  </div>
+                  <div class="profile-kv-row">
+                    <span class="profile-kv-label">Workout Plan</span>
+                    <strong id="profile-workout-plan">--</strong>
+                  </div>
+                  <div class="profile-kv-row">
+                    <span class="profile-kv-label">Workout Time</span>
+                    <strong id="profile-workout-time">--</strong>
+                  </div>
+                  <div class="profile-kv-row">
+                    <span class="profile-kv-label">Diet</span>
+                    <strong id="profile-diet">--</strong>
+                  </div>
+                </div>
+              </section>
+
+              <section class="glass-card card">
+                <h2 class="page-title profile-panel-title">Goals</h2>
+                <div id="profile-goals" class="chip-row">
+                  <span class="profile-empty">No goals saved yet.</span>
+                </div>
+              </section>
+            </aside>
+          </div>
+        </section>
+      </main>
+
+      <div id="site-footer"></div>
+    </div>
+
+    <script src="../js/site-runtime.js" defer></script>
+    <script src="../js/site.js" defer></script>
+    <script src="../js/profile.js" defer></script>
+  </body>
+</html>

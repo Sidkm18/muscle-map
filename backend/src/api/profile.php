@@ -43,16 +43,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $data = mm_request_body();
     $updates = [];
     $params = [':user_id' => $userId];
+    $allowedGenders = ['Male', 'Female', 'Other', 'Prefer Not to Say'];
     
     try {
         if (isset($data['full_name'])) {
+            $fullName = trim((string) $data['full_name']);
+            if ($fullName === '') {
+                mm_json(['error' => 'Full name is required'], 400);
+            }
             $updates[] = 'full_name = :full_name';
-            $params[':full_name'] = trim((string) $data['full_name']);
+            $params[':full_name'] = $fullName;
         }
 
         if (isset($data['phone'])) {
+            $phone = trim((string) $data['phone']);
+            if ($phone !== '' && !preg_match('/^[0-9+\-\s()]{7,20}$/', $phone)) {
+                mm_json(['error' => 'Invalid phone number'], 400);
+            }
             $updates[] = 'phone = :phone';
-            $params[':phone'] = trim((string) $data['phone']);
+            $params[':phone'] = $phone !== '' ? $phone : null;
+        }
+
+        if (isset($data['gender'])) {
+            $gender = trim((string) $data['gender']);
+            if ($gender !== '' && !in_array($gender, $allowedGenders, true)) {
+                mm_json(['error' => 'Invalid gender selection'], 400);
+            }
+            $updates[] = 'gender = :gender';
+            $params[':gender'] = $gender !== '' ? $gender : 'Prefer Not to Say';
+        }
+
+        if (isset($data['dob'])) {
+            $dob = trim((string) $data['dob']);
+            $normalizedDob = null;
+
+            if ($dob !== '') {
+                $dobObject = DateTime::createFromFormat('Y-m-d', $dob);
+                if (!$dobObject || $dobObject->format('Y-m-d') !== $dob) {
+                    mm_json(['error' => 'Invalid date of birth'], 400);
+                }
+
+                $today = new DateTime('today');
+                if ($dobObject > $today) {
+                    mm_json(['error' => 'Date of birth cannot be in the future'], 400);
+                }
+
+                $normalizedDob = $dobObject->format('Y-m-d');
+            }
+
+            $updates[] = 'dob = :dob';
+            $params[':dob'] = $normalizedDob;
         }
 
         if (isset($data['bio'])) {
@@ -61,8 +101,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         }
 
         if (isset($data['username'])) {
+            $username = trim((string) $data['username']);
+            if ($username === '') {
+                mm_json(['error' => 'Username is required'], 400);
+            }
+            if (!preg_match('/^[A-Za-z0-9_]{3,20}$/', $username)) {
+                mm_json(['error' => 'Username must be 3-20 characters and use only letters, numbers, and underscores'], 400);
+            }
             $updates[] = 'username = :username';
-            $params[':username'] = trim((string) $data['username']);
+            $params[':username'] = $username;
         }
 
         if (isset($data['profile_photo'])) {

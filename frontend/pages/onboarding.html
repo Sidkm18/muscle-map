@@ -21,7 +21,7 @@
 
           <div class="glass-card card onboarding-card">
             <div class="onboarding-meta">
-              <p class="mini-label">Step <span id="currentStep">1</span> of 10</p>
+              <p class="mini-label">Step <span id="currentStep">1</span> of <span id="totalSteps">11</span></p>
             </div>
             <div class="wizard-progress">
               <div id="progressFill" class="wizard-progress-fill"></div>
@@ -29,6 +29,42 @@
 
             <form id="onboardingForm" class="form-grid onboarding-form">
               <section class="form-step active">
+                <h2 class="page-title onboarding-step-title">Profile Demographics</h2>
+                <p class="muted onboarding-step-copy">Start with the core details you want attached to your profile.</p>
+                <div class="form-row">
+                  <div>
+                    <label class="mini-label" for="fullName">Full Name</label>
+                    <input id="fullName" name="fullName" type="text" placeholder="John Doe" />
+                    <p class="error-message"></p>
+                  </div>
+                  <div>
+                    <label class="mini-label" for="phone">Phone (optional)</label>
+                    <input id="phone" name="phone" type="tel" placeholder="+91 98765 43210" />
+                    <p class="error-message"></p>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div>
+                    <label class="mini-label" for="gender">Gender</label>
+                    <select id="gender" name="gender">
+                      <option value="">Select gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                      <option value="Prefer Not to Say">Prefer Not to Say</option>
+                    </select>
+                    <p class="error-message"></p>
+                  </div>
+                  <div>
+                    <label class="mini-label" for="dob">Date of Birth</label>
+                    <input id="dob" name="dob" type="date" />
+                    <p class="error-message"></p>
+                  </div>
+                </div>
+                <p class="error-message"></p>
+              </section>
+
+              <section class="form-step">
                 <h2 class="page-title onboarding-step-title">How often do you visit the gym?</h2>
                 <p class="muted onboarding-step-copy">Pick the option that best matches your normal week.</p>
                 <div class="option-grid option-grid-3">

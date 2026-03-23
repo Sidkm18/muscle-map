@@ -22,6 +22,7 @@
       pricing: base + 'pages/pricing.html',
       login: base + 'pages/login.html',
       register: base + 'pages/register.html',
+      profile: base + 'pages/profile.html',
       onboarding: base + 'pages/onboarding.html',
       about: base + 'pages/about.html',
       contact: base + 'pages/contact.html',
@@ -170,6 +171,82 @@
     return '₹' + Number(value || 0).toFixed(2);
   }
 
+  function getInitials(label) {
+    const safeLabel = String(label || '').trim();
+    if (!safeLabel) {
+      return 'MM';
+    }
+
+    const parts = safeLabel.split(/\s+/).filter(Boolean);
+    const initials = parts.slice(0, 2).map(function (part) {
+      return part.charAt(0).toUpperCase();
+    }).join('');
+
+    return initials || safeLabel.slice(0, 2).toUpperCase();
+  }
+
+  function createAvatarPlaceholder(label) {
+    const initials = getInitials(label);
+    const svg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240">',
+      '<defs>',
+      '<linearGradient id="mm-avatar" x1="0%" y1="0%" x2="100%" y2="100%">',
+      '<stop offset="0%" stop-color="#202516" />',
+      '<stop offset="100%" stop-color="#0b0e08" />',
+      '</linearGradient>',
+      '</defs>',
+      '<rect width="240" height="240" rx="52" fill="url(#mm-avatar)" />',
+      '<circle cx="120" cy="120" r="76" fill="rgba(197,255,47,0.14)" />',
+      '<text x="120" y="138" text-anchor="middle" font-family="Arial, sans-serif" font-size="76" font-weight="700" fill="#c5ff2f">' + initials + '</text>',
+      '</svg>'
+    ].join('');
+
+    return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
+  }
+
+  function getStoredAvatarPreview() {
+    try {
+      const storedValue = window.localStorage.getItem('userAvatarPreview');
+      return storedValue && storedValue.startsWith('data:image/') ? storedValue : '';
+    } catch (error) {
+      return '';
+    }
+  }
+
+  function cacheAvatarPreview(dataUrl) {
+    if (!dataUrl || !String(dataUrl).startsWith('data:image/')) {
+      return;
+    }
+
+    try {
+      window.localStorage.setItem('userAvatarPreview', String(dataUrl));
+    } catch (error) {
+      // Ignore storage failures.
+    }
+  }
+
+  function clearAvatarPreview() {
+    try {
+      window.localStorage.removeItem('userAvatarPreview');
+    } catch (error) {
+      // Ignore storage failures.
+    }
+  }
+
+  function resolveProfilePhoto(profilePhoto, displayName) {
+    const normalized = String(profilePhoto || '').trim();
+    if (normalized && (normalized.startsWith('data:image/') || normalized.startsWith('http://') || normalized.startsWith('https://') || normalized.startsWith('/'))) {
+      return normalized;
+    }
+
+    const cachedPreview = getStoredAvatarPreview();
+    if (cachedPreview) {
+      return cachedPreview;
+    }
+
+    return createAvatarPlaceholder(displayName);
+  }
+
   window.MuscleMap = {
     links: buildLinks(),
     apiBase: getApiBase(),
@@ -178,6 +255,10 @@
     togglePasswordVisibility: togglePasswordVisibility,
     setButtonBusy: setButtonBusy,
     scorePassword: scorePassword,
-    formatCurrency: formatCurrency
+    formatCurrency: formatCurrency,
+    createAvatarPlaceholder: createAvatarPlaceholder,
+    resolveProfilePhoto: resolveProfilePhoto,
+    cacheAvatarPreview: cacheAvatarPreview,
+    clearAvatarPreview: clearAvatarPreview
   };
 })();
