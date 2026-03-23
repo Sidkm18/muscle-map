@@ -11,24 +11,39 @@
     return isInPagesDirectory() ? '../' : './';
   }
 
+  function getPageBase() {
+    const configuredBase = document.body && document.body.dataset ? document.body.dataset.pageBase : '';
+    if (configuredBase) {
+      return configuredBase.endsWith('/') ? configuredBase : configuredBase + '/';
+    }
+
+    const pathname = getPathname();
+    const slashIndex = pathname.lastIndexOf('/');
+    return slashIndex >= 0 ? pathname.slice(0, slashIndex + 1) : '/';
+  }
+
   function buildLinks() {
-    const base = getAssetBase();
+    const pageBase = getPageBase();
+    const assetBase = getAssetBase();
 
     return {
-      home: base + 'index.html',
-      exercises: base + 'pages/exercises.html',
-      catalogue: base + 'pages/catalogue.html',
-      calculator: base + 'pages/calculator.html',
-      pricing: base + 'pages/pricing.html',
-      login: base + 'pages/login.html',
-      register: base + 'pages/register.html',
-      profile: base + 'pages/profile.html',
-      onboarding: base + 'pages/onboarding.html',
-      about: base + 'pages/about.html',
-      contact: base + 'pages/contact.html',
-      privacy: base + 'pages/privacy.html',
-      terms: base + 'pages/terms.html',
-      notFound: base + 'pages/404.html'
+      home: pageBase,
+      posts: pageBase + 'posts.php',
+      exercises: pageBase + 'exercises.php',
+      catalogue: pageBase + 'catalogue.php',
+      calculator: pageBase + 'calculator.php',
+      pricing: pageBase + 'pricing.php',
+      login: pageBase + 'login.php',
+      register: pageBase + 'register.php',
+      profile: pageBase + 'profile.php',
+      socialProfile: pageBase + 'social-profile.php',
+      onboarding: pageBase + 'onboarding.php',
+      about: pageBase + 'about.php',
+      contact: pageBase + 'contact.php',
+      privacy: pageBase + 'privacy.php',
+      terms: pageBase + 'terms.php',
+      logout: pageBase + 'logout.php',
+      notFound: assetBase + 'pages/404.html'
     };
   }
 

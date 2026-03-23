@@ -1,35 +1,41 @@
 (function () {
   const app = window.MuscleMap || {};
   const links = app.links || {
-    home: './index.html',
-    exercises: './pages/exercises.html',
-    catalogue: './pages/catalogue.html',
-    calculator: './pages/calculator.html',
-    pricing: './pages/pricing.html',
-    login: './pages/login.html',
-    register: './pages/register.html',
-    profile: './pages/profile.html',
-    onboarding: './pages/onboarding.html',
-    about: './pages/about.html',
-    contact: './pages/contact.html',
-    privacy: './pages/privacy.html',
-    terms: './pages/terms.html',
-    notFound: './pages/404.html'
+    home: './',
+    posts: './posts.php',
+    exercises: './exercises.php',
+    catalogue: './catalogue.php',
+    calculator: './calculator.php',
+    pricing: './pricing.php',
+    login: './login.php',
+    register: './register.php',
+    profile: './profile.php',
+    socialProfile: './social-profile.php',
+    onboarding: './onboarding.php',
+    about: './about.php',
+    contact: './contact.php',
+    privacy: './privacy.php',
+    terms: './terms.php',
+    logout: './logout.php',
+    notFound: './frontend/pages/404.html'
   };
 
   const navHost = document.getElementById('site-nav');
   const footerHost = document.getElementById('site-footer');
-  const isLoggedIn = window.localStorage.getItem('isLoggedIn') === 'true';
+  const bodyAuthState = document.body && document.body.dataset ? document.body.dataset.authenticated : '';
+  const isLoggedIn = bodyAuthState === 'true' || window.localStorage.getItem('isLoggedIn') === 'true';
   const accountLink = isLoggedIn ? links.profile : links.login;
   const accountLabel = isLoggedIn ? 'Profile' : 'Login';
 
   function getActiveKey() {
     const path = (window.location.pathname || '').toLowerCase();
 
-    if (path === '/' || path.endsWith('/index.html') || path.endsWith('/frontend') || path.endsWith('/frontend/')) {
+    if (path === '/' || path.endsWith('/index.html') || path.endsWith('/index.php') || path.endsWith('/frontend') || path.endsWith('/frontend/')) {
       return 'home';
     }
 
+    if (path.includes('social-profile')) return 'socialProfile';
+    if (path.includes('posts')) return 'posts';
     if (path.includes('exercises')) return 'exercises';
     if (path.includes('catalogue')) return 'catalogue';
     if (path.includes('calculator')) return 'calculator';
@@ -53,6 +59,7 @@
             <a class="brand" href="${links.home}">MuscleMap</a>
             <div class="nav-links desktop-only">
               <a class="nav-link" data-nav="home" href="${links.home}">Home</a>
+              <a class="nav-link" data-nav="posts" href="${links.posts}">Posts</a>
               <a class="nav-link" data-nav="exercises" href="${links.exercises}">Exercises</a>
               <a class="nav-link" data-nav="calculator" href="${links.calculator}">Calculator</a>
               <a class="nav-link" data-nav="pricing" href="${links.pricing}">Pricing</a>
@@ -60,6 +67,7 @@
                 <button class="nav-link nav-menu-trigger" data-nav="more" type="button" aria-expanded="false">More</button>
                 <div class="nav-menu-panel" id="nav-more-panel">
                   <a class="nav-link nav-menu-item" data-nav="catalogue" href="${links.catalogue}">Catalogue</a>
+                  <a class="nav-link nav-menu-item" data-nav="socialProfile" href="${links.socialProfile}">Social Profile</a>
                   <a class="nav-link nav-menu-item" data-nav="about" href="${links.about}">About</a>
                   <a class="nav-link nav-menu-item" data-nav="contact" href="${links.contact}">Contact</a>
                   <a class="nav-link nav-menu-item" data-nav="register" href="${links.register}">Register</a>
@@ -75,10 +83,12 @@
           </div>
           <div class="mobile-menu" id="mobile-menu">
             <a class="nav-link" data-nav="home" href="${links.home}">Home</a>
+            <a class="nav-link" data-nav="posts" href="${links.posts}">Posts</a>
             <a class="nav-link" data-nav="exercises" href="${links.exercises}">Exercises</a>
             <a class="nav-link" data-nav="calculator" href="${links.calculator}">Calculator</a>
             <a class="nav-link" data-nav="pricing" href="${links.pricing}">Pricing</a>
             <a class="nav-link" data-nav="catalogue" href="${links.catalogue}">Catalogue</a>
+            <a class="nav-link" data-nav="socialProfile" href="${links.socialProfile}">Social Profile</a>
             <a class="nav-link" data-nav="about" href="${links.about}">About</a>
             <a class="nav-link" data-nav="contact" href="${links.contact}">Contact</a>
             <a class="nav-link" data-nav="register" href="${links.register}">Register</a>
@@ -120,7 +130,7 @@
       item.classList.add('active');
     });
 
-    if (['catalogue', 'about', 'contact', 'register', 'profile', 'onboarding', 'privacy', 'terms'].includes(activeKey)) {
+    if (['catalogue', 'socialProfile', 'about', 'contact', 'register', 'profile', 'onboarding', 'privacy', 'terms'].includes(activeKey)) {
       const moreTrigger = document.querySelector('[data-nav="more"]');
       if (moreTrigger) {
         moreTrigger.classList.add('active');

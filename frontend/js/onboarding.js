@@ -1,7 +1,8 @@
 /* Onboarding questionnaire with multi-step validation and local persistence */
 
-if (localStorage.getItem('isLoggedIn') !== 'true') {
-  window.location.href = './login.html';
+const muscleMapBody = document.body && document.body.dataset ? document.body.dataset : null;
+if ((muscleMapBody && muscleMapBody.authenticated) !== 'true' && localStorage.getItem('isLoggedIn') !== 'true') {
+  window.location.href = './login.php';
 }
 
 (function () {
@@ -622,7 +623,7 @@ if (localStorage.getItem('isLoggedIn') !== 'true') {
           window.showToast('Profile setup complete!', 'success');
         }
 
-        window.location.href = './profile.html';
+        window.location.href = app.links && app.links.profile ? app.links.profile : './profile.php';
       })
       .catch(function (error) {
         if (window.showToast) {

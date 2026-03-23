@@ -69,7 +69,7 @@
       .catch(function (error) {
         if (error.status === 401) {
           localStorage.removeItem('isLoggedIn');
-          window.location.href = './login.html';
+          window.location.href = app.links && app.links.login ? app.links.login : './login.php';
           return;
         }
 
@@ -250,25 +250,7 @@
       app.setButtonBusy(logoutButton, true, 'Logging out...');
     }
 
-    app.requestJson('logout', {
-      method: 'POST'
-    })
-      .catch(function () {
-        // Clear client session state even if the server session is already gone.
-      })
-      .finally(function () {
-        localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem('userId');
-        localStorage.removeItem('userEmail');
-        localStorage.removeItem('userName');
-        localStorage.removeItem('onboardingComplete');
-        localStorage.removeItem('userOnboardingData');
-        localStorage.removeItem('onboardingProgress');
-        if (typeof app.clearAvatarPreview === 'function') {
-          app.clearAvatarPreview();
-        }
-        window.location.href = './login.html';
-      });
+    window.location.href = app.links && app.links.logout ? app.links.logout : './logout.php';
   }
 
   function formatMetric(value, unit) {

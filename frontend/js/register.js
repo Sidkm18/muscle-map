@@ -89,7 +89,7 @@
         }
 
         window.setTimeout(function () {
-          window.location.href = './onboarding.html';
+          window.location.href = app.links && app.links.onboarding ? app.links.onboarding : './onboarding.php';
         }, 500);
       }
     ).catch(function (error) {

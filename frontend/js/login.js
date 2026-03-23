@@ -56,7 +56,7 @@
         localStorage.setItem('userName', data.user.full_name || '');
 
         window.setTimeout(function () {
-          window.location.href = './profile.html';
+          window.location.href = app.links && app.links.profile ? app.links.profile : './profile.php';
         }, 500);
       }
     ).catch(function (error) {

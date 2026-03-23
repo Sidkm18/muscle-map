@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Posts | MuscleMap</title>
+    <link rel="stylesheet" href="../css/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <div class="bg-grid"></div>
+      <header id="site-nav"></header>
+
+      <main>
+        <section class="container social-shell">
+          <div class="social-heading">
+            <div>
+              <span class="badge">Community Feed</span>
+              <h1 class="page-title social-title">Lift <span class="primary-text">Posts</span></h1>
+              <p class="lead">Share a short tweet-style thought, drop an Instagram-style training photo, and keep the discussion moving with likes, follows, and comments.</p>
+            </div>
+            <div class="glass-card card social-heading-card">
+              <div class="mini-label">Built Into The Same Theme</div>
+              <div class="social-inline-stats">
+                <div>
+                  <div class="metric-value" id="feed-post-total">0</div>
+                  <div class="mini-label">Visible Posts</div>
+                </div>
+                <div>
+                  <div class="metric-value" id="feed-follow-total">0</div>
+                  <div class="mini-label">Following</div>
+                </div>
+                <div>
+                  <div class="metric-value" id="feed-like-total">0</div>
+                  <div class="mini-label">Liked</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="social-layout">
+            <section class="social-main">
+              <article class="glass-card card composer-card">
+                <div class="social-card-header">
+                  <div>
+                    <h2 class="page-title social-card-title">Create A Post</h2>
+                    <p class="muted">Use a clean text note or attach a photo URL for a more visual update.</p>
+                  </div>
+                  <a id="composer-profile-link" class="button button-outline" href="./social-profile.html">View My Social Profile</a>
+                </div>
+
+                <form id="post-composer" class="form-grid">
+                  <div id="compose-mode-row" class="filter-row">
+                    <button class="pill active" type="button" data-compose-mode="text">Short Update</button>
+                    <button class="pill" type="button" data-compose-mode="photo">Photo Post</button>
+                  </div>
+
+                  <div>
+                    <label class="mini-label" for="compose-message">Message</label>
+                    <textarea id="compose-message" rows="5" maxlength="220" placeholder="What changed in today's session?"></textarea>
+                  </div>
+
+                  <div id="compose-image-wrap" hidden>
+                    <label class="mini-label" for="compose-image">Image URL</label>
+                    <input id="compose-image" type="url" placeholder="https://images.unsplash.com/..." />
+                  </div>
+
+                  <div class="social-form-footer">
+                    <p class="muted"><span id="compose-count">0</span>/220 characters</p>
+                    <button class="button button-primary" type="submit" id="compose-submit">Share Update</button>
+                  </div>
+                </form>
+              </article>
+
+              <article class="glass-card card social-toolbar-card">
+                <div class="social-card-header">
+                  <div>
+                    <h2 class="page-title social-card-title">Feed Filters</h2>
+                    <p class="muted">Switch between all posts, only people you follow, or specific content formats.</p>
+                  </div>
+                </div>
+                <div id="feed-filter-row" class="filter-row">
+                  <button class="pill active" type="button" data-feed-filter="all">All Posts</button>
+                  <button class="pill" type="button" data-feed-filter="following">Following</button>
+                  <button class="pill" type="button" data-feed-filter="text">Text Only</button>
+                  <button class="pill" type="button" data-feed-filter="photo">Photo Posts</button>
+                </div>
+              </article>
+
+              <div id="posts-feed" class="social-feed-list"></div>
+            </section>
+
+            <aside class="social-sidebar">
+              <article id="viewer-card" class="glass-card card social-side-card"></article>
+              <article class="glass-card card social-side-card">
+                <h2 class="page-title social-card-title">How This Feed Works</h2>
+                <div class="social-note-list">
+                  <div class="social-note-item">
+                    <span class="pill-badge" style="background:rgba(197,255,47,.12); color:var(--primary);">Text</span>
+                    <p class="muted">Quick coaching notes and session reactions read like a focused Twitter stream.</p>
+                  </div>
+                  <div class="social-note-item">
+                    <span class="pill-badge pill-beginner">Photo</span>
+                    <p class="muted">Add an image URL to publish a more visual, Instagram-like training update.</p>
+                  </div>
+                  <div class="social-note-item">
+                    <span class="pill-badge pill-intermediate">Thread</span>
+                    <p class="muted">Every card supports likes, comments, and direct follow actions on the author.</p>
+                  </div>
+                </div>
+              </article>
+              <article class="glass-card card social-side-card">
+                <h2 class="page-title social-card-title">Suggested Creators</h2>
+                <div id="suggested-creators" class="social-user-list"></div>
+              </article>
+            </aside>
+          </div>
+        </section>
+      </main>
+
+      <div id="site-footer"></div>
+    </div>
+
+    <script src="../js/site-runtime.js" defer></script>
+    <script src="../js/site.js" defer></script>
+    <script src="../js/social.js" defer></script>
+    <script src="../js/posts.js" defer></script>
+  </body>
+</html>

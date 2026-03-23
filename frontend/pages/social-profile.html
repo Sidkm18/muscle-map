@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Social Profile | MuscleMap</title>
+    <link rel="stylesheet" href="../css/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <div class="bg-grid"></div>
+      <header id="site-nav"></header>
+
+      <main>
+        <section class="container social-profile-shell">
+          <article class="glass-card card social-profile-hero">
+            <div class="social-profile-avatar-wrap">
+              <img id="social-profile-avatar" class="social-profile-avatar" alt="Profile avatar" />
+            </div>
+
+            <div class="social-profile-copy">
+              <div class="social-inline-meta">
+                <span class="badge">Community Profile</span>
+                <span id="social-profile-visibility" class="social-status-pill">Public Profile</span>
+              </div>
+              <h1 id="social-profile-name" class="page-title social-profile-name">Loading Profile</h1>
+              <p id="social-profile-handle" class="social-profile-handle">@loading</p>
+              <p id="social-profile-bio" class="muted social-profile-bio">Pulling social posts, follower lists, and privacy state.</p>
+              <div id="social-profile-chips" class="chip-row"></div>
+
+              <div class="social-profile-stats">
+                <article class="social-stat-card">
+                  <div id="social-profile-post-count" class="metric-value">0</div>
+                  <div class="mini-label">Posts</div>
+                </article>
+                <article class="social-stat-card">
+                  <div id="social-profile-follower-count" class="metric-value">0</div>
+                  <div class="mini-label">Followers</div>
+                </article>
+                <article class="social-stat-card">
+                  <div id="social-profile-following-count" class="metric-value">0</div>
+                  <div class="mini-label">Following</div>
+                </article>
+                <article class="social-stat-card">
+                  <div id="social-profile-photo-count" class="metric-value">0</div>
+                  <div class="mini-label">Photo Posts</div>
+                </article>
+              </div>
+            </div>
+
+            <div class="social-profile-actions">
+              <a id="social-profile-back" class="button button-outline" href="./posts.html">Back To Feed</a>
+              <button id="social-profile-follow" class="button button-primary" type="button">Follow</button>
+              <button id="social-profile-privacy" class="button button-outline" type="button">Make Profile Private</button>
+            </div>
+          </article>
+
+          <div id="social-profile-private-note" class="social-private-note" hidden></div>
+
+          <div class="social-profile-grid">
+            <section class="social-profile-main">
+              <article class="glass-card card social-toolbar-card">
+                <div class="social-card-header">
+                  <div>
+                    <h2 class="page-title social-card-title">Posts & Updates</h2>
+                    <p class="muted">Switch between all posts, short messages, or image-led updates from this profile.</p>
+                  </div>
+                </div>
+                <div id="profile-filter-row" class="filter-row">
+                  <button class="pill active" type="button" data-profile-filter="all">All Posts</button>
+                  <button class="pill" type="button" data-profile-filter="text">Messages</button>
+                  <button class="pill" type="button" data-profile-filter="photo">Photo Posts</button>
+                </div>
+              </article>
+
+              <div id="social-profile-lock-state" class="social-lock-card" hidden></div>
+              <div id="social-profile-posts" class="social-feed-list"></div>
+            </section>
+
+            <aside class="social-profile-side">
+              <article class="glass-card card social-side-card">
+                <h2 class="page-title social-card-title">Profile Snapshot</h2>
+                <div id="social-profile-summary" class="social-summary-list"></div>
+              </article>
+
+              <article class="glass-card card social-side-card">
+                <div class="social-card-header">
+                  <div>
+                    <h2 class="page-title social-card-title">Followers</h2>
+                    <p class="muted">Accounts already following this profile.</p>
+                  </div>
+                </div>
+                <div id="social-profile-followers" class="social-user-list"></div>
+              </article>
+
+              <article class="glass-card card social-side-card">
+                <div class="social-card-header">
+                  <div>
+                    <h2 class="page-title social-card-title">Following</h2>
+                    <p class="muted">Profiles this user keeps up with regularly.</p>
+                  </div>
+                </div>
+                <div id="social-profile-following" class="social-user-list"></div>
+              </article>
+            </aside>
+          </div>
+        </section>
+      </main>
+
+      <div id="site-footer"></div>
+    </div>
+
+    <script src="../js/site-runtime.js" defer></script>
+    <script src="../js/site.js" defer></script>
+    <script src="../js/social.js" defer></script>
+    <script src="../js/social-profile.js" defer></script>
+  </body>
+</html>
