@@ -4,6 +4,9 @@
 CREATE DATABASE IF NOT EXISTS muscle_map;
 USE muscle_map;
 
+SET NAMES utf8mb4;
+SET time_zone = '+00:00';
+
 -- =========================
 -- USER
 -- =========================
@@ -19,6 +22,22 @@ CREATE TABLE IF NOT EXISTS users (
     bio TEXT,
     profile_photo VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- =========================
+-- EXERCISES TABLE
+-- =========================
+CREATE TABLE IF NOT EXISTS exercises (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(120) NOT NULL,
+    muscle_group VARCHAR(50) NOT NULL,
+    difficulty ENUM('Beginner', 'Intermediate', 'Advanced') DEFAULT 'Beginner',
+    recommended_reps VARCHAR(20),
+    description TEXT,
+    image_url VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_exercise_name (name),
+    KEY idx_exercises_muscle_group (muscle_group)
 );
 
 -- =========================

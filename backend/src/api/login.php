@@ -1,56 +1,48 @@
 <?php
 
-use App\config\DatabaseConfig;
+require_once __DIR__ . '/../bootstrap.php';
 
-header('Content-Type: application/json');
+mm_require_method('POST');
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['error' => 'Method not allowed']);
-    exit();
+$data = mm_request_body();
+$email = trim((string) ($data['email'] ?? ''));
+$password = (string) ($data['password'] ?? '');
+
+if ($email === '' || $password === '') {
+    mm_json(['error' => 'Missing required fields'], 400);
 }
 
-// Get JSON input
-$data = json_decode(file_get_contents("php://input"));
-
-if (!isset($data->email) || !isset($data->password)) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Missing required fields']);
-    exit();
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    mm_json(['error' => 'Invalid email address'], 400);
 }
 
-$db = (new DatabaseConfig())->getConnection();
+$db = mm_db();
 
 try {
-    $stmt = $db->prepare("SELECT id, email, password_hash, full_name FROM users WHERE email = :email");
-    $stmt->bindParam(':email', $data->email);
-    $stmt->execute();
-    
-    if ($stmt->rowCount() > 0) {
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if (password_verify($data->password, $user['password_hash'])) {
-            // Setup session
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['email'] = $user['email'];
-            
-            echo json_encode([
-                'message' => 'Login successful',
-                'user' => [
-                    'id' => $user['id'],
-                    'email' => $user['email'],
-                    'full_name' => $user['full_name']
-                ]
-            ]);
-        } else {
-            http_response_code(401);
-            echo json_encode(['error' => 'Invalid password']);
-        }
-    } else {
-        http_response_code(401);
-        echo json_encode(['error' => 'User not found']);
+    $stmt = $db->prepare('SELECT id, email, password_hash, full_name, username FROM users WHERE email = :email LIMIT 1');
+    $stmt->execute([':email' => $email]);
+    $user = $stmt->fetch();
+
+    if (!$user) {
+        mm_json(['error' => 'User not found'], 401);
     }
-} catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(['error' => $e->getMessage()]);
+
+    if (!password_verify($password, $user['password_hash'])) {
+        mm_json(['error' => 'Invalid password'], 401);
+    }
+
+    mm_start_session_user($user);
+
+    mm_json([
+        'message' => 'Login successful',
+        'user' => [
+            'id' => (int) $user['id'],
+            'email' => $user['email'],
+            'full_name' => $user['full_name'],
+            'username' => $user['username'],
+        ],
+    ]);
+} catch (PDOException $exception) {
+    error_log('Login failed: ' . $exception->getMessage());
+    mm_json(['error' => 'Login failed'], 500);
 }

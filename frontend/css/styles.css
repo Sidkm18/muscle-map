@@ -4,6 +4,7 @@
   --bg: #0a0b07;
   --surface: rgba(20, 22, 15, 0.8);
   --surface-strong: #11140d;
+  --surface-soft: rgba(255, 255, 255, 0.03);
   --text: #edf1e4;
   --muted: #a3ad95;
   --line: rgba(255, 255, 255, 0.12);
@@ -29,9 +30,11 @@ body {
 body {
   font-family: "Manrope", system-ui, -apple-system, sans-serif;
   color: var(--text);
-  background: radial-gradient(circle at 10% 10%, rgba(197, 255, 47, 0.14), transparent 26%),
-    radial-gradient(circle at 86% 84%, rgba(61, 220, 151, 0.08), transparent 30%),
-    var(--bg);
+  background:
+    radial-gradient(circle at 12% 12%, rgba(197, 255, 47, 0.16), transparent 24%),
+    radial-gradient(circle at 84% 14%, rgba(61, 220, 151, 0.1), transparent 22%),
+    radial-gradient(circle at 80% 86%, rgba(197, 255, 47, 0.08), transparent 25%),
+    linear-gradient(180deg, #080904 0%, #0a0b07 52%, #080904 100%);
 }
 
 .page-shell {
@@ -40,6 +43,31 @@ body {
   flex-direction: column;
   position: relative;
   overflow-x: hidden;
+}
+
+.page-shell::before,
+.page-shell::after {
+  content: "";
+  position: fixed;
+  width: 34rem;
+  height: 34rem;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(70px);
+  opacity: 0.15;
+  z-index: 0;
+}
+
+.page-shell::before {
+  top: -10rem;
+  right: -8rem;
+  background: rgba(197, 255, 47, 0.55);
+}
+
+.page-shell::after {
+  left: -12rem;
+  bottom: -10rem;
+  background: rgba(61, 220, 151, 0.42);
 }
 
 .bg-grid {
@@ -62,7 +90,7 @@ main {
   flex: 1;
   position: relative;
   z-index: 2;
-  padding: 112px 0 64px;
+  padding: 112px 0 72px;
 }
 
 a {
@@ -683,6 +711,11 @@ textarea.success {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
+}
+
+img {
+  max-width: 100%;
+  display: block;
 }
 
 @keyframes toast-in {

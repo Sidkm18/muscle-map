@@ -1,46 +1,42 @@
 <?php
 
-use App\config\DatabaseConfig;
+require_once __DIR__ . '/../bootstrap.php';
 
-header('Content-Type: application/json');
-
-session_start();
+mm_require_method('POST');
 
 if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Not authenticated']);
-    exit();
+    mm_json(['error' => 'Not authenticated'], 401);
 }
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['error' => 'Method not allowed']);
-    exit();
+$data = mm_request_body();
+
+if (!isset($data['plan_name']) || trim((string) $data['plan_name']) === '') {
+    mm_json(['error' => 'Missing plan name'], 400);
 }
 
-$data = json_decode(file_get_contents("php://input"));
-
-if (!isset($data->plan_name)) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Missing plan name']);
-    exit();
-}
-
-$user_id = $_SESSION['user_id'];
-$db = (new DatabaseConfig())->getConnection();
+$userId = (int) $_SESSION['user_id'];
+$db = mm_db();
 
 try {
+    $db->beginTransaction();
+
     // End old active memberships
     $stmt = $db->prepare("UPDATE memberships SET status = 'Inactive' WHERE user_id = ? AND status = 'Active'");
-    $stmt->execute([$user_id]);
+    $stmt->execute([$userId]);
 
     // Create new membership (1 year arbitrarily)
     $renewal = date('Y-m-d', strtotime('+1 year'));
-    $stmt = $db->prepare("INSERT INTO memberships (user_id, plan_name, renewal_date) VALUES (?, ?, ?)");
-    $stmt->execute([$user_id, $data->plan_name, $renewal]);
+    $stmt = $db->prepare('INSERT INTO memberships (user_id, plan_name, renewal_date) VALUES (?, ?, ?)');
+    $stmt->execute([$userId, $data['plan_name'], $renewal]);
 
-    echo json_encode(['message' => 'Subscribed to ' . $data->plan_name . ' successfully']);
-} catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(['error' => $e->getMessage()]);
+    $db->commit();
+
+    mm_json(['message' => 'Subscribed to ' . $data['plan_name'] . ' successfully']);
+} catch (PDOException $exception) {
+    if ($db->inTransaction()) {
+        $db->rollBack();
+    }
+
+    error_log('Subscription failed: ' . $exception->getMessage());
+    mm_json(['error' => 'Subscription failed'], 500);
 }

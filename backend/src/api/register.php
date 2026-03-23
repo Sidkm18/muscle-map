@@ -1,61 +1,101 @@
 <?php
 
-use App\config\DatabaseConfig;
+require_once __DIR__ . '/../bootstrap.php';
 
-header('Content-Type: application/json');
+mm_require_method('POST');
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['error' => 'Method not allowed']);
-    exit();
+$data = mm_request_body();
+$email = trim((string) ($data['email'] ?? ''));
+$password = (string) ($data['password'] ?? '');
+$fullName = trim((string) ($data['full_name'] ?? ''));
+
+if ($email === '' || $password === '') {
+    mm_json(['error' => 'Missing required fields'], 400);
 }
 
-// Get JSON input
-$data = json_decode(file_get_contents("php://input"));
-
-if (!isset($data->email) || !isset($data->password)) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Missing required fields']);
-    exit();
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    mm_json(['error' => 'Invalid email address'], 400);
 }
 
-$db = (new DatabaseConfig())->getConnection();
-
-// Check if email already exists
-$stmt = $db->prepare("SELECT id FROM users WHERE email = :email");
-$stmt->bindParam(':email', $data->email);
-$stmt->execute();
-if ($stmt->rowCount() > 0) {
-    http_response_code(409);
-    echo json_encode(['error' => 'Email already exists']);
-    exit();
+if (strlen($password) < 8) {
+    mm_json(['error' => 'Password must be at least 8 characters long'], 400);
 }
 
-$password_hash = password_hash($data->password, PASSWORD_DEFAULT);
-$username = explode('@', $data->email)[0] . rand(1000, 9999);
+$db = mm_db();
 
 try {
-    $full_name = isset($data->full_name) ? $data->full_name : '';
-    $stmt = $db->prepare("INSERT INTO users (username, email, password_hash, full_name) VALUES (:username, :email, :password_hash, :full_name)");
-    $stmt->bindParam(':username', $username);
-    $stmt->bindParam(':email', $data->email);
-    $stmt->bindParam(':password_hash', $password_hash);
-    $stmt->bindParam(':full_name', $full_name);
-    
-    if ($stmt->execute()) {
-        $user_id = $db->lastInsertId();
+    $db->beginTransaction();
 
-        // Create empty associated records
-        $db->query("INSERT INTO user_stats (user_id) VALUES ($user_id)");
-        $db->query("INSERT INTO user_fitness_profiles (user_id) VALUES ($user_id)");
-
-        http_response_code(201);
-        echo json_encode(['message' => 'User registered successfully', 'user_id' => $user_id]);
-    } else {
-        http_response_code(500);
-        echo json_encode(['error' => 'Registration failed']);
+    $stmt = $db->prepare('SELECT id FROM users WHERE email = :email LIMIT 1');
+    $stmt->execute([':email' => $email]);
+    if ($stmt->fetch()) {
+        $db->rollBack();
+        mm_json(['error' => 'Email already exists'], 409);
     }
-} catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(['error' => $e->getMessage()]);
+
+    $usernameBase = mm_username_from_email($email);
+    $username = $usernameBase;
+    $counter = 1;
+
+    while (true) {
+        $stmt = $db->prepare('SELECT id FROM users WHERE username = :username LIMIT 1');
+        $stmt->execute([':username' => $username]);
+        if (!$stmt->fetch()) {
+            break;
+        }
+
+        $username = $usernameBase . $counter;
+        $counter++;
+    }
+
+    $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+
+    $stmt = $db->prepare('
+        INSERT INTO users (username, email, password_hash, full_name)
+        VALUES (:username, :email, :password_hash, :full_name)
+    ');
+    $stmt->execute([
+        ':username' => $username,
+        ':email' => $email,
+        ':password_hash' => $passwordHash,
+        ':full_name' => $fullName !== '' ? $fullName : null,
+    ]);
+
+    $userId = (int) $db->lastInsertId();
+
+    $stmt = $db->prepare('INSERT INTO user_stats (user_id) VALUES (:user_id)');
+    $stmt->execute([':user_id' => $userId]);
+
+    $stmt = $db->prepare('INSERT INTO user_fitness_profiles (user_id) VALUES (:user_id)');
+    $stmt->execute([':user_id' => $userId]);
+
+    $db->commit();
+
+    mm_start_session_user([
+        'id' => $userId,
+        'email' => $email,
+    ]);
+
+    mm_json([
+        'message' => 'User registered successfully',
+        'user_id' => $userId,
+        'user' => [
+            'id' => $userId,
+            'email' => $email,
+            'full_name' => $fullName,
+            'username' => $username,
+        ],
+    ], 201);
+} catch (PDOException $exception) {
+    if ($db->inTransaction()) {
+        $db->rollBack();
+    }
+
+    error_log('Registration failed: ' . $exception->getMessage());
+
+    if (($exception->getCode() ?? '') === '23000') {
+        mm_json(['error' => 'Account already exists'], 409);
+    }
+
+    mm_json(['error' => 'Registration failed'], 500);
 }

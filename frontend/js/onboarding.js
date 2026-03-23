@@ -4,6 +4,7 @@ if (localStorage.getItem('isLoggedIn') !== 'true') {
   window.location.href = './login.html';
 }
 
+const app = window.MuscleMap || {};
 let currentStep = 1;
 const totalSteps = 10;
 const formData = {};
@@ -417,14 +418,14 @@ function handlePhotoUpload(event) {
 
   if (!file.type.startsWith('image/')) {
     if (typeof window.showToast === 'function') {
-      window.showToast('Please upload an image file.', 'success');
+      window.showToast('Please upload an image file.', 'error');
     }
     return;
   }
 
   if (file.size > 5 * 1024 * 1024) {
     if (typeof window.showToast === 'function') {
-      window.showToast('Image size should not exceed 5MB.', 'success');
+      window.showToast('Image size should not exceed 5MB.', 'error');
     }
     return;
   }
@@ -455,8 +456,12 @@ function handleSubmit(event) {
   }
 
   saveCurrentStepData();
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Saving...';
+  if (typeof app.setButtonBusy === 'function') {
+    app.setButtonBusy(submitBtn, true, 'Saving...');
+  } else {
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Saving...';
+  }
 
   // Prepare data to send to backend
   const onboardingPayload = {
@@ -479,22 +484,13 @@ function handleSubmit(event) {
     profilePhoto: formData['profilePhoto'] || ''
   };
 
-  // Send to backend API
-  fetch('../api/onboarding', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(onboardingPayload)
-  })
-  .then(function(response) {
-    if (!response.ok) {
-      return response.json().then(function(error) {
-        throw new Error(error.error || 'Failed to save onboarding data');
-      });
-    }
-    return response.json();
-  })
+  (typeof app.requestJson === 'function'
+    ? app.requestJson('onboarding', {
+        method: 'POST',
+        body: onboardingPayload
+      })
+    : Promise.reject(new Error('Onboarding unavailable'))
+  )
   .then(function(data) {
     // Clear local storage and redirect
     localStorage.setItem('userOnboardingData', JSON.stringify(formData));
@@ -511,8 +507,12 @@ function handleSubmit(event) {
     if (typeof window.showToast === 'function') {
       window.showToast(error.message || 'Failed to save onboarding data', 'error');
     }
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Complete Setup';
+    if (typeof app.setButtonBusy === 'function') {
+      app.setButtonBusy(submitBtn, false);
+    } else {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Finish Setup';
+    }
   });
 }
 

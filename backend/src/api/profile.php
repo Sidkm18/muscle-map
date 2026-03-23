@@ -1,65 +1,92 @@
 <?php
 
-use App\config\DatabaseConfig;
-
-header('Content-Type: application/json');
-
-session_start();
+require_once __DIR__ . '/../bootstrap.php';
 
 if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Not authenticated']);
-    exit();
+    mm_json(['error' => 'Not authenticated'], 401);
 }
 
-$user_id = $_SESSION['user_id'];
-$db = (new DatabaseConfig())->getConnection();
+$userId = (int) $_SESSION['user_id'];
+$db = mm_db();
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Fetch profile data
     try {
-        $stmt = $db->prepare("SELECT id, username, email, full_name, phone, gender, dob, bio, profile_photo, created_at FROM users WHERE id = ?");
-        $stmt->execute([$user_id]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt = $db->prepare('SELECT id, username, email, full_name, phone, gender, dob, bio, profile_photo, created_at FROM users WHERE id = ?');
+        $stmt->execute([$userId]);
+        $user = $stmt->fetch();
 
-        $stmt = $db->prepare("SELECT * FROM user_stats WHERE user_id = ?");
-        $stmt->execute([$user_id]);
-        $stats = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt = $db->prepare('SELECT * FROM user_stats WHERE user_id = ?');
+        $stmt->execute([$userId]);
+        $stats = $stmt->fetch();
 
-        $stmt = $db->prepare("SELECT * FROM user_fitness_profiles WHERE user_id = ?");
-        $stmt->execute([$user_id]);
-        $fitness = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt = $db->prepare('SELECT * FROM user_fitness_profiles WHERE user_id = ?');
+        $stmt->execute([$userId]);
+        $fitness = $stmt->fetch();
 
         $stmt = $db->prepare("SELECT * FROM memberships WHERE user_id = ? AND status = 'Active' ORDER BY id DESC LIMIT 1");
-        $stmt->execute([$user_id]);
-        $membership = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt->execute([$userId]);
+        $membership = $stmt->fetch();
 
-        echo json_encode([
+        mm_json([
             'user' => $user,
             'stats' => $stats,
             'fitness' => $fitness,
             'membership' => $membership
         ]);
     } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode(['error' => $e->getMessage()]);
+        error_log('Profile fetch failed: ' . $e->getMessage());
+        mm_json(['error' => 'Unable to load profile'], 500);
     }
 } elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
     // Update profile data
-    $data = json_decode(file_get_contents("php://input"));
+    $data = mm_request_body();
+    $updates = [];
+    $params = [':user_id' => $userId];
     
     try {
-        if (isset($data->full_name)) {
-            $stmt = $db->prepare("UPDATE users SET full_name=?, phone=?, bio=? WHERE id=?");
-            $stmt->execute([$data->full_name, $data->phone ?? null, $data->bio ?? null, $user_id]);
+        if (isset($data['full_name'])) {
+            $updates[] = 'full_name = :full_name';
+            $params[':full_name'] = trim((string) $data['full_name']);
         }
-        
-        echo json_encode(['message' => 'Profile updated successfully']);
+
+        if (isset($data['phone'])) {
+            $updates[] = 'phone = :phone';
+            $params[':phone'] = trim((string) $data['phone']);
+        }
+
+        if (isset($data['bio'])) {
+            $updates[] = 'bio = :bio';
+            $params[':bio'] = trim((string) $data['bio']);
+        }
+
+        if (isset($data['username'])) {
+            $updates[] = 'username = :username';
+            $params[':username'] = trim((string) $data['username']);
+        }
+
+        if (isset($data['profile_photo'])) {
+            $updates[] = 'profile_photo = :profile_photo';
+            $params[':profile_photo'] = trim((string) $data['profile_photo']);
+        }
+
+        if (empty($updates)) {
+            mm_json(['error' => 'No profile fields provided'], 400);
+        }
+
+        $stmt = $db->prepare('UPDATE users SET ' . implode(', ', $updates) . ' WHERE id = :user_id');
+        $stmt->execute($params);
+
+        mm_json(['message' => 'Profile updated successfully']);
     } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode(['error' => $e->getMessage()]);
+        error_log('Profile update failed: ' . $e->getMessage());
+
+        if (($e->getCode() ?? '') === '23000') {
+            mm_json(['error' => 'Profile update conflicts with an existing record'], 409);
+        }
+
+        mm_json(['error' => 'Unable to update profile'], 500);
     }
 } else {
-    http_response_code(405);
-    echo json_encode(['error' => 'Method not allowed']);
+    mm_json(['error' => 'Method not allowed'], 405);
 }

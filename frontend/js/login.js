@@ -1,71 +1,75 @@
 (function () {
+  const form = document.getElementById('login-form');
   const passInput = document.getElementById('login-password');
   const toggle = document.getElementById('toggle-password');
-  const form = document.getElementById('login-form');
+  const app = window.MuscleMap || {};
 
-  if (!passInput || !toggle || !form) {
+  if (!form || !passInput || !toggle) {
     return;
   }
 
   toggle.addEventListener('click', function () {
-    const isHidden = passInput.getAttribute('type') === 'password';
-    passInput.setAttribute('type', isHidden ? 'text' : 'password');
-    toggle.textContent = isHidden ? 'Hide' : 'Show';
+    if (typeof app.togglePasswordVisibility === 'function') {
+      app.togglePasswordVisibility(toggle, passInput);
+      return;
+    }
+
+    const hidden = passInput.type === 'password';
+    passInput.type = hidden ? 'text' : 'password';
+    toggle.textContent = hidden ? 'Hide' : 'Show';
   });
 
   form.addEventListener('submit', function (event) {
     event.preventDefault();
-    
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
-    
+
+    const email = document.getElementById('login-email').value.trim();
+    const password = passInput.value;
+    const submitBtn = form.querySelector('button[type="submit"]');
     const loginData = {
       email: email,
       password: password
     };
-    
-    // Disable submit button
-    const submitBtn = form.querySelector('button[type="submit"]');
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Signing in...';
-    
-    fetch('../api/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(loginData)
-    })
-    .then(function(response) {
-      if (!response.ok) {
-        return response.json().then(function(error) {
-          throw new Error(error.error || 'Login failed');
-        });
-      }
-      return response.json();
-    })
-    .then(function(data) {
+
+    if (!email || !password) {
       if (typeof window.showToast === 'function') {
-        window.showToast('Signed in successfully!', 'success');
+        window.showToast('Enter your email and password.', 'error');
       }
-      
-      // Store user info in localStorage/sessionStorage
-      localStorage.setItem('isLoggedIn', 'true');
-      localStorage.setItem('userId', data.user.id);
-      localStorage.setItem('userEmail', data.user.email);
-      localStorage.setItem('userName', data.user.full_name || '');
-      
-      // Redirect after short delay
-      window.setTimeout(function () {
-        window.location.href = './onboarding.html';
-      }, 500);
-    })
-    .catch(function(error) {
+      return;
+    }
+
+    if (typeof app.setButtonBusy === 'function') {
+      app.setButtonBusy(submitBtn, true, 'Signing in...');
+    } else {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Signing in...';
+    }
+
+    (typeof app.requestJson === 'function' ? app.requestJson('login', { method: 'POST', body: loginData }) : Promise.reject(new Error('Login unavailable'))).then(
+      function (data) {
+        if (typeof window.showToast === 'function') {
+          window.showToast('Signed in successfully!', 'success');
+        }
+
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userId', data.user.id);
+        localStorage.setItem('userEmail', data.user.email);
+        localStorage.setItem('userName', data.user.full_name || '');
+
+        window.setTimeout(function () {
+          window.location.href = './onboarding.html';
+        }, 500);
+      }
+    ).catch(function (error) {
       if (typeof window.showToast === 'function') {
         window.showToast(error.message || 'Login failed', 'error');
       }
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Sign In';
+
+      if (typeof app.setButtonBusy === 'function') {
+        app.setButtonBusy(submitBtn, false);
+      } else {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Sign In';
+      }
     });
   });
 })();

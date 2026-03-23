@@ -1,44 +1,49 @@
 (function () {
-  const inPages = window.location.pathname.includes('/pages/');
-  const links = inPages
-    ? {
-        home: '../index.html',
-        exercises: './exercises.html',
-        catalogue: './catalogue.html',
-        calculator: './calculator.html',
-        pricing: './pricing.html',
-        login: './login.html',
-        register: './register.html',
-        onboarding: './onboarding.html',
-        about: './about.html',
-        contact: './contact.html',
-        privacy: './privacy.html',
-        terms: './terms.html',
-        notFound: './404.html'
-      }
-    : {
-        home: './index.html',
-        exercises: './pages/exercises.html',
-        catalogue: './pages/catalogue.html',
-        calculator: './pages/calculator.html',
-        pricing: './pages/pricing.html',
-        login: './pages/login.html',
-        register: './pages/register.html',
-        onboarding: './pages/onboarding.html',
-        about: './pages/about.html',
-        contact: './pages/contact.html',
-        privacy: './pages/privacy.html',
-        terms: './pages/terms.html',
-        notFound: './pages/404.html'
-      };
+  const app = window.MuscleMap || {};
+  const links = app.links || {
+    home: './index.html',
+    exercises: './pages/exercises.html',
+    catalogue: './pages/catalogue.html',
+    calculator: './pages/calculator.html',
+    pricing: './pages/pricing.html',
+    login: './pages/login.html',
+    register: './pages/register.html',
+    onboarding: './pages/onboarding.html',
+    about: './pages/about.html',
+    contact: './pages/contact.html',
+    privacy: './pages/privacy.html',
+    terms: './pages/terms.html',
+    notFound: './pages/404.html'
+  };
 
   const navHost = document.getElementById('site-nav');
   const footerHost = document.getElementById('site-footer');
 
-  if (navHost) {
-    navHost.innerHTML = `
+  function getActiveKey() {
+    const path = (window.location.pathname || '').toLowerCase();
+
+    if (path === '/' || path.endsWith('/index.html') || path.endsWith('/frontend') || path.endsWith('/frontend/')) {
+      return 'home';
+    }
+
+    if (path.includes('exercises')) return 'exercises';
+    if (path.includes('catalogue')) return 'catalogue';
+    if (path.includes('calculator')) return 'calculator';
+    if (path.includes('pricing')) return 'pricing';
+    if (path.includes('login')) return 'login';
+    if (path.includes('register')) return 'register';
+    if (path.includes('onboarding')) return 'onboarding';
+    if (path.includes('about')) return 'about';
+    if (path.includes('contact')) return 'contact';
+    if (path.includes('privacy')) return 'privacy';
+    if (path.includes('terms')) return 'terms';
+    return null;
+  }
+
+  function buildNavMarkup() {
+    return `
       <div class="site-nav-wrap">
-        <nav class="site-nav">
+        <nav class="site-nav" aria-label="Primary">
           <div class="site-nav-row">
             <a class="brand" href="${links.home}">MuscleMap</a>
             <div class="nav-links desktop-only">
@@ -60,7 +65,7 @@
               </div>
               <a class="button button-primary" href="${links.login}">Login</a>
             </div>
-            <button class="mobile-toggle" id="mobile-toggle" aria-label="Toggle menu">☰</button>
+            <button class="mobile-toggle" id="mobile-toggle" type="button" aria-label="Toggle menu">☰</button>
           </div>
           <div class="mobile-menu" id="mobile-menu">
             <a class="nav-link" data-nav="home" href="${links.home}">Home</a>
@@ -81,8 +86,9 @@
     `;
   }
 
-  if (footerHost) {
-    footerHost.innerHTML = `
+  function buildFooterMarkup() {
+    const year = new Date().getFullYear();
+    return `
       <footer>
         <div class="container">
           <div class="brand">MuscleMap</div>
@@ -92,82 +98,63 @@
             <a href="${links.privacy}">Privacy</a>
             <a href="${links.terms}">Terms</a>
           </div>
-          <div>© 2026 MuscleMap Inc. All rights reserved.</div>
+          <div>© ${year} MuscleMap Inc. All rights reserved.</div>
         </div>
       </footer>
     `;
   }
 
-  const path = window.location.pathname.toLowerCase();
-  const activeKey = path.endsWith('/index.html') || path === '/' || path.endsWith('frontend-facelift')
-    ? 'home'
-    : path.includes('exercises')
-    ? 'exercises'
-    : path.includes('catalogue')
-    ? 'catalogue'
-    : path.includes('calculator')
-    ? 'calculator'
-    : path.includes('pricing')
-    ? 'pricing'
-    : path.includes('login')
-    ? 'login'
-    : path.includes('register')
-    ? 'register'
-    : path.includes('onboarding')
-    ? 'onboarding'
-    : path.includes('privacy')
-    ? 'privacy'
-    : path.includes('terms')
-    ? 'terms'
-    : path.includes('about')
-    ? 'about'
-    : path.includes('contact')
-    ? 'contact'
-    : null;
+  function markActiveNav(activeKey) {
+    if (!activeKey) {
+      return;
+    }
 
-  if (activeKey) {
-    document.querySelectorAll(`[data-nav="${activeKey}"]`).forEach((item) => {
+    document.querySelectorAll('[data-nav="' + activeKey + '"]').forEach(function (item) {
       item.classList.add('active');
     });
-  }
 
-  const toggleBtn = document.getElementById('mobile-toggle');
-  const mobileMenu = document.getElementById('mobile-menu');
-  const moreMenu = document.getElementById('nav-more-menu');
-  const morePanel = document.getElementById('nav-more-panel');
-  const moreTrigger = moreMenu ? moreMenu.querySelector('.nav-menu-trigger') : null;
-  let moreMenuCloseTimer = null;
-
-  if (toggleBtn && mobileMenu) {
-    toggleBtn.addEventListener('click', function () {
-      mobileMenu.classList.toggle('open');
-      toggleBtn.textContent = mobileMenu.classList.contains('open') ? '✕' : '☰';
-    });
-  }
-
-  if (moreMenu && morePanel && moreTrigger) {
-    function openMoreMenu() {
-      if (moreMenuCloseTimer) {
-        window.clearTimeout(moreMenuCloseTimer);
+    if (['catalogue', 'about', 'contact', 'register', 'onboarding', 'privacy', 'terms'].includes(activeKey)) {
+      const moreTrigger = document.querySelector('[data-nav="more"]');
+      if (moreTrigger) {
+        moreTrigger.classList.add('active');
       }
+    }
+  }
+
+  function initMoreMenu() {
+    const moreMenu = document.getElementById('nav-more-menu');
+    const morePanel = document.getElementById('nav-more-panel');
+    const moreTrigger = moreMenu ? moreMenu.querySelector('.nav-menu-trigger') : null;
+    let closeTimer = null;
+
+    if (!moreMenu || !morePanel || !moreTrigger) {
+      return;
+    }
+
+    function openMenu() {
+      if (closeTimer) {
+        window.clearTimeout(closeTimer);
+      }
+
       moreMenu.classList.add('open');
       moreTrigger.setAttribute('aria-expanded', 'true');
     }
 
-    function closeMoreMenuWithDelay() {
-      if (moreMenuCloseTimer) {
-        window.clearTimeout(moreMenuCloseTimer);
+    function closeMenu() {
+      if (closeTimer) {
+        window.clearTimeout(closeTimer);
       }
-      moreMenuCloseTimer = window.setTimeout(function () {
+
+      closeTimer = window.setTimeout(function () {
         moreMenu.classList.remove('open');
         moreTrigger.setAttribute('aria-expanded', 'false');
-      }, 180);
+      }, 150);
     }
 
-    moreMenu.addEventListener('mouseenter', openMoreMenu);
-    moreMenu.addEventListener('mouseleave', closeMoreMenuWithDelay);
-    morePanel.addEventListener('mouseenter', openMoreMenu);
-    morePanel.addEventListener('mouseleave', closeMoreMenuWithDelay);
+    moreMenu.addEventListener('mouseenter', openMenu);
+    moreMenu.addEventListener('mouseleave', closeMenu);
+    morePanel.addEventListener('mouseenter', openMenu);
+    morePanel.addEventListener('mouseleave', closeMenu);
 
     moreTrigger.addEventListener('click', function () {
       const willOpen = !moreMenu.classList.contains('open');
@@ -181,21 +168,50 @@
         moreTrigger.setAttribute('aria-expanded', 'false');
       }
     });
-
-    if (['catalogue', 'about', 'contact', 'register', 'onboarding', 'privacy', 'terms'].includes(activeKey || '')) {
-      moreTrigger.classList.add('active');
-    }
   }
 
-  const toastStack = document.createElement('div');
-  toastStack.className = 'toast-stack';
-  document.body.appendChild(toastStack);
+  function initMobileMenu() {
+    const toggleBtn = document.getElementById('mobile-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    if (!toggleBtn || !mobileMenu) {
+      return;
+    }
+
+    toggleBtn.addEventListener('click', function () {
+      mobileMenu.classList.toggle('open');
+      toggleBtn.textContent = mobileMenu.classList.contains('open') ? '✕' : '☰';
+      toggleBtn.setAttribute('aria-expanded', mobileMenu.classList.contains('open') ? 'true' : 'false');
+    });
+  }
+
+  function createToastStack() {
+    const stack = document.createElement('div');
+    stack.className = 'toast-stack';
+    document.body.appendChild(stack);
+    return stack;
+  }
+
+  if (navHost) {
+    navHost.innerHTML = buildNavMarkup();
+  }
+
+  if (footerHost) {
+    footerHost.innerHTML = buildFooterMarkup();
+  }
+
+  markActiveNav(getActiveKey());
+  initMoreMenu();
+  initMobileMenu();
+
+  const toastStack = createToastStack();
 
   window.showToast = function showToast(message, type) {
     const toast = document.createElement('div');
-    toast.className = `toast ${type || 'success'}`;
+    toast.className = 'toast ' + (type || 'success');
     toast.textContent = message;
     toastStack.appendChild(toast);
+
     window.setTimeout(function () {
       toast.remove();
     }, 2600);

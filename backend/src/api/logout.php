@@ -1,9 +1,7 @@
 <?php
 
-header('Content-Type: application/json');
+require_once __DIR__ . '/../bootstrap.php';
 
-session_start();
-session_unset();
-session_destroy();
+mm_destroy_session();
 
-echo json_encode(['message' => 'Logged out successfully']);
+mm_json(['message' => 'Logged out successfully']);
