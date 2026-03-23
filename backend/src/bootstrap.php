@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Middleware\AuthMiddleware;
+use App\Middleware\SecurityMiddleware;
+use App\Middleware\ValidationException;
+use App\Middleware\ValidationMiddleware;
 use App\config\DatabaseConfig;
 use App\config\Env;
 
@@ -18,6 +22,9 @@ if (!function_exists('mm_bootstrap')) {
         Env::load(__DIR__ . '/../.env');
 
         if (session_status() !== PHP_SESSION_ACTIVE) {
+            ini_set('session.use_strict_mode', '1');
+            ini_set('session.use_only_cookies', '1');
+            ini_set('session.cookie_httponly', '1');
             session_set_cookie_params([
                 'lifetime' => 0,
                 'path' => '/',
@@ -30,6 +37,13 @@ if (!function_exists('mm_bootstrap')) {
         }
 
         $bootstrapped = true;
+    }
+}
+
+if (!function_exists('mm_apply_api_security')) {
+    function mm_apply_api_security(): void
+    {
+        SecurityMiddleware::applyApiSecurity();
     }
 }
 
@@ -59,9 +73,17 @@ if (!function_exists('mm_request_body')) {
     function mm_request_body(): array
     {
         $rawBody = file_get_contents('php://input');
-        if ($rawBody === false || trim($rawBody) === '') {
+        if ($rawBody === false) {
+            mm_json(['error' => 'Unable to read request body'], 400);
+        }
+
+        SecurityMiddleware::assertJsonBodySize($rawBody);
+
+        if (trim($rawBody) === '') {
             return [];
         }
+
+        SecurityMiddleware::assertJsonRequest($rawBody);
 
         $decoded = json_decode($rawBody, true);
         if (!is_array($decoded)) {
@@ -69,6 +91,20 @@ if (!function_exists('mm_request_body')) {
         }
 
         return $decoded;
+    }
+}
+
+if (!function_exists('mm_filter_request')) {
+    function mm_filter_request(array $schema, array $options = []): array
+    {
+        try {
+            return ValidationMiddleware::filterPayload(mm_request_body(), $schema, $options);
+        } catch (ValidationException $exception) {
+            mm_json([
+                'error' => $exception->getMessage(),
+                'details' => $exception->getErrors(),
+            ], $exception->getStatusCode());
+        }
     }
 }
 
@@ -93,6 +129,13 @@ if (!function_exists('mm_db')) {
         }
 
         return $connection;
+    }
+}
+
+if (!function_exists('mm_require_auth')) {
+    function mm_require_auth(): int
+    {
+        return AuthMiddleware::requireUser();
     }
 }
 

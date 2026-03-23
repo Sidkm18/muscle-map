@@ -4,17 +4,22 @@ require_once __DIR__ . '/../bootstrap.php';
 
 mm_require_method('POST');
 
-$data = mm_request_body();
-$email = trim((string) ($data['email'] ?? ''));
-$password = (string) ($data['password'] ?? '');
+$data = mm_filter_request([
+    'email' => [
+        'type' => 'email',
+        'required' => true,
+        'allow_empty' => false,
+    ],
+    'password' => [
+        'type' => 'password',
+        'required' => true,
+        'min_length' => 1,
+        'max_length' => 255,
+    ],
+]);
 
-if ($email === '' || $password === '') {
-    mm_json(['error' => 'Missing required fields'], 400);
-}
-
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    mm_json(['error' => 'Invalid email address'], 400);
-}
+$email = $data['email'];
+$password = $data['password'];
 
 $db = mm_db();
 

@@ -4,22 +4,29 @@ require_once __DIR__ . '/../bootstrap.php';
 
 mm_require_method('POST');
 
-$data = mm_request_body();
-$email = trim((string) ($data['email'] ?? ''));
-$password = (string) ($data['password'] ?? '');
-$fullName = trim((string) ($data['full_name'] ?? ''));
+$data = mm_filter_request([
+    'full_name' => [
+        'type' => 'string',
+        'max_length' => 120,
+        'min_length' => 2,
+        'empty_to_null' => true,
+    ],
+    'email' => [
+        'type' => 'email',
+        'required' => true,
+        'allow_empty' => false,
+    ],
+    'password' => [
+        'type' => 'password',
+        'required' => true,
+        'min_length' => 8,
+        'max_length' => 255,
+    ],
+]);
 
-if ($email === '' || $password === '') {
-    mm_json(['error' => 'Missing required fields'], 400);
-}
-
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    mm_json(['error' => 'Invalid email address'], 400);
-}
-
-if (strlen($password) < 8) {
-    mm_json(['error' => 'Password must be at least 8 characters long'], 400);
-}
+$email = $data['email'];
+$password = $data['password'];
+$fullName = $data['full_name'];
 
 $db = mm_db();
 
@@ -58,7 +65,7 @@ try {
         ':username' => $username,
         ':email' => $email,
         ':password_hash' => $passwordHash,
-        ':full_name' => $fullName !== '' ? $fullName : null,
+        ':full_name' => $fullName,
     ]);
 
     $userId = (int) $db->lastInsertId();
@@ -82,7 +89,7 @@ try {
         'user' => [
             'id' => $userId,
             'email' => $email,
-            'full_name' => $fullName,
+            'full_name' => $fullName ?? '',
             'username' => $username,
         ],
     ], 201);

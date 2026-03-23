@@ -2,21 +2,7 @@
 
 require_once __DIR__ . '/../src/bootstrap.php';
 
-$origin = $_SERVER['HTTP_ORIGIN'] ?? null;
-if ($origin) {
-    header('Access-Control-Allow-Origin: ' . $origin);
-    header('Vary: Origin');
-} else {
-    header('Access-Control-Allow-Origin: *');
-}
-header('Access-Control-Allow-Credentials: true');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
-
-if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'OPTIONS') {
-    http_response_code(204);
-    exit();
-}
+mm_apply_api_security();
 
 $uriPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 

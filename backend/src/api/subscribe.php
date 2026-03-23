@@ -4,17 +4,19 @@ require_once __DIR__ . '/../bootstrap.php';
 
 mm_require_method('POST');
 
-if (!isset($_SESSION['user_id'])) {
-    mm_json(['error' => 'Not authenticated'], 401);
-}
+$userId = mm_require_auth();
 
-$data = mm_request_body();
+$data = mm_filter_request([
+    'plan_name' => [
+        'type' => 'string',
+        'required' => true,
+        'allow_empty' => false,
+        'max_length' => 50,
+        'transform' => 'lower',
+        'regex' => '/^(basic|pro|elite)$/',
+    ],
+]);
 
-if (!isset($data['plan_name']) || trim((string) $data['plan_name']) === '') {
-    mm_json(['error' => 'Missing plan name'], 400);
-}
-
-$userId = (int) $_SESSION['user_id'];
 $db = mm_db();
 
 try {

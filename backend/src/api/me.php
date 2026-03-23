@@ -2,15 +2,14 @@
 
 require_once __DIR__ . '/../bootstrap.php';
 
-if (!isset($_SESSION['user_id'])) {
-    mm_json(['error' => 'Not authenticated'], 401);
-}
+mm_require_method('GET');
 
+$userId = mm_require_auth();
 $db = mm_db();
 
 try {
     $stmt = $db->prepare('SELECT id, username, email, full_name, bio, profile_photo, created_at FROM users WHERE id = :id LIMIT 1');
-    $stmt->execute([':id' => (int) $_SESSION['user_id']]);
+    $stmt->execute([':id' => $userId]);
     $user = $stmt->fetch();
 
     if (!$user) {

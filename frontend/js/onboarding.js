@@ -470,9 +470,6 @@ if (localStorage.getItem('isLoggedIn') !== 'true') {
       }
 
       if (input.type === 'file') {
-        if (input.files && input.files[0]) {
-          formData[input.name] = input.files[0].name;
-        }
         return;
       }
 
@@ -542,6 +539,8 @@ if (localStorage.getItem('isLoggedIn') !== 'true') {
       if (photoPreview && dataUrl) {
         photoPreview.src = dataUrl;
       }
+      formData.profilePhoto = dataUrl;
+      saveProgress();
       if (typeof app.cacheAvatarPreview === 'function' && dataUrl) {
         app.cacheAvatarPreview(dataUrl);
       }

@@ -2,11 +2,9 @@
 
 require_once __DIR__ . '/../bootstrap.php';
 
-if (!isset($_SESSION['user_id'])) {
-    mm_json(['error' => 'Not authenticated'], 401);
-}
+mm_require_method(['GET', 'PUT']);
 
-$userId = (int) $_SESSION['user_id'];
+$userId = mm_require_auth();
 $db = mm_db();
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -39,82 +37,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         mm_json(['error' => 'Unable to load profile'], 500);
     }
 } elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
-    // Update profile data
-    $data = mm_request_body();
+    $data = mm_filter_request([
+        'full_name' => [
+            'type' => 'string',
+            'min_length' => 2,
+            'max_length' => 120,
+            'allow_empty' => false,
+        ],
+        'phone' => [
+            'type' => 'phone',
+            'empty_to_null' => true,
+        ],
+        'gender' => [
+            'type' => 'enum',
+            'empty_to_null' => true,
+            'values' => ['Male', 'Female', 'Other', 'Prefer Not to Say'],
+        ],
+        'dob' => [
+            'type' => 'date',
+            'empty_to_null' => true,
+            'not_in_future' => true,
+        ],
+        'bio' => [
+            'type' => 'string',
+            'empty_to_null' => true,
+            'max_length' => 500,
+            'preserve_newlines' => true,
+        ],
+        'username' => [
+            'type' => 'username',
+        ],
+        'profile_photo' => [
+            'type' => 'image_data_url',
+            'empty_to_null' => true,
+            'max_length' => 7340032,
+        ],
+    ]);
+
     $updates = [];
     $params = [':user_id' => $userId];
-    $allowedGenders = ['Male', 'Female', 'Other', 'Prefer Not to Say'];
     
     try {
-        if (isset($data['full_name'])) {
-            $fullName = trim((string) $data['full_name']);
-            if ($fullName === '') {
-                mm_json(['error' => 'Full name is required'], 400);
-            }
+        if (array_key_exists('full_name', $data)) {
             $updates[] = 'full_name = :full_name';
-            $params[':full_name'] = $fullName;
+            $params[':full_name'] = $data['full_name'];
         }
 
-        if (isset($data['phone'])) {
-            $phone = trim((string) $data['phone']);
-            if ($phone !== '' && !preg_match('/^[0-9+\-\s()]{7,20}$/', $phone)) {
-                mm_json(['error' => 'Invalid phone number'], 400);
-            }
+        if (array_key_exists('phone', $data)) {
             $updates[] = 'phone = :phone';
-            $params[':phone'] = $phone !== '' ? $phone : null;
+            $params[':phone'] = $data['phone'];
         }
 
-        if (isset($data['gender'])) {
-            $gender = trim((string) $data['gender']);
-            if ($gender !== '' && !in_array($gender, $allowedGenders, true)) {
-                mm_json(['error' => 'Invalid gender selection'], 400);
-            }
+        if (array_key_exists('gender', $data)) {
             $updates[] = 'gender = :gender';
-            $params[':gender'] = $gender !== '' ? $gender : 'Prefer Not to Say';
+            $params[':gender'] = $data['gender'] ?? 'Prefer Not to Say';
         }
 
-        if (isset($data['dob'])) {
-            $dob = trim((string) $data['dob']);
-            $normalizedDob = null;
-
-            if ($dob !== '') {
-                $dobObject = DateTime::createFromFormat('Y-m-d', $dob);
-                if (!$dobObject || $dobObject->format('Y-m-d') !== $dob) {
-                    mm_json(['error' => 'Invalid date of birth'], 400);
-                }
-
-                $today = new DateTime('today');
-                if ($dobObject > $today) {
-                    mm_json(['error' => 'Date of birth cannot be in the future'], 400);
-                }
-
-                $normalizedDob = $dobObject->format('Y-m-d');
-            }
-
+        if (array_key_exists('dob', $data)) {
             $updates[] = 'dob = :dob';
-            $params[':dob'] = $normalizedDob;
+            $params[':dob'] = $data['dob'];
         }
 
-        if (isset($data['bio'])) {
+        if (array_key_exists('bio', $data)) {
             $updates[] = 'bio = :bio';
-            $params[':bio'] = trim((string) $data['bio']);
+            $params[':bio'] = $data['bio'];
         }
 
-        if (isset($data['username'])) {
-            $username = trim((string) $data['username']);
-            if ($username === '') {
-                mm_json(['error' => 'Username is required'], 400);
-            }
-            if (!preg_match('/^[A-Za-z0-9_]{3,20}$/', $username)) {
-                mm_json(['error' => 'Username must be 3-20 characters and use only letters, numbers, and underscores'], 400);
-            }
+        if (array_key_exists('username', $data)) {
             $updates[] = 'username = :username';
-            $params[':username'] = $username;
+            $params[':username'] = $data['username'];
         }
 
-        if (isset($data['profile_photo'])) {
+        if (array_key_exists('profile_photo', $data)) {
             $updates[] = 'profile_photo = :profile_photo';
-            $params[':profile_photo'] = trim((string) $data['profile_photo']);
+            $params[':profile_photo'] = $data['profile_photo'];
         }
 
         if (empty($updates)) {
@@ -134,6 +130,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
         mm_json(['error' => 'Unable to update profile'], 500);
     }
-} else {
-    mm_json(['error' => 'Method not allowed'], 405);
 }
