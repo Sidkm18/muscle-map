@@ -62,7 +62,11 @@
     trackingHeartSteps: document.getElementById('tracking-heart-steps'),
     trackingHeartActive: document.getElementById('tracking-heart-active'),
     trackingHeartCalories: document.getElementById('tracking-heart-calories'),
-    trackingHeartCenterValue: document.getElementById('tracking-heart-center-value')
+    trackingHeartCenterValue: document.getElementById('tracking-heart-center-value'),
+    trackingCurrentStreak: document.getElementById('tracking-current-streak'),
+    trackingLongestStreak: document.getElementById('tracking-longest-streak'),
+    trackingStreakMonth: document.getElementById('tracking-streak-month'),
+    trackingStreakCalendar: document.getElementById('tracking-streak-calendar')
   };
   let selectedProfilePhoto = '';
   let fitnessTrackerState = readTrackingState();
@@ -388,6 +392,7 @@
     updateTrackingHeart(progress);
     updateTrackingHeartCenter(averageProgress);
     syncTrackingHeartCompletion(today, isComplete);
+    renderStreakCalendar(today);
   }
 
   function readTrackingState() {
@@ -610,6 +615,115 @@
     window.requestAnimationFrame(step);
   }
 
+  function renderStreakCalendar(dayKey) {
+    if (!fields.trackingStreakCalendar || !fields.trackingStreakMonth) {
+      return;
+    }
+
+    const baseDate = new Date(dayKey + 'T00:00:00');
+    if (Number.isNaN(baseDate.getTime())) {
+      return;
+    }
+
+    const year = baseDate.getFullYear();
+    const monthIndex = baseDate.getMonth();
+    const firstDay = new Date(year, monthIndex, 1);
+    const totalDays = new Date(year, monthIndex + 1, 0).getDate();
+    const startWeekday = firstDay.getDay();
+    const cells = [];
+    const streaks = calculateTrackingStreaks(dayKey);
+
+    fields.trackingStreakMonth.textContent = firstDay.toLocaleDateString(undefined, {
+      month: 'long',
+      year: 'numeric'
+    });
+    if (fields.trackingCurrentStreak) {
+      fields.trackingCurrentStreak.textContent = '🔥 ' + streaks.current + ' Day Streak';
+    }
+    if (fields.trackingLongestStreak) {
+      fields.trackingLongestStreak.textContent = streaks.longest + (streaks.longest === 1 ? ' day' : ' days');
+    }
+
+    for (let index = 0; index < startWeekday; index += 1) {
+      cells.push('<span class="streak-calendar-day is-empty" aria-hidden="true"></span>');
+    }
+
+    for (let day = 1; day <= totalDays; day += 1) {
+      const currentKey = buildDayKey(year, monthIndex + 1, day);
+      const currentEntry = fitnessTrackerState[currentKey] || null;
+      const isActive = Boolean(currentEntry && Number(currentEntry.steps || 0) > 0);
+      const isToday = currentKey === dayKey;
+      const classNames = ['streak-calendar-day'];
+
+      if (isActive) {
+        classNames.push('is-active');
+      }
+
+      if (isToday) {
+        classNames.push('is-today');
+      }
+
+      cells.push(
+        '<span class="' + classNames.join(' ') + '" title="' + escapeHtml(formatTrackingDate(currentKey)) + (isActive ? ' active day' : ' no activity') + '">' + day + '</span>'
+      );
+    }
+
+    fields.trackingStreakCalendar.innerHTML = cells.join('');
+  }
+
+  function calculateTrackingStreaks(todayKey) {
+    const activeDayKeys = Object.keys(fitnessTrackerState)
+      .filter(function (key) {
+        const entry = fitnessTrackerState[key];
+        return entry && Number(entry.steps || 0) > 0;
+      })
+      .sort();
+
+    if (!activeDayKeys.length) {
+      return {
+        current: 0,
+        longest: 0
+      };
+    }
+
+    let longest = 0;
+    let runningLongest = 0;
+
+    for (let index = 0; index < activeDayKeys.length; index += 1) {
+      if (index === 0) {
+        runningLongest = 1;
+      } else {
+        const previousDate = parseDayKey(activeDayKeys[index - 1]);
+        const currentDate = parseDayKey(activeDayKeys[index]);
+        const dayGap = differenceInDays(previousDate, currentDate);
+        runningLongest = dayGap === 1 ? runningLongest + 1 : 1;
+      }
+
+      if (runningLongest > longest) {
+        longest = runningLongest;
+      }
+    }
+
+    let current = 0;
+    let pointer = parseDayKey(todayKey);
+
+    while (pointer) {
+      const pointerKey = buildDayKey(pointer.getFullYear(), pointer.getMonth() + 1, pointer.getDate());
+      const pointerEntry = fitnessTrackerState[pointerKey];
+      if (!pointerEntry || Number(pointerEntry.steps || 0) <= 0) {
+        break;
+      }
+
+      current += 1;
+      pointer.setDate(pointer.getDate() - 1);
+    }
+
+    return {
+      current: current,
+      longest: longest
+    };
+  }
+
   function setHeartPathProgress(element, progress) {
     if (!element) {
       return;
@@ -619,6 +733,26 @@
     const remaining = Math.max(0, 100 - safeProgress);
     element.style.strokeDasharray = safeProgress.toFixed(2) + ' ' + remaining.toFixed(2);
     element.style.strokeDashoffset = '0';
+  }
+
+  function buildDayKey(year, month, day) {
+    return String(year) + '-' + String(month).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+  }
+
+  function parseDayKey(dayKey) {
+    const date = new Date(dayKey + 'T00:00:00');
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+
+  function differenceInDays(previousDate, currentDate) {
+    if (!previousDate || !currentDate) {
+      return Infinity;
+    }
+
+    const millisecondsPerDay = 24 * 60 * 60 * 1000;
+    const previousUtc = Date.UTC(previousDate.getFullYear(), previousDate.getMonth(), previousDate.getDate());
+    const currentUtc = Date.UTC(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+    return Math.round((currentUtc - previousUtc) / millisecondsPerDay);
   }
 
   function formatMetric(value, unit) {

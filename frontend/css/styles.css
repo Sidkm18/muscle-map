@@ -511,6 +511,45 @@ html[data-theme="neon"] .site-nav {
   box-shadow: var(--shadow), 0 0 24px rgba(var(--primary-rgb), 0.08);
 }
 
+html[data-theme="light"] .glass-card,
+html[data-theme="light"] .theme-panel,
+html[data-theme="light"] .theme-option,
+html[data-theme="light"] .profile-meta-card,
+html[data-theme="light"] .fitness-stat-card,
+html[data-theme="light"] .fitness-summary-card,
+html[data-theme="light"] .profile-stat-card,
+html[data-theme="light"] .profile-banner,
+html[data-theme="light"] .option-card,
+html[data-theme="light"] .metric-card {
+  background: var(--surface);
+  border-color: var(--line);
+  box-shadow: var(--shadow);
+}
+
+html[data-theme="light"] .glass-card:hover,
+html[data-theme="light"] .theme-option:hover,
+html[data-theme="light"] .theme-option.active {
+  border-color: rgba(var(--primary-rgb), 0.24);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.10), 0 0 0 1px rgba(var(--primary-rgb), 0.06);
+}
+
+html[data-theme="light"] .muted,
+html[data-theme="light"] .profile-subtitle,
+html[data-theme="light"] .profile-kv-label,
+html[data-theme="light"] .profile-meta-label,
+html[data-theme="light"] .theme-option-copy {
+  color: var(--muted);
+}
+
+html[data-theme="light"] .fitness-summary-value,
+html[data-theme="light"] .fitness-stat-value,
+html[data-theme="light"] .profile-stat-value,
+html[data-theme="light"] .page-title,
+html[data-theme="light"] .section-title,
+html[data-theme="light"] .profile-name {
+  color: var(--text);
+}
+
 .hero-grid {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
@@ -1296,6 +1335,131 @@ td.center {
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
+}
+
+.streak-calendar-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.streak-calendar-title {
+  display: block;
+  margin-top: 0.18rem;
+  font-family: "Barlow Condensed", Impact, sans-serif;
+  font-size: 1.02rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.streak-calendar-streak {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--text);
+  font-family: "Barlow Condensed", Impact, sans-serif;
+  font-size: 1.45rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.streak-calendar-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.streak-calendar-legend-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--primary);
+  box-shadow: 0 0 12px rgba(var(--primary-rgb), 0.2);
+}
+
+.streak-calendar-metrics {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.streak-calendar-metric {
+  display: inline-grid;
+  gap: 0.22rem;
+  color: var(--muted);
+}
+
+.streak-calendar-metric strong {
+  color: var(--text);
+  font-size: 0.92rem;
+}
+
+.streak-calendar-weekdays,
+.streak-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.streak-calendar-weekdays {
+  color: var(--muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.streak-calendar-weekdays span {
+  text-align: center;
+}
+
+.streak-calendar-day {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 1;
+  min-height: 1.85rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(var(--primary-rgb), 0.03);
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease, color 180ms ease, box-shadow 180ms ease;
+}
+
+.streak-calendar-day:not(.is-empty):hover {
+  transform: translateY(-1px);
+  border-color: rgba(var(--primary-rgb), 0.22);
+  background: rgba(var(--primary-rgb), 0.08);
+  color: var(--text);
+}
+
+.streak-calendar-day.is-empty {
+  border-color: transparent;
+  background: transparent;
+}
+
+.streak-calendar-day.is-active {
+  border-color: rgba(var(--primary-rgb), 0.3);
+  background: rgba(var(--primary-rgb), 0.14);
+  color: var(--primary);
+  box-shadow: inset 0 0 0 1px rgba(var(--primary-rgb), 0.06), 0 0 14px rgba(var(--primary-rgb), 0.1);
+}
+
+.streak-calendar-day.is-today {
+  color: var(--text);
+  border-color: rgba(var(--primary-rgb), 0.3);
+  box-shadow: 0 0 0 1px rgba(var(--primary-rgb), 0.06);
+}
+
+.streak-calendar-day.is-active.is-today {
+  color: var(--button-text);
+  background: var(--primary);
+  border-color: rgba(var(--primary-rgb), 0.62);
 }
 
 .profile-stack {
