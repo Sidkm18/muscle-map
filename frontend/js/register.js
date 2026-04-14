@@ -26,7 +26,9 @@
     const score = scorePassword(password);
 
     meter.forEach(function (bar, index) {
-      bar.style.background = index < score ? '#c5ff2f' : 'rgba(255,255,255,0.1)';
+      bar.style.background = index < score
+        ? getComputedStyle(document.documentElement).getPropertyValue('--primary').trim()
+        : 'rgba(255,255,255,0.1)';
     });
   }
 

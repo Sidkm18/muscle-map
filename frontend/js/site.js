@@ -1,4 +1,240 @@
 (function () {
+  const THEME_STORAGE_KEY = 'mm-theme';
+  const themeConfig = {
+    dark: {
+      id: 'dark',
+      label: 'Dark',
+      description: 'Default studio dark with lime energy.',
+      preview: ['#0a0b07', '#c5ff2f', '#3ddc97'],
+      tokens: {
+        '--bg': '#0a0b07',
+        '--surface': 'rgba(20, 22, 15, 0.8)',
+        '--surface-strong': '#11140d',
+        '--surface-soft': 'rgba(255, 255, 255, 0.03)',
+        '--text': '#edf1e4',
+        '--muted': '#a3ad95',
+        '--line': 'rgba(255, 255, 255, 0.12)',
+        '--primary': '#c5ff2f',
+        '--primary-strong': '#aae11b',
+        '--primary-rgb': '197, 255, 47',
+        '--accent': '#3ddc97',
+        '--accent-rgb': '61, 220, 151',
+        '--danger': '#ff6f6f',
+        '--success': '#3ddc97',
+        '--shadow': '0 16px 40px rgba(0, 0, 0, 0.35)',
+        '--page-gradient': 'radial-gradient(circle at 12% 12%, rgba(197, 255, 47, 0.16), transparent 24%), radial-gradient(circle at 84% 14%, rgba(61, 220, 151, 0.1), transparent 22%), radial-gradient(circle at 80% 86%, rgba(197, 255, 47, 0.08), transparent 25%), linear-gradient(180deg, #080904 0%, #0a0b07 52%, #080904 100%)',
+        '--orb-one': 'rgba(197, 255, 47, 0.55)',
+        '--orb-two': 'rgba(61, 220, 151, 0.42)',
+        '--nav-bg': 'rgba(10, 11, 7, 0.84)',
+        '--panel-bg': 'rgba(10, 11, 7, 0.96)',
+        '--nav-link-color': 'rgba(237, 241, 228, 0.82)',
+        '--nav-link-hover-bg': 'rgba(197, 255, 47, 0.08)',
+        '--nav-link-active-color': '#c5ff2f',
+        '--button-text': '#131705'
+      }
+    },
+    light: {
+      id: 'light',
+      label: 'Light',
+      description: 'Clean white workspace with crisp blue accents.',
+      preview: ['#ffffff', '#3b82f6', '#1d4ed8'],
+      tokens: {
+        '--bg': '#ffffff',
+        '--surface': 'rgba(245, 245, 245, 0.92)',
+        '--surface-strong': '#f5f5f5',
+        '--surface-soft': 'rgba(17, 17, 17, 0.04)',
+        '--text': '#111111',
+        '--muted': '#5b6472',
+        '--line': 'rgba(17, 17, 17, 0.12)',
+        '--primary': '#3b82f6',
+        '--primary-strong': '#2563eb',
+        '--primary-rgb': '59, 130, 246',
+        '--accent': '#1d4ed8',
+        '--accent-rgb': '29, 78, 216',
+        '--danger': '#df5b5b',
+        '--success': '#2563eb',
+        '--shadow': '0 18px 50px rgba(59, 130, 246, 0.10)',
+        '--page-gradient': 'radial-gradient(circle at 12% 12%, rgba(59, 130, 246, 0.14), transparent 24%), radial-gradient(circle at 84% 14%, rgba(29, 78, 216, 0.10), transparent 22%), radial-gradient(circle at 80% 86%, rgba(59, 130, 246, 0.06), transparent 25%), linear-gradient(180deg, #ffffff 0%, #f8fbff 52%, #f2f6ff 100%)',
+        '--orb-one': 'rgba(59, 130, 246, 0.18)',
+        '--orb-two': 'rgba(29, 78, 216, 0.14)',
+        '--nav-bg': 'rgba(255, 255, 255, 0.88)',
+        '--panel-bg': 'rgba(255, 255, 255, 0.95)',
+        '--nav-link-color': '#374151',
+        '--nav-link-hover-bg': 'rgba(59, 130, 246, 0.10)',
+        '--nav-link-active-color': '#2563eb',
+        '--button-text': '#ffffff'
+      }
+    },
+    red: {
+      id: 'red',
+      label: 'Red',
+      description: 'High-contrast charcoal surfaces with a soft red glow.',
+      preview: ['#0b0b0b', '#ff4d4d', '#121212'],
+      tokens: {
+        '--bg': '#0b0b0b',
+        '--surface': 'rgba(18, 18, 18, 0.92)',
+        '--surface-strong': '#121212',
+        '--surface-soft': 'rgba(255, 255, 255, 0.03)',
+        '--text': '#f5f5f5',
+        '--muted': '#b4b4b4',
+        '--line': 'rgba(255, 255, 255, 0.1)',
+        '--primary': '#ff4d4d',
+        '--primary-strong': '#ff6666',
+        '--primary-rgb': '255, 77, 77',
+        '--accent': '#ff7a7a',
+        '--accent-rgb': '255, 122, 122',
+        '--danger': '#ff4d4d',
+        '--success': '#ff7a7a',
+        '--shadow': '0 18px 46px rgba(0, 0, 0, 0.46)',
+        '--page-gradient': 'radial-gradient(circle at 12% 12%, rgba(255, 77, 77, 0.14), transparent 24%), radial-gradient(circle at 84% 14%, rgba(255, 122, 122, 0.08), transparent 22%), radial-gradient(circle at 80% 86%, rgba(255, 77, 77, 0.06), transparent 25%), linear-gradient(180deg, #080808 0%, #0b0b0b 52%, #070707 100%)',
+        '--orb-one': 'rgba(255, 77, 77, 0.24)',
+        '--orb-two': 'rgba(255, 122, 122, 0.14)',
+        '--nav-bg': 'rgba(11, 11, 11, 0.88)',
+        '--panel-bg': 'rgba(11, 11, 11, 0.96)',
+        '--nav-link-color': 'rgba(245, 245, 245, 0.82)',
+        '--nav-link-hover-bg': 'rgba(255, 77, 77, 0.08)',
+        '--nav-link-active-color': '#ff4d4d',
+        '--button-text': '#ffffff'
+      }
+    },
+    glass: {
+      id: 'glass',
+      label: 'Blue',
+      description: 'Deep blue glow theme with frosted glass surfaces and blur.',
+      preview: ['#0a0a0a', '#64d8ff', '#8b5cf6'],
+      tokens: {
+        '--bg': '#0a0a0a',
+        '--surface': 'rgba(255, 255, 255, 0.06)',
+        '--surface-strong': 'rgba(255, 255, 255, 0.08)',
+        '--surface-soft': 'rgba(255, 255, 255, 0.04)',
+        '--text': '#f5f5f5',
+        '--muted': '#b8c2d8',
+        '--line': 'rgba(255, 255, 255, 0.12)',
+        '--primary': '#64d8ff',
+        '--primary-strong': '#38bdf8',
+        '--primary-rgb': '100, 216, 255',
+        '--accent': '#8bffb0',
+        '--accent-rgb': '139, 255, 176',
+        '--danger': '#ff7a8a',
+        '--success': '#8bffb0',
+        '--shadow': '0 22px 54px rgba(0, 0, 0, 0.42)',
+        '--page-gradient': 'radial-gradient(circle at 14% 16%, rgba(100, 216, 255, 0.14), transparent 22%), radial-gradient(circle at 82% 18%, rgba(139, 92, 246, 0.12), transparent 20%), radial-gradient(circle at 78% 84%, rgba(100, 216, 255, 0.08), transparent 24%), linear-gradient(180deg, #07080d 0%, #0a0a0a 48%, #090b12 100%)',
+        '--orb-one': 'rgba(100, 216, 255, 0.20)',
+        '--orb-two': 'rgba(139, 92, 246, 0.18)',
+        '--nav-bg': 'rgba(18, 22, 30, 0.58)',
+        '--panel-bg': 'rgba(14, 18, 26, 0.72)',
+        '--nav-link-color': 'rgba(245, 245, 245, 0.86)',
+        '--nav-link-hover-bg': 'rgba(100, 216, 255, 0.10)',
+        '--nav-link-active-color': '#64d8ff',
+        '--button-text': '#04131a'
+      }
+    },
+    purple: {
+      id: 'purple',
+      label: 'Purple',
+      description: 'Luxe violet surfaces with pink accents.',
+      preview: ['#120f1d', '#a96cff', '#ff6bb7'],
+      tokens: {
+        '--bg': '#120f1d',
+        '--surface': 'rgba(29, 21, 46, 0.82)',
+        '--surface-strong': '#181126',
+        '--surface-soft': 'rgba(255, 255, 255, 0.04)',
+        '--text': '#f5f0ff',
+        '--muted': '#b0a2cb',
+        '--line': 'rgba(255, 255, 255, 0.11)',
+        '--primary': '#a96cff',
+        '--primary-strong': '#9550ff',
+        '--primary-rgb': '169, 108, 255',
+        '--accent': '#ff6bb7',
+        '--accent-rgb': '255, 107, 183',
+        '--danger': '#ff7f95',
+        '--success': '#67d9c2',
+        '--shadow': '0 18px 46px rgba(8, 5, 15, 0.38)',
+        '--page-gradient': 'radial-gradient(circle at 12% 12%, rgba(169, 108, 255, 0.22), transparent 24%), radial-gradient(circle at 84% 14%, rgba(255, 107, 183, 0.14), transparent 22%), radial-gradient(circle at 80% 86%, rgba(169, 108, 255, 0.1), transparent 25%), linear-gradient(180deg, #100c19 0%, #120f1d 52%, #0d0a16 100%)',
+        '--orb-one': 'rgba(169, 108, 255, 0.44)',
+        '--orb-two': 'rgba(255, 107, 183, 0.32)',
+        '--nav-bg': 'rgba(18, 15, 29, 0.84)',
+        '--panel-bg': 'rgba(18, 15, 29, 0.96)',
+        '--nav-link-color': 'rgba(245, 240, 255, 0.82)',
+        '--nav-link-hover-bg': 'rgba(169, 108, 255, 0.08)',
+        '--nav-link-active-color': '#a96cff',
+        '--button-text': '#ffffff'
+      }
+    },
+    neon: {
+      id: 'neon',
+      label: 'Neon',
+      description: 'Cyberpunk pink, purple, and electric blue energy.',
+      preview: ['#070707', '#ff2e88', '#22d3ee'],
+      tokens: {
+        '--bg': '#070707',
+        '--surface': 'rgba(18, 12, 24, 0.82)',
+        '--surface-strong': 'rgba(14, 10, 20, 0.94)',
+        '--surface-soft': 'rgba(255, 255, 255, 0.035)',
+        '--text': '#f5f5f5',
+        '--muted': '#bdb2d4',
+        '--line': 'rgba(255, 255, 255, 0.12)',
+        '--primary': '#ff2e88',
+        '--primary-strong': '#a855f7',
+        '--primary-rgb': '255, 46, 136',
+        '--accent': '#22d3ee',
+        '--accent-rgb': '34, 211, 238',
+        '--danger': '#ff6c9d',
+        '--success': '#22d3ee',
+        '--shadow': '0 22px 54px rgba(0, 0, 0, 0.46)',
+        '--page-gradient': 'radial-gradient(circle at 14% 16%, rgba(255, 46, 136, 0.16), transparent 22%), radial-gradient(circle at 82% 18%, rgba(168, 85, 247, 0.13), transparent 20%), radial-gradient(circle at 78% 84%, rgba(34, 211, 238, 0.08), transparent 24%), linear-gradient(180deg, #050505 0%, #070707 50%, #090410 100%)',
+        '--orb-one': 'rgba(255, 46, 136, 0.26)',
+        '--orb-two': 'rgba(168, 85, 247, 0.20)',
+        '--nav-bg': 'rgba(15, 10, 22, 0.84)',
+        '--panel-bg': 'rgba(14, 10, 24, 0.96)',
+        '--nav-link-color': 'rgba(245, 245, 245, 0.84)',
+        '--nav-link-hover-bg': 'rgba(255, 46, 136, 0.10)',
+        '--nav-link-active-color': '#ff2e88',
+        '--button-text': '#fff6fb'
+      }
+    }
+  };
+
+  function getTheme(themeId) {
+    return themeConfig[themeId] || themeConfig.dark;
+  }
+
+  function getStoredThemeId() {
+    try {
+      return window.localStorage.getItem(THEME_STORAGE_KEY) || 'dark';
+    } catch (error) {
+      return 'dark';
+    }
+  }
+
+  function applyTheme(themeId) {
+    const theme = getTheme(themeId);
+    const root = document.documentElement;
+    root.dataset.theme = theme.id;
+
+    Object.keys(theme.tokens).forEach(function (token) {
+      root.style.setProperty(token, theme.tokens[token]);
+    });
+
+    try {
+      window.localStorage.setItem(THEME_STORAGE_KEY, theme.id);
+    } catch (error) {
+      // Ignore storage failures.
+    }
+
+    document.querySelectorAll('[data-theme-option]').forEach(function (button) {
+      const isActive = button.getAttribute('data-theme-option') === theme.id;
+      button.classList.toggle('active', isActive);
+      button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+
+    document.querySelectorAll('[data-theme-current]').forEach(function (label) {
+      label.textContent = theme.label;
+    });
+  }
+
+  applyTheme(getStoredThemeId());
+
   const app = window.MuscleMap || {};
   const links = app.links || {
     home: './index.html',
@@ -192,6 +428,83 @@
     });
   }
 
+  function buildThemePanelMarkup() {
+    const optionsMarkup = Object.keys(themeConfig).map(function (key) {
+      const theme = themeConfig[key];
+      const preview = theme.preview.map(function (color) {
+        return '<span class="theme-swatch" style="background:' + color + ';"></span>';
+      }).join('');
+
+      return (
+        '<button class="theme-option" type="button" data-theme-option="' + theme.id + '" aria-pressed="false">' +
+          '<span class="theme-option-main">' +
+            '<span class="theme-option-text">' +
+              '<span class="theme-option-title">' + theme.label + '</span>' +
+              '<span class="theme-option-copy">' + theme.description + '</span>' +
+            '</span>' +
+            '<span class="theme-option-swatches">' + preview + '</span>' +
+          '</span>' +
+        '</button>'
+      );
+    }).join('');
+
+    return (
+      '<div class="theme-floating-shell" id="theme-floating-shell">' +
+        '<button class="theme-trigger" id="theme-trigger" type="button" aria-expanded="false" aria-controls="theme-panel">' +
+          '<span class="theme-trigger-icon" aria-hidden="true">◐</span>' +
+          '<span data-theme-current>Themes</span>' +
+        '</button>' +
+        '<div class="theme-panel" id="theme-panel">' +
+          '<div class="theme-panel-header">' +
+            '<div>' +
+              '<div class="theme-panel-eyebrow">Appearance</div>' +
+              '<div class="theme-panel-title">Theme selector</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="theme-options">' + optionsMarkup + '</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function initThemePanel() {
+    const shell = document.createElement('div');
+    shell.innerHTML = buildThemePanelMarkup();
+    document.body.appendChild(shell.firstChild);
+
+    const panelShell = document.getElementById('theme-floating-shell');
+    const trigger = document.getElementById('theme-trigger');
+
+    document.querySelectorAll('[data-theme-option]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        applyTheme(button.getAttribute('data-theme-option'));
+        if (panelShell) {
+          panelShell.classList.remove('open');
+        }
+        if (trigger) {
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+      });
+    });
+
+    if (panelShell && trigger) {
+      trigger.addEventListener('click', function () {
+        const willOpen = !panelShell.classList.contains('open');
+        panelShell.classList.toggle('open', willOpen);
+        trigger.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+      });
+
+      document.addEventListener('click', function (event) {
+        if (!panelShell.contains(event.target)) {
+          panelShell.classList.remove('open');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+
+    applyTheme(getStoredThemeId());
+  }
+
   function createToastStack() {
     const stack = document.createElement('div');
     stack.className = 'toast-stack';
@@ -210,6 +523,7 @@
   markActiveNav(getActiveKey());
   initMoreMenu();
   initMobileMenu();
+  initThemePanel();
 
   const toastStack = createToastStack();
 

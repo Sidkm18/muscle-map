@@ -187,17 +187,29 @@
 
   function createAvatarPlaceholder(label) {
     const initials = getInitials(label);
+    const primaryColor = (typeof window !== 'undefined' && window.getComputedStyle)
+      ? window.getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#c5ff2f'
+      : '#c5ff2f';
+    const primaryRgb = (typeof window !== 'undefined' && window.getComputedStyle)
+      ? window.getComputedStyle(document.documentElement).getPropertyValue('--primary-rgb').trim() || '197, 255, 47'
+      : '197, 255, 47';
     const svg = [
       '<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240">',
       '<defs>',
       '<linearGradient id="mm-avatar" x1="0%" y1="0%" x2="100%" y2="100%">',
-      '<stop offset="0%" stop-color="#202516" />',
-      '<stop offset="100%" stop-color="#0b0e08" />',
+      '<stop offset="0%" stop-color="#1a1624" />',
+      '<stop offset="100%" stop-color="#0b0d14" />',
       '</linearGradient>',
+      '<radialGradient id="mm-avatar-glow" cx="50%" cy="44%" r="55%">',
+      '<stop offset="0%" stop-color="rgba(' + primaryRgb + ',0.20)" />',
+      '<stop offset="100%" stop-color="rgba(' + primaryRgb + ',0)" />',
+      '</radialGradient>',
       '</defs>',
       '<rect width="240" height="240" rx="52" fill="url(#mm-avatar)" />',
-      '<circle cx="120" cy="120" r="76" fill="rgba(197,255,47,0.14)" />',
-      '<text x="120" y="138" text-anchor="middle" font-family="Arial, sans-serif" font-size="76" font-weight="700" fill="#c5ff2f">' + initials + '</text>',
+      '<rect x="10" y="10" width="220" height="220" rx="44" fill="rgba(255,255,255,0.02)" stroke="rgba(' + primaryRgb + ',0.22)" stroke-width="2" />',
+      '<circle cx="120" cy="120" r="82" fill="url(#mm-avatar-glow)" />',
+      '<circle cx="120" cy="120" r="76" fill="rgba(' + primaryRgb + ',0.12)" />',
+      '<text x="120" y="138" text-anchor="middle" font-family="Arial, sans-serif" font-size="76" font-weight="700" fill="' + primaryColor + '">' + initials + '</text>',
       '</svg>'
     ].join('');
 
