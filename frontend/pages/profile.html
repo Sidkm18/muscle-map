@@ -61,6 +61,127 @@
             <a class="button button-primary" href="./onboarding.html">Resume Onboarding</a>
           </div>
 
+          <section class="glass-card card fitness-tracker-shell">
+            <div class="fitness-tracker-head">
+              <div>
+                <span class="badge">Daily Fitness Tracking</span>
+                <h2 class="page-title profile-panel-title">Core Activity Dashboard</h2>
+                <p class="muted profile-panel-copy">Track daily steps, active time, and calories with simple local progress that updates throughout the day.</p>
+              </div>
+              <div class="fitness-tracker-date">
+                <span class="mini-label">Tracking Date</span>
+                <strong id="tracking-date-label">Today</strong>
+              </div>
+            </div>
+
+            <div class="fitness-stats-grid">
+              <article class="fitness-stat-card">
+                <span class="mini-label">Steps</span>
+                <div class="fitness-stat-value" id="tracking-steps-value">0</div>
+                <div class="fitness-stat-meta"><span id="tracking-steps-current">0</span> / <span id="tracking-steps-goal">10000</span></div>
+                <div class="wizard-progress"><div id="tracking-steps-progress" class="wizard-progress-fill"></div></div>
+              </article>
+
+              <article class="fitness-stat-card">
+                <span class="mini-label">Calories Burned</span>
+                <div class="fitness-stat-value" id="tracking-calories-value">0</div>
+                <div class="fitness-stat-meta"><span id="tracking-calories-current">0</span> / <span id="tracking-calories-goal">500</span> kcal</div>
+                <div class="wizard-progress"><div id="tracking-calories-progress" class="wizard-progress-fill"></div></div>
+              </article>
+
+              <article class="fitness-stat-card">
+                <span class="mini-label">Active Time</span>
+                <div class="fitness-stat-value" id="tracking-active-value">0</div>
+                <div class="fitness-stat-meta"><span id="tracking-active-current">0</span> / <span id="tracking-active-goal">90</span> mins</div>
+                <div class="wizard-progress"><div id="tracking-active-progress" class="wizard-progress-fill"></div></div>
+              </article>
+            </div>
+
+            <div class="fitness-heart-shell">
+              <button id="tracking-heart-button" class="fitness-heart-button" type="button" aria-label="Animate heart progress">
+                <svg class="fitness-heart-svg" viewBox="0 0 220 220" role="img" aria-hidden="true">
+                  <defs>
+                    <filter id="tracking-heart-glow-steps" x="-60%" y="-60%" width="220%" height="220%">
+                      <feDropShadow dx="0" dy="0" stdDeviation="4.5" flood-color="#22e06f" flood-opacity="0.45"></feDropShadow>
+                    </filter>
+                    <filter id="tracking-heart-glow-active" x="-60%" y="-60%" width="220%" height="220%">
+                      <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#4f7dff" flood-opacity="0.42"></feDropShadow>
+                    </filter>
+                    <filter id="tracking-heart-glow-calories" x="-60%" y="-60%" width="220%" height="220%">
+                      <feDropShadow dx="0" dy="0" stdDeviation="3.5" flood-color="#ff4da0" flood-opacity="0.42"></feDropShadow>
+                    </filter>
+                    <filter id="tracking-heart-core-glow" x="-50%" y="-50%" width="200%" height="200%">
+                      <feGaussianBlur stdDeviation="4" result="blur"></feGaussianBlur>
+                      <feMerge>
+                        <feMergeNode in="blur"></feMergeNode>
+                        <feMergeNode in="SourceGraphic"></feMergeNode>
+                      </feMerge>
+                    </filter>
+                    <path id="tracking-heart-shape" d="M110 188 C86 174 55 153 40 121 C28 96 34 63 57 48 C78 35 99 42 110 59 C121 42 142 35 163 48 C186 63 192 96 180 121 C165 153 134 174 110 188 Z" pathLength="100"></path>
+                  </defs>
+
+                  <g class="fitness-heart-rings">
+                    <use href="#tracking-heart-shape" class="fitness-heart-track fitness-heart-track-outer"></use>
+                    <use href="#tracking-heart-shape" id="tracking-heart-steps" class="fitness-heart-progress fitness-heart-progress-steps" filter="url(#tracking-heart-glow-steps)"></use>
+
+                    <use href="#tracking-heart-shape" class="fitness-heart-track fitness-heart-track-middle"></use>
+                    <use href="#tracking-heart-shape" id="tracking-heart-active" class="fitness-heart-progress fitness-heart-progress-active" filter="url(#tracking-heart-glow-active)"></use>
+
+                    <use href="#tracking-heart-shape" class="fitness-heart-track fitness-heart-track-inner"></use>
+                    <use href="#tracking-heart-shape" id="tracking-heart-calories" class="fitness-heart-progress fitness-heart-progress-calories" filter="url(#tracking-heart-glow-calories)"></use>
+                  </g>
+
+                  <radialGradient id="tracking-heart-inner-glow-gradient" cx="50%" cy="46%" r="52%">
+                    <stop offset="0%" stop-color="#ffffff" stop-opacity="0.16"></stop>
+                    <stop offset="38%" stop-color="#ff4da0" stop-opacity="0.12"></stop>
+                    <stop offset="68%" stop-color="#4f7dff" stop-opacity="0.1"></stop>
+                    <stop offset="100%" stop-color="#22e06f" stop-opacity="0"></stop>
+                  </radialGradient>
+
+                  <use href="#tracking-heart-shape" class="fitness-heart-inner-glow"></use>
+                  <use href="#tracking-heart-shape" class="fitness-heart-core" filter="url(#tracking-heart-core-glow)"></use>
+                  <use href="#tracking-heart-shape" class="fitness-heart-burst"></use>
+                </svg>
+                <span class="fitness-heart-center-content" aria-hidden="true">
+                  <span id="tracking-heart-center-value" class="fitness-heart-center-value">0%</span>
+                </span>
+              </button>
+            </div>
+
+            <div class="fitness-tracker-layout">
+              <form id="fitness-tracker-form" class="fitness-tracker-form">
+                <div class="form-row">
+                  <div>
+                    <label class="mini-label" for="tracking-steps-input">Steps</label>
+                    <input id="tracking-steps-input" type="number" min="0" step="1" placeholder="Enter steps" />
+                  </div>
+                  <div>
+                    <label class="mini-label" for="tracking-active-input">Active Time (mins)</label>
+                    <input id="tracking-active-input" type="number" min="0" step="1" placeholder="Enter active minutes" />
+                  </div>
+                </div>
+
+                <div class="fitness-tracker-actions">
+                  <button id="fitness-tracker-save" class="button button-primary" type="submit">Update Daily Progress</button>
+                  <button id="fitness-tracker-simulate" class="button button-outline" type="button">Simulate Activity</button>
+                </div>
+              </form>
+
+              <div class="fitness-tracker-summary">
+                <div class="fitness-summary-card">
+                  <span class="mini-label">Daily Progress</span>
+                  <strong id="tracking-overall-progress" class="fitness-summary-value">0%</strong>
+                  <p class="muted">Calculated from steps, calories, and active time against today&apos;s goals.</p>
+                </div>
+                <div class="fitness-summary-card">
+                  <span class="mini-label">Status</span>
+                  <strong id="tracking-status-text" class="fitness-summary-value">Getting started</strong>
+                  <p class="muted">Your activity is stored per day in local storage and refreshes automatically when values change.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
           <div class="profile-grid">
             <section class="glass-card card">
               <h2 class="page-title profile-panel-title">Edit Account Profile</h2>

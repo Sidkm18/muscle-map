@@ -1,6 +1,7 @@
 (function () {
   const app = window.MuscleMap || {};
   const form = document.getElementById('profile-form');
+  const TRACKING_STORAGE_KEY = 'mm-daily-fitness-tracking';
 
   if (!form) {
     return;
@@ -36,13 +37,58 @@
     workoutPlan: document.getElementById('profile-workout-plan'),
     workoutTime: document.getElementById('profile-workout-time'),
     diet: document.getElementById('profile-diet'),
-    goals: document.getElementById('profile-goals')
+    goals: document.getElementById('profile-goals'),
+    trackingDate: document.getElementById('tracking-date-label'),
+    trackingStepsValue: document.getElementById('tracking-steps-value'),
+    trackingStepsCurrent: document.getElementById('tracking-steps-current'),
+    trackingStepsGoal: document.getElementById('tracking-steps-goal'),
+    trackingStepsProgress: document.getElementById('tracking-steps-progress'),
+    trackingCaloriesValue: document.getElementById('tracking-calories-value'),
+    trackingCaloriesCurrent: document.getElementById('tracking-calories-current'),
+    trackingCaloriesGoal: document.getElementById('tracking-calories-goal'),
+    trackingCaloriesProgress: document.getElementById('tracking-calories-progress'),
+    trackingActiveValue: document.getElementById('tracking-active-value'),
+    trackingActiveCurrent: document.getElementById('tracking-active-current'),
+    trackingActiveGoal: document.getElementById('tracking-active-goal'),
+    trackingActiveProgress: document.getElementById('tracking-active-progress'),
+    trackingOverallProgress: document.getElementById('tracking-overall-progress'),
+    trackingStatus: document.getElementById('tracking-status-text'),
+    trackingForm: document.getElementById('fitness-tracker-form'),
+    trackingSave: document.getElementById('fitness-tracker-save'),
+    trackingSimulate: document.getElementById('fitness-tracker-simulate'),
+    trackingStepsInput: document.getElementById('tracking-steps-input'),
+    trackingActiveInput: document.getElementById('tracking-active-input'),
+    trackingHeartButton: document.getElementById('tracking-heart-button'),
+    trackingHeartSteps: document.getElementById('tracking-heart-steps'),
+    trackingHeartActive: document.getElementById('tracking-heart-active'),
+    trackingHeartCalories: document.getElementById('tracking-heart-calories'),
+    trackingHeartCenterValue: document.getElementById('tracking-heart-center-value')
   };
   let selectedProfilePhoto = '';
+  let fitnessTrackerState = readTrackingState();
+  let trackingHeartProgress = {
+    steps: 0,
+    calories: 0,
+    active: 0
+  };
+  let lastCompletedTrackingKey = '';
+  let lastHeartCenterDisplayValue = 0;
 
   document.addEventListener('DOMContentLoaded', function () {
     loadProfile();
+    renderTracking();
     form.addEventListener('submit', handleSubmit);
+    if (fields.trackingForm) {
+      fields.trackingForm.addEventListener('submit', handleTrackingSubmit);
+    }
+    if (fields.trackingSimulate) {
+      fields.trackingSimulate.addEventListener('click', handleTrackingSimulation);
+    }
+    if (fields.trackingHeartButton) {
+      fields.trackingHeartButton.addEventListener('click', function () {
+        animateTrackingHeart(trackingHeartProgress);
+      });
+    }
     if (fields.avatarTrigger && fields.photoInput) {
       fields.avatarTrigger.addEventListener('click', function () {
         fields.photoInput.click();
@@ -269,6 +315,310 @@
         }
         window.location.href = './login.html';
       });
+  }
+
+  function handleTrackingSubmit(event) {
+    event.preventDefault();
+
+    const today = getTodayKey();
+    const currentDay = ensureTrackingDay(today);
+    const nextSteps = normalizeNumber(fields.trackingStepsInput.value, currentDay.steps);
+    const nextActiveMinutes = normalizeNumber(fields.trackingActiveInput.value, currentDay.activeMinutes);
+
+    updateTrackingDay(today, {
+      steps: nextSteps,
+      activeMinutes: nextActiveMinutes
+    });
+
+    if (window.showToast) {
+      window.showToast('Daily fitness progress updated.', 'success');
+    }
+  }
+
+  function handleTrackingSimulation() {
+    const today = getTodayKey();
+    const currentDay = ensureTrackingDay(today);
+    const nextSteps = currentDay.steps + randomInt(650, 1850);
+    const nextActiveMinutes = currentDay.activeMinutes + randomInt(8, 24);
+
+    updateTrackingDay(today, {
+      steps: nextSteps,
+      activeMinutes: nextActiveMinutes
+    });
+
+    if (window.showToast) {
+      window.showToast('Simulated activity added for today.', 'success');
+    }
+  }
+
+  function renderTracking() {
+    const today = getTodayKey();
+    const currentDay = ensureTrackingDay(today);
+    const calories = calculateCalories(currentDay.steps, currentDay.activeMinutes);
+    const progress = {
+      steps: calculateProgress(currentDay.steps, currentDay.goals.steps),
+      calories: calculateProgress(calories, currentDay.goals.calories),
+      active: calculateProgress(currentDay.activeMinutes, currentDay.goals.activeMinutes)
+    };
+    const averageProgress = Math.round((progress.steps + progress.calories + progress.active) / 3);
+    const isComplete = progress.steps >= 100 && progress.calories >= 100 && progress.active >= 100;
+
+    fields.trackingDate.textContent = formatTrackingDate(today);
+    fields.trackingStepsValue.textContent = formatCount(currentDay.steps);
+    fields.trackingStepsCurrent.textContent = formatCount(currentDay.steps);
+    fields.trackingStepsGoal.textContent = formatCount(currentDay.goals.steps);
+    fields.trackingStepsProgress.style.width = progress.steps + '%';
+
+    fields.trackingCaloriesValue.textContent = formatCount(calories);
+    fields.trackingCaloriesCurrent.textContent = formatCount(calories);
+    fields.trackingCaloriesGoal.textContent = formatCount(currentDay.goals.calories);
+    fields.trackingCaloriesProgress.style.width = progress.calories + '%';
+
+    fields.trackingActiveValue.textContent = formatCount(currentDay.activeMinutes);
+    fields.trackingActiveCurrent.textContent = formatCount(currentDay.activeMinutes);
+    fields.trackingActiveGoal.textContent = formatCount(currentDay.goals.activeMinutes);
+    fields.trackingActiveProgress.style.width = progress.active + '%';
+
+    fields.trackingOverallProgress.textContent = averageProgress + '%';
+    fields.trackingStatus.textContent = describeTrackingStatus(averageProgress, progress);
+
+    fields.trackingStepsInput.value = String(currentDay.steps);
+    fields.trackingActiveInput.value = String(currentDay.activeMinutes);
+    trackingHeartProgress = progress;
+    updateTrackingHeart(progress);
+    updateTrackingHeartCenter(averageProgress);
+    syncTrackingHeartCompletion(today, isComplete);
+  }
+
+  function readTrackingState() {
+    try {
+      const raw = localStorage.getItem(TRACKING_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch (error) {
+      return {};
+    }
+  }
+
+  function ensureTrackingDay(dayKey) {
+    if (!fitnessTrackerState[dayKey]) {
+      fitnessTrackerState[dayKey] = createDefaultTrackingDay();
+      persistTrackingState();
+    }
+
+    const day = fitnessTrackerState[dayKey];
+    day.goals = Object.assign(createDefaultTrackingDay().goals, day.goals || {});
+    day.calories = calculateCalories(day.steps || 0, day.activeMinutes || 0);
+    return day;
+  }
+
+  function updateTrackingDay(dayKey, updates) {
+    const current = ensureTrackingDay(dayKey);
+    const next = Object.assign({}, current, updates || {});
+    next.steps = normalizeNumber(next.steps, 0);
+    next.activeMinutes = normalizeNumber(next.activeMinutes, 0);
+    next.calories = calculateCalories(next.steps, next.activeMinutes);
+    next.updatedAt = new Date().toISOString();
+    fitnessTrackerState[dayKey] = next;
+    persistTrackingState();
+    renderTracking();
+  }
+
+  function persistTrackingState() {
+    localStorage.setItem(TRACKING_STORAGE_KEY, JSON.stringify(fitnessTrackerState));
+  }
+
+  function createDefaultTrackingDay() {
+    return {
+      steps: 0,
+      activeMinutes: 0,
+      calories: 0,
+      goals: {
+        steps: 10000,
+        calories: 500,
+        activeMinutes: 90
+      },
+      updatedAt: new Date().toISOString()
+    };
+  }
+
+  function calculateCalories(steps, activeMinutes) {
+    const safeSteps = Number(steps || 0);
+    const safeActiveMinutes = Number(activeMinutes || 0);
+    return Math.round((safeSteps * 0.04) + (safeActiveMinutes * 3.2));
+  }
+
+  function calculateProgress(current, goal) {
+    if (!goal) {
+      return 0;
+    }
+
+    return Math.min(100, Math.round((Number(current || 0) / Number(goal)) * 100));
+  }
+
+  function describeTrackingStatus(overallProgress, progress) {
+    if (progress.steps >= 100 && progress.calories >= 100 && progress.active >= 100) {
+      return 'Daily goals completed';
+    }
+    if (overallProgress >= 70) {
+      return 'Strong momentum today';
+    }
+    if (overallProgress >= 35) {
+      return 'Good progress building';
+    }
+    return 'Getting started';
+  }
+
+  function getTodayKey() {
+    const now = new Date();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return now.getFullYear() + '-' + month + '-' + day;
+  }
+
+  function formatTrackingDate(dayKey) {
+    const date = new Date(dayKey + 'T00:00:00');
+    if (Number.isNaN(date.getTime())) {
+      return 'Today';
+    }
+
+    return date.toLocaleDateString(undefined, {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+
+  function normalizeNumber(value, fallback) {
+    const number = Number(value);
+    if (Number.isNaN(number) || number < 0) {
+      return Number(fallback || 0);
+    }
+    return Math.round(number);
+  }
+
+  function formatCount(value) {
+    return Number(value || 0).toLocaleString();
+  }
+
+  function randomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function updateTrackingHeart(progress) {
+    setHeartPathProgress(fields.trackingHeartSteps, progress.steps);
+    setHeartPathProgress(fields.trackingHeartActive, progress.active);
+    setHeartPathProgress(fields.trackingHeartCalories, progress.calories);
+  }
+
+  function animateTrackingHeart(progress) {
+    if (!fields.trackingHeartButton) {
+      return;
+    }
+
+    fields.trackingHeartButton.classList.remove('is-animating');
+    setHeartPathProgress(fields.trackingHeartSteps, 0);
+    setHeartPathProgress(fields.trackingHeartActive, 0);
+    setHeartPathProgress(fields.trackingHeartCalories, 0);
+
+    window.requestAnimationFrame(function () {
+      window.requestAnimationFrame(function () {
+        fields.trackingHeartButton.classList.add('is-animating');
+        updateTrackingHeart(progress);
+      });
+    });
+
+    window.setTimeout(function () {
+      fields.trackingHeartButton.classList.remove('is-animating');
+    }, 760);
+  }
+
+  function syncTrackingHeartCompletion(dayKey, isComplete) {
+    if (!fields.trackingHeartButton) {
+      return;
+    }
+
+    if (!isComplete) {
+      fields.trackingHeartButton.classList.remove('is-complete');
+      fields.trackingHeartButton.classList.remove('is-celebrating');
+      if (lastCompletedTrackingKey === dayKey) {
+        lastCompletedTrackingKey = '';
+      }
+      return;
+    }
+
+    fields.trackingHeartButton.classList.add('is-complete');
+
+    if (lastCompletedTrackingKey === dayKey) {
+      return;
+    }
+
+    lastCompletedTrackingKey = dayKey;
+    fields.trackingHeartButton.classList.remove('is-celebrating');
+    window.requestAnimationFrame(function () {
+      fields.trackingHeartButton.classList.add('is-celebrating');
+    });
+
+    window.setTimeout(function () {
+      if (fields.trackingHeartButton) {
+        fields.trackingHeartButton.classList.remove('is-celebrating');
+      }
+    }, 900);
+  }
+
+  function updateTrackingHeartCenter(dailyProgress) {
+    if (!fields.trackingHeartCenterValue || !fields.trackingHeartButton) {
+      return;
+    }
+
+    const nextValue = Math.max(0, Math.min(100, Math.round(Number(dailyProgress || 0))));
+    animateHeartCenterValue(lastHeartCenterDisplayValue, nextValue);
+    lastHeartCenterDisplayValue = nextValue;
+  }
+
+  function animateHeartCenterValue(fromValue, toValue) {
+    if (!fields.trackingHeartCenterValue || !fields.trackingHeartButton) {
+      return;
+    }
+
+    const startValue = Math.round(Number(fromValue || 0));
+    const endValue = Math.round(Number(toValue || 0));
+    const shouldAnimate = startValue !== endValue;
+
+    if (!shouldAnimate) {
+      fields.trackingHeartCenterValue.textContent = endValue + '%';
+      return;
+    }
+
+    const duration = 520;
+    const startTime = window.performance && typeof window.performance.now === 'function'
+      ? window.performance.now()
+      : Date.now();
+
+    function step(now) {
+      const currentTime = typeof now === 'number' ? now : Date.now();
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(1, elapsed / duration);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const currentValue = Math.round(startValue + ((endValue - startValue) * eased));
+      fields.trackingHeartCenterValue.textContent = currentValue + '%';
+
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      }
+    }
+
+    window.requestAnimationFrame(step);
+  }
+
+  function setHeartPathProgress(element, progress) {
+    if (!element) {
+      return;
+    }
+
+    const safeProgress = Math.max(0, Math.min(100, Number(progress || 0)));
+    const remaining = Math.max(0, 100 - safeProgress);
+    element.style.strokeDasharray = safeProgress.toFixed(2) + ' ' + remaining.toFixed(2);
+    element.style.strokeDashoffset = '0';
   }
 
   function formatMetric(value, unit) {
