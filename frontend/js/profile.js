@@ -80,6 +80,7 @@
   const weeklyStepsFallback = [1800, 2600, 2200, 3400, 3900, 3100, 5200];
   let selectedProfilePhoto = '';
   let fitnessTrackerState = readTrackingState();
+  ensureDemoTrackingStreak();
   let workoutTimerInterval = null;
   let workoutTimerStartedAt = 0;
   let workoutElapsedSeconds = 0;
@@ -478,6 +479,45 @@
     } catch (error) {
       return {};
     }
+  }
+
+  function ensureDemoTrackingStreak() {
+    const today = parseDayKey(getTodayKey());
+    if (!today) {
+      return;
+    }
+
+    const recentActiveDays = [0, 1, 2].filter(function (offset) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - offset);
+      const dayKey = buildDayKey(date.getFullYear(), date.getMonth() + 1, date.getDate());
+      const entry = fitnessTrackerState[dayKey];
+      return entry && Number(entry.steps || 0) > 0;
+    });
+
+    if (recentActiveDays.length >= 3) {
+      return;
+    }
+
+    const demoOffsets = [0, 1, 2];
+    demoOffsets.forEach(function (offset, index) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - offset);
+      const dayKey = buildDayKey(date.getFullYear(), date.getMonth() + 1, date.getDate());
+      const existingDay = fitnessTrackerState[dayKey] || createDefaultTrackingDay();
+      fitnessTrackerState[dayKey] = Object.assign({}, existingDay, {
+        steps: Math.max(Number(existingDay.steps || 0), 4200 - (index * 650)),
+        activeMinutes: Math.max(Number(existingDay.activeMinutes || 0), 32 - (index * 4)),
+        workoutDurationSeconds: Math.max(Number(existingDay.workoutDurationSeconds || 0), 1500 - (index * 180)),
+        updatedAt: new Date().toISOString()
+      });
+      fitnessTrackerState[dayKey].calories = calculateCalories(
+        fitnessTrackerState[dayKey].steps,
+        fitnessTrackerState[dayKey].activeMinutes
+      );
+    });
+
+    persistTrackingState();
   }
 
   function ensureTrackingDay(dayKey) {

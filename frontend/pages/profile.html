@@ -98,58 +98,58 @@
               </article>
             </div>
 
-            <div class="fitness-heart-shell">
-              <button id="tracking-heart-button" class="fitness-heart-button" type="button" aria-label="Animate heart progress">
-                <svg class="fitness-heart-svg" viewBox="0 0 220 220" role="img" aria-hidden="true">
-                  <defs>
-                    <filter id="tracking-heart-glow-steps" x="-60%" y="-60%" width="220%" height="220%">
-                      <feDropShadow dx="0" dy="0" stdDeviation="4.5" flood-color="#22e06f" flood-opacity="0.45"></feDropShadow>
-                    </filter>
-                    <filter id="tracking-heart-glow-active" x="-60%" y="-60%" width="220%" height="220%">
-                      <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#4f7dff" flood-opacity="0.42"></feDropShadow>
-                    </filter>
-                    <filter id="tracking-heart-glow-calories" x="-60%" y="-60%" width="220%" height="220%">
-                      <feDropShadow dx="0" dy="0" stdDeviation="3.5" flood-color="#ff4da0" flood-opacity="0.42"></feDropShadow>
-                    </filter>
-                    <filter id="tracking-heart-core-glow" x="-50%" y="-50%" width="200%" height="200%">
-                      <feGaussianBlur stdDeviation="4" result="blur"></feGaussianBlur>
-                      <feMerge>
-                        <feMergeNode in="blur"></feMergeNode>
-                        <feMergeNode in="SourceGraphic"></feMergeNode>
-                      </feMerge>
-                    </filter>
-                    <path id="tracking-heart-shape" d="M110 188 C86 174 55 153 40 121 C28 96 34 63 57 48 C78 35 99 42 110 59 C121 42 142 35 163 48 C186 63 192 96 180 121 C165 153 134 174 110 188 Z" pathLength="100"></path>
-                  </defs>
+            <div class="fitness-heart-row">
+              <div class="fitness-heart-shell">
+                <button id="tracking-heart-button" class="fitness-heart-button" type="button" aria-label="Animate heart progress">
+                  <svg class="fitness-heart-svg" viewBox="0 0 220 220" role="img" aria-hidden="true">
+                    <defs>
+                      <filter id="tracking-heart-glow-steps" x="-60%" y="-60%" width="220%" height="220%">
+                        <feDropShadow dx="0" dy="0" stdDeviation="4.5" flood-color="#22e06f" flood-opacity="0.45"></feDropShadow>
+                      </filter>
+                      <filter id="tracking-heart-glow-active" x="-60%" y="-60%" width="220%" height="220%">
+                        <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#4f7dff" flood-opacity="0.42"></feDropShadow>
+                      </filter>
+                      <filter id="tracking-heart-glow-calories" x="-60%" y="-60%" width="220%" height="220%">
+                        <feDropShadow dx="0" dy="0" stdDeviation="3.5" flood-color="#ff4da0" flood-opacity="0.42"></feDropShadow>
+                      </filter>
+                      <filter id="tracking-heart-core-glow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="4" result="blur"></feGaussianBlur>
+                        <feMerge>
+                          <feMergeNode in="blur"></feMergeNode>
+                          <feMergeNode in="SourceGraphic"></feMergeNode>
+                        </feMerge>
+                      </filter>
+                      <path id="tracking-heart-shape" d="M110 188 C86 174 55 153 40 121 C28 96 34 63 57 48 C78 35 99 42 110 59 C121 42 142 35 163 48 C186 63 192 96 180 121 C165 153 134 174 110 188 Z" pathLength="100"></path>
+                    </defs>
 
-                  <g class="fitness-heart-rings">
-                    <use href="#tracking-heart-shape" class="fitness-heart-track fitness-heart-track-outer"></use>
-                    <use href="#tracking-heart-shape" id="tracking-heart-steps" class="fitness-heart-progress fitness-heart-progress-steps" filter="url(#tracking-heart-glow-steps)"></use>
+                    <g class="fitness-heart-rings">
+                      <use href="#tracking-heart-shape" class="fitness-heart-track fitness-heart-track-outer"></use>
+                      <use href="#tracking-heart-shape" id="tracking-heart-steps" class="fitness-heart-progress fitness-heart-progress-steps" filter="url(#tracking-heart-glow-steps)"></use>
 
-                    <use href="#tracking-heart-shape" class="fitness-heart-track fitness-heart-track-middle"></use>
-                    <use href="#tracking-heart-shape" id="tracking-heart-active" class="fitness-heart-progress fitness-heart-progress-active" filter="url(#tracking-heart-glow-active)"></use>
+                      <use href="#tracking-heart-shape" class="fitness-heart-track fitness-heart-track-middle"></use>
+                      <use href="#tracking-heart-shape" id="tracking-heart-active" class="fitness-heart-progress fitness-heart-progress-active" filter="url(#tracking-heart-glow-active)"></use>
 
-                    <use href="#tracking-heart-shape" class="fitness-heart-track fitness-heart-track-inner"></use>
-                    <use href="#tracking-heart-shape" id="tracking-heart-calories" class="fitness-heart-progress fitness-heart-progress-calories" filter="url(#tracking-heart-glow-calories)"></use>
-                  </g>
+                      <use href="#tracking-heart-shape" class="fitness-heart-track fitness-heart-track-inner"></use>
+                      <use href="#tracking-heart-shape" id="tracking-heart-calories" class="fitness-heart-progress fitness-heart-progress-calories" filter="url(#tracking-heart-glow-calories)"></use>
+                    </g>
 
-                  <radialGradient id="tracking-heart-inner-glow-gradient" cx="50%" cy="46%" r="52%">
-                    <stop offset="0%" stop-color="#ffffff" stop-opacity="0.16"></stop>
-                    <stop offset="38%" stop-color="#ff4da0" stop-opacity="0.12"></stop>
-                    <stop offset="68%" stop-color="#4f7dff" stop-opacity="0.1"></stop>
-                    <stop offset="100%" stop-color="#22e06f" stop-opacity="0"></stop>
-                  </radialGradient>
+                    <radialGradient id="tracking-heart-inner-glow-gradient" cx="50%" cy="46%" r="52%">
+                      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.16"></stop>
+                      <stop offset="38%" stop-color="#ff4da0" stop-opacity="0.12"></stop>
+                      <stop offset="68%" stop-color="#4f7dff" stop-opacity="0.1"></stop>
+                      <stop offset="100%" stop-color="#22e06f" stop-opacity="0"></stop>
+                    </radialGradient>
 
-                  <use href="#tracking-heart-shape" class="fitness-heart-inner-glow"></use>
-                  <use href="#tracking-heart-shape" class="fitness-heart-core" filter="url(#tracking-heart-core-glow)"></use>
-                  <use href="#tracking-heart-shape" class="fitness-heart-burst"></use>
-                </svg>
-                <span class="fitness-heart-center-content" aria-hidden="true">
-                  <span id="tracking-heart-center-value" class="fitness-heart-center-value">0%</span>
-                </span>
-              </button>
-            </div>
+                    <use href="#tracking-heart-shape" class="fitness-heart-inner-glow"></use>
+                    <use href="#tracking-heart-shape" class="fitness-heart-core" filter="url(#tracking-heart-core-glow)"></use>
+                    <use href="#tracking-heart-shape" class="fitness-heart-burst"></use>
+                  </svg>
+                  <span class="fitness-heart-center-content" aria-hidden="true">
+                    <span id="tracking-heart-center-value" class="fitness-heart-center-value">0%</span>
+                  </span>
+                </button>
+              </div>
 
-            <div class="fitness-tracker-layout">
               <form id="fitness-tracker-form" class="fitness-tracker-form">
                 <div class="form-row">
                   <div>
@@ -167,7 +167,9 @@
                   <button id="fitness-tracker-simulate" class="button button-outline" type="button">Simulate Activity</button>
                 </div>
               </form>
+            </div>
 
+            <div class="fitness-tracker-layout">
               <div class="fitness-tracker-summary">
                 <div class="fitness-summary-card">
                   <span class="mini-label">Daily Progress</span>
@@ -371,6 +373,6 @@
 
     <script src="../js/site-runtime.js?v=20260416b" defer></script>
     <script src="../js/site.js?v=20260416c" defer></script>
-    <script src="../js/profile.js?v=20260416d" defer></script>
+    <script src="../js/profile.js?v=20260416e" defer></script>
   </body>
 </html>
