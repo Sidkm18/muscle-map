@@ -4,6 +4,8 @@
   const mount = document.getElementById('exercise-grid');
   const count = document.getElementById('exercise-count');
   const filterRow = document.getElementById('filter-row');
+  const equipmentFilterSection = document.getElementById('equipment-filter-section');
+  const equipmentFilterRow = document.getElementById('equipment-filter-row');
   const startWorkoutButton = document.getElementById('start-workout-button');
   const workoutSessionCount = document.getElementById('workout-session-count');
   const workoutFloatingPanel = document.getElementById('workout-floating-panel');
@@ -20,9 +22,22 @@
   const workoutFloatingList = document.getElementById('workout-floating-list');
   const app = window.MuscleMap || {};
 
-  if (!mount || !count || !filterRow || !startWorkoutButton || !workoutSessionCount || !workoutFloatingPanel || !workoutFloatingTimerBlock || !workoutFloatingTimerDisplay || !workoutTimerStart || !workoutTimerStop || !workoutTimerLap || !workoutTimerReset || !workoutFloatingProgressLabel || !workoutFloatingProgressValue || !workoutFloatingProgressBar || !workoutFloatingLaps || !workoutFloatingList) {
+  if (!mount || !count || !filterRow || !equipmentFilterSection || !equipmentFilterRow || !startWorkoutButton || !workoutSessionCount || !workoutFloatingPanel || !workoutFloatingTimerBlock || !workoutFloatingTimerDisplay || !workoutTimerStart || !workoutTimerStop || !workoutTimerLap || !workoutTimerReset || !workoutFloatingProgressLabel || !workoutFloatingProgressValue || !workoutFloatingProgressBar || !workoutFloatingLaps || !workoutFloatingList) {
     return;
   }
+
+  const equipmentOptions = [
+    { value: 'all', label: 'All Equipment' },
+    { value: 'none', label: 'None' },
+    { value: 'barbell', label: 'Barbell' },
+    { value: 'dumbbell', label: 'Dumbbell' },
+    { value: 'kettlebell', label: 'Kettlebell' },
+    { value: 'machine', label: 'Machine' },
+    { value: 'plate', label: 'Plate' },
+    { value: 'resistance-band', label: 'Resistance Band' },
+    { value: 'suspension-band', label: 'Suspension Band' },
+    { value: 'other', label: 'Other' }
+  ];
 
   const fallbackExercises = [
     { name: 'Bench Press', category: 'chest', difficulty: 'Intermediate', reps: '8-12', description: 'Classic compound movement for chest development.' },
@@ -49,7 +64,8 @@
   };
 
   let exercises = fallbackExercises.slice();
-  let currentFilter = 'all';
+  let selectedMuscle = 'all';
+  let selectedEquipment = null;
   let workoutSession = readWorkoutSession();
   let stopwatchState = createStopwatchState(workoutSession);
   workoutSession.active = false;
@@ -72,11 +88,24 @@
       return;
     }
 
-    currentFilter = btn.getAttribute('data-filter') || 'all';
+    selectedMuscle = btn.getAttribute('data-filter') || 'all';
+    selectedEquipment = null;
     filterRow.querySelectorAll('.pill').forEach(function (node) {
       node.classList.remove('active');
     });
     btn.classList.add('active');
+    renderEquipmentFilters();
+    render();
+  });
+
+  equipmentFilterRow.addEventListener('click', function (event) {
+    const btn = event.target.closest('button[data-equipment-filter]');
+    if (!btn) {
+      return;
+    }
+
+    selectedEquipment = btn.getAttribute('data-equipment-filter') || 'all';
+    renderEquipmentFilters();
     render();
   });
 
@@ -271,10 +300,10 @@
   });
 
   function render() {
-    const filtered = currentFilter === 'all'
+    const filtered = selectedMuscle === 'all'
       ? exercises
       : exercises.filter(function (item) {
-        return item.category === currentFilter;
+        return item.category === selectedMuscle;
       });
 
     count.textContent = 'Showing ' + filtered.length + ' exercise' + (filtered.length === 1 ? '' : 's');
@@ -296,6 +325,25 @@
             '<button class="button button-outline exercise-add-button" type="button" data-add-workout="' + escapeHtml(item.name) + '">' + (alreadyAdded ? 'Add Again' : 'Add To Workout') + '</button>' +
           '</div>' +
         '</article>'
+      );
+    }).join('');
+  }
+
+  function renderEquipmentFilters() {
+    const shouldShowEquipment = selectedMuscle !== 'all';
+
+    equipmentFilterSection.hidden = !shouldShowEquipment;
+    if (!shouldShowEquipment) {
+      equipmentFilterRow.innerHTML = '';
+      return;
+    }
+
+    equipmentFilterRow.innerHTML = equipmentOptions.map(function (option) {
+      const isActive = selectedEquipment === option.value;
+      return (
+        '<button class="pill' + (isActive ? ' active' : '') + '" type="button" data-equipment-filter="' + escapeHtml(option.value) + '">' +
+          escapeHtml(option.label) +
+        '</button>'
       );
     }).join('');
   }
@@ -339,11 +387,13 @@
         if (data && Array.isArray(data.exercises) && data.exercises.length) {
           exercises = data.exercises.map(normalizeExercise);
         }
+        renderEquipmentFilters();
         renderSessionStatus();
         render();
       })
       .catch(function () {
         exercises = fallbackExercises.slice();
+        renderEquipmentFilters();
         renderSessionStatus();
         render();
       });
@@ -657,4 +707,5 @@
   }
 
   loadExercises();
+  renderEquipmentFilters();
 })();
