@@ -4,6 +4,8 @@
   const mount = document.getElementById('exercise-grid');
   const count = document.getElementById('exercise-count');
   const filterRow = document.getElementById('filter-row');
+  const subMuscleFilterSection = document.getElementById('sub-muscle-filter-section');
+  const subMuscleFilterRow = document.getElementById('sub-muscle-filter-row');
   const equipmentFilterSection = document.getElementById('equipment-filter-section');
   const equipmentFilterRow = document.getElementById('equipment-filter-row');
   const startWorkoutButton = document.getElementById('start-workout-button');
@@ -22,9 +24,17 @@
   const workoutFloatingList = document.getElementById('workout-floating-list');
   const app = window.MuscleMap || {};
 
-  if (!mount || !count || !filterRow || !equipmentFilterSection || !equipmentFilterRow || !startWorkoutButton || !workoutSessionCount || !workoutFloatingPanel || !workoutFloatingTimerBlock || !workoutFloatingTimerDisplay || !workoutTimerStart || !workoutTimerStop || !workoutTimerLap || !workoutTimerReset || !workoutFloatingProgressLabel || !workoutFloatingProgressValue || !workoutFloatingProgressBar || !workoutFloatingLaps || !workoutFloatingList) {
+  if (!mount || !count || !filterRow || !subMuscleFilterSection || !subMuscleFilterRow || !equipmentFilterSection || !equipmentFilterRow || !startWorkoutButton || !workoutSessionCount || !workoutFloatingPanel || !workoutFloatingTimerBlock || !workoutFloatingTimerDisplay || !workoutTimerStart || !workoutTimerStop || !workoutTimerLap || !workoutTimerReset || !workoutFloatingProgressLabel || !workoutFloatingProgressValue || !workoutFloatingProgressBar || !workoutFloatingLaps || !workoutFloatingList) {
     return;
   }
+
+  const subMuscleOptionsByMuscle = {
+    chest: ['Upper Chest', 'Middle Chest', 'Lower Chest'],
+    back: ['Lats', 'Upper Back', 'Lower Back'],
+    shoulders: ['Front Delt', 'Side Delt', 'Rear Delt'],
+    arms: ['Biceps', 'Triceps', 'Forearms'],
+    legs: ['Quads', 'Hamstrings', 'Glutes', 'Calves']
+  };
 
   const equipmentOptions = [
     { value: 'all', label: 'All Equipment' },
@@ -40,21 +50,150 @@
   ];
 
   const fallbackExercises = [
-    { name: 'Bench Press', category: 'chest', difficulty: 'Intermediate', reps: '8-12', description: 'Classic compound movement for chest development.' },
-    { name: 'Incline Dumbbell Press', category: 'chest', difficulty: 'Intermediate', reps: '8-12', description: 'Targets upper chest with adjustable angle.' },
-    { name: 'Cable Fly', category: 'chest', difficulty: 'Beginner', reps: '12-15', description: 'Isolation movement for chest definition.' },
-    { name: 'Deadlift', category: 'back', difficulty: 'Advanced', reps: '5-8', description: 'Full body posterior chain builder.' },
-    { name: 'Pull-ups', category: 'back', difficulty: 'Intermediate', reps: '8-12', description: 'Bodyweight lat builder and grip strength.' },
-    { name: 'Barbell Row', category: 'back', difficulty: 'Intermediate', reps: '8-12', description: 'Thick back developer with barbell.' },
-    { name: 'Squat', category: 'legs', difficulty: 'Advanced', reps: '5-8', description: 'King of leg exercises, full lower body.' },
-    { name: 'Leg Press', category: 'legs', difficulty: 'Beginner', reps: '10-15', description: 'Machine-based quad dominant movement.' },
-    { name: 'Romanian Deadlift', category: 'legs', difficulty: 'Intermediate', reps: '8-12', description: 'Hamstring and glute focused hip hinge.' },
-    { name: 'Overhead Press', category: 'shoulders', difficulty: 'Intermediate', reps: '6-10', description: 'Standing barbell press for shoulder mass.' },
-    { name: 'Lateral Raise', category: 'shoulders', difficulty: 'Beginner', reps: '12-15', description: 'Isolation movement for side delts.' },
-    { name: 'Barbell Curl', category: 'arms', difficulty: 'Beginner', reps: '10-12', description: 'Classic bicep builder with barbell.' },
-    { name: 'Tricep Pushdown', category: 'arms', difficulty: 'Beginner', reps: '12-15', description: 'Cable isolation for tricep development.' },
-    { name: 'Dips', category: 'chest', difficulty: 'Intermediate', reps: '8-12', description: 'Compound pushing movement for chest and triceps.' },
-    { name: 'Face Pull', category: 'shoulders', difficulty: 'Beginner', reps: '15-20', description: 'Rear delt and rotator cuff health.' }
+    { name: 'Romanian Deadlift', category: 'legs', muscle: 'Legs', subMuscle: 'Hamstrings', equipment: 'Dumbbell', difficulty: 'Intermediate', reps: '8-12', description: 'Dumbbell hip-hinge movement that emphasizes hamstring stretch and glute control.' },
+    { name: 'Single Leg Romanian Deadlift', category: 'legs', muscle: 'Legs', subMuscle: 'Hamstrings', equipment: 'Dumbbell', difficulty: 'Intermediate', reps: '8-12', description: 'Single-leg dumbbell hinge that builds hamstring strength, balance, and coordination.' },
+    { name: 'Bicep Curl', category: 'arms', muscle: 'Arms', subMuscle: 'Biceps', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '10-12', description: 'Classic dumbbell curl for building basic bicep strength and control.' },
+    { name: 'Concentration Curl', category: 'arms', muscle: 'Arms', subMuscle: 'Biceps', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '10-12', description: 'Strict single-arm curl that isolates the biceps with focused contraction.' },
+    { name: 'Cross Body Hammer Curl', category: 'arms', muscle: 'Arms', subMuscle: 'Biceps', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '10-12', description: 'Hammer curl variation that travels across the body to train the biceps and brachialis.' },
+    { name: 'Hammer Curl', category: 'arms', muscle: 'Arms', subMuscle: 'Biceps', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '10-12', description: 'Neutral-grip curl for balanced bicep and forearm development.' },
+    { name: 'Pinwheel Curl', category: 'arms', muscle: 'Arms', subMuscle: 'Biceps', equipment: 'Dumbbell', difficulty: 'Intermediate', reps: '10-12', description: 'Alternating hammer-style curl that emphasizes the brachialis and outer arm.' },
+    { name: 'Preacher Curl', category: 'arms', muscle: 'Arms', subMuscle: 'Biceps', equipment: 'Dumbbell', difficulty: 'Intermediate', reps: '10-12', description: 'Bench-supported curl that limits momentum and increases bicep isolation.' },
+    { name: 'Reverse Curl', category: 'arms', muscle: 'Arms', subMuscle: 'Biceps', equipment: 'Dumbbell', difficulty: 'Intermediate', reps: '10-12', description: 'Overhand dumbbell curl that trains the biceps along with the forearms.' },
+    { name: 'Reverse Grip Concentration Curl', category: 'arms', muscle: 'Arms', subMuscle: 'Biceps', equipment: 'Dumbbell', difficulty: 'Intermediate', reps: '10-12', description: 'Concentration curl with an overhand grip for extra forearm and bicep demand.' },
+    { name: 'Seated Incline Curl', category: 'arms', muscle: 'Arms', subMuscle: 'Biceps', equipment: 'Dumbbell', difficulty: 'Intermediate', reps: '10-12', description: 'Incline bench curl that lengthens the biceps and increases range of motion.' },
+    { name: 'Spider Curl', category: 'arms', muscle: 'Arms', subMuscle: 'Biceps', equipment: 'Dumbbell', difficulty: 'Intermediate', reps: '10-12', description: 'Front-supported curl that keeps tension high through the full movement.' },
+    { name: 'Waiter Curl', category: 'arms', muscle: 'Arms', subMuscle: 'Biceps', equipment: 'Dumbbell', difficulty: 'Intermediate', reps: '10-12', description: 'Curl performed by holding one dumbbell from underneath to target the inner biceps.' },
+    { name: 'Zottman Curl', category: 'arms', muscle: 'Arms', subMuscle: 'Biceps', equipment: 'Dumbbell', difficulty: 'Advanced', reps: '10-12', description: 'Curl variation combining a supinated lift with a pronated lowering phase.' },
+    { name: 'Single Leg Standing Calf Raise', category: 'legs', muscle: 'Legs', subMuscle: 'Calves', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '12-15', description: 'Single-leg calf raise with dumbbell load for unilateral calf strength and balance.' },
+    { name: 'Standing Calf Raise', category: 'legs', muscle: 'Legs', subMuscle: 'Calves', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '12-15', description: 'Standing calf raise using dumbbell resistance to build calf strength and endurance.' },
+    { name: 'Seated Palms Up Wrist Curl', category: 'arms', muscle: 'Arms', subMuscle: 'Forearms', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '12-15', description: 'Seated wrist curl variation that targets the forearm flexors with controlled palm-up movement.' },
+    { name: 'Deadlift', category: 'legs', muscle: 'Legs', subMuscle: 'Glutes', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '8-12', description: 'Dumbbell deadlift variation that trains the glutes through a controlled hip-hinge pattern.' },
+    { name: 'Frog Pumps', category: 'legs', muscle: 'Legs', subMuscle: 'Glutes', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '12-15', description: 'Glute-focused bridge variation with the soles of the feet together for strong top-end contraction.' },
+    { name: 'Single Leg Hip Thrust', category: 'legs', muscle: 'Legs', subMuscle: 'Glutes', equipment: 'Dumbbell', difficulty: 'Intermediate', reps: '10-12', description: 'Single-leg hip thrust using dumbbell load to build unilateral glute strength and stability.' },
+    { name: 'Dumbbell Row', category: 'back', muscle: 'Back', subMuscle: 'Lats', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '8-12', description: 'Single-arm dumbbell row that targets the lats with a strong pulling path and controlled squeeze.' },
+    { name: 'Pullover', category: 'back', muscle: 'Back', subMuscle: 'Lats', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '10-12', description: 'Dumbbell pullover that trains the lats through shoulder extension and stretch.' },
+    { name: 'Curtsy Lunge', category: 'legs', muscle: 'Legs', subMuscle: 'Quads', equipment: 'Dumbbell', difficulty: 'Intermediate', reps: '10-12', description: 'Cross-behind lunge variation that challenges leg strength, balance, and lower-body control.' },
+    { name: 'Dumbbell Step Up', category: 'legs', muscle: 'Legs', subMuscle: 'Quads', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '10-12', description: 'Step-up movement using dumbbells to build quad strength and single-leg stability.' },
+    { name: 'Goblet Squat', category: 'legs', muscle: 'Legs', subMuscle: 'Quads', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '10-15', description: 'Front-loaded squat that keeps the torso upright and emphasizes the quads.' },
+    { name: 'Lunge', category: 'legs', muscle: 'Legs', subMuscle: 'Quads', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '10-12', description: 'Basic dumbbell lunge for building quad strength, coordination, and balance.' },
+    { name: 'Overhead Dumbbell Lunge', category: 'legs', muscle: 'Legs', subMuscle: 'Quads', equipment: 'Dumbbell', difficulty: 'Intermediate', reps: '8-10', description: 'Lunge variation with dumbbells held overhead to increase stability and quad demand.' },
+    { name: 'Reverse Lunge', category: 'legs', muscle: 'Legs', subMuscle: 'Quads', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '10-12', description: 'Backward-stepping lunge that targets the quads while being easier on the knees.' },
+    { name: 'Split Squat', category: 'legs', muscle: 'Legs', subMuscle: 'Quads', equipment: 'Dumbbell', difficulty: 'Intermediate', reps: '8-12', description: 'Stationary split-stance squat that builds quad strength and unilateral control.' },
+    { name: 'Squat', category: 'legs', muscle: 'Legs', subMuscle: 'Quads', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '10-15', description: 'Dumbbell squat variation for lower-body strength with a focus on the quads.' },
+    { name: 'Seated Overhead Press (Dumbbell)', category: 'shoulders', muscle: 'Shoulders', subMuscle: 'Front Delt', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '8-12', description: 'Seated dumbbell press that keeps the focus on the shoulders with less lower-body involvement.' },
+    { name: 'Shoulder Press (Dumbbell)', category: 'shoulders', muscle: 'Shoulders', subMuscle: 'Front Delt', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '8-12', description: 'Basic dumbbell shoulder press for building balanced pressing strength and control.' },
+    { name: 'Upright Row (Dumbbell)', category: 'shoulders', muscle: 'Shoulders', subMuscle: 'Side Delt', equipment: 'Dumbbell', difficulty: 'Intermediate', reps: '10-12', description: 'Dumbbell upright row that targets the side delts with an additional upper-trap contribution.' },
+    { name: 'Arnold Press (Dumbbell)', category: 'shoulders', muscle: 'Shoulders', subMuscle: 'Front Delt', equipment: 'Dumbbell', difficulty: 'Intermediate', reps: '8-12', description: 'Rotational pressing movement that trains the shoulders through a long range of motion.' },
+    { name: 'Overhead Press (Dumbbell)', category: 'shoulders', muscle: 'Shoulders', subMuscle: 'Front Delt', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '8-12', description: 'Classic dumbbell overhead press for building shoulder strength and stability.' },
+    { name: 'Front Raise (Dumbbell)', category: 'shoulders', muscle: 'Shoulders', subMuscle: 'Front Delt', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '10-15', description: 'Isolation raise focusing on the front delts with controlled lifting and lowering.' },
+    { name: 'Lateral Raise (Dumbbell)', category: 'shoulders', muscle: 'Shoulders', subMuscle: 'Side Delt', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '10-15', description: 'Side raise variation that isolates the lateral delts for shoulder width.' },
+    { name: 'Seated Lateral Raise (Dumbbell)', category: 'shoulders', muscle: 'Shoulders', subMuscle: 'Side Delt', equipment: 'Dumbbell', difficulty: 'Intermediate', reps: '10-15', description: 'Seated lateral raise that limits body sway and keeps tension on the side delts.' },
+    { name: 'Rear Delt Reverse Fly (Dumbbell)', category: 'shoulders', muscle: 'Shoulders', subMuscle: 'Rear Delt', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '12-15', description: 'Reverse fly movement targeting the rear delts and upper back.' },
+    { name: 'Chest Supported Reverse Fly (Dumbbell)', category: 'shoulders', muscle: 'Shoulders', subMuscle: 'Rear Delt', equipment: 'Dumbbell', difficulty: 'Intermediate', reps: '12-15', description: 'Chest-supported reverse fly for strict rear delt isolation with minimal momentum.' },
+    { name: 'Chest Supported Y Raise (Dumbbell)', category: 'shoulders', muscle: 'Shoulders', subMuscle: 'Rear Delt', equipment: 'Dumbbell', difficulty: 'Intermediate', reps: '12-15', description: 'Y raise on an incline bench that builds rear delt and upper shoulder control.' },
+    { name: 'Dumbbell Shrug', category: 'back', muscle: 'Back', subMuscle: 'Upper Back', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '10-15', description: 'Isolation exercise targeting the trapezius muscles.' },
+    { name: 'Single Arm Tricep Extension', category: 'arms', muscle: 'Arms', subMuscle: 'Triceps', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '10-12 each arm', description: 'Overhead single-arm extension for isolating triceps.' },
+    { name: 'Dumbbell Skullcrusher', category: 'arms', muscle: 'Arms', subMuscle: 'Triceps', equipment: 'Dumbbell', difficulty: 'Intermediate', reps: '8-12', description: 'Lying extension movement targeting triceps.' },
+    { name: 'Dumbbell Triceps Extension', category: 'arms', muscle: 'Arms', subMuscle: 'Triceps', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '10-12', description: 'Basic overhead triceps extension for strength and size.' },
+    { name: 'Triceps Kickback', category: 'arms', muscle: 'Arms', subMuscle: 'Triceps', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '12-15', description: 'Isolation movement focusing on triceps contraction.' },
+    { name: 'Wide Elbow Triceps Press', category: 'arms', muscle: 'Arms', subMuscle: 'Triceps', equipment: 'Dumbbell', difficulty: 'Intermediate', reps: '8-12', description: 'Press variation with elbows flared for triceps emphasis.' },
+    { name: 'Dumbbell Bent Over Row', category: 'back', muscle: 'Back', subMuscle: 'Upper Back', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '8-12', description: 'Basic rowing movement targeting upper back and lats.' },
+    { name: 'Chest Supported Incline Row', category: 'back', muscle: 'Back', subMuscle: 'Upper Back', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '10-12', description: 'Row performed on an incline bench for strict upper back isolation.' },
+    { name: 'Renegade Row', category: 'back', muscle: 'Back', subMuscle: 'Upper Back', equipment: 'Dumbbell', difficulty: 'Intermediate', reps: '8-10 each side', description: 'Core-intensive row variation combining plank stability and pulling.' },
+    { name: 'Dumbbell Bench Press', category: 'chest', muscle: 'Chest', subMuscle: 'Middle Chest', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '8-12', description: 'Classic dumbbell press for chest strength and stability.' },
+    { name: 'Chest Fly', category: 'chest', muscle: 'Chest', subMuscle: 'Middle Chest', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '10-15', description: 'Isolation movement focusing on chest stretch and contraction.' },
+    { name: 'Decline Dumbbell Bench Press', category: 'chest', muscle: 'Chest', subMuscle: 'Lower Chest', equipment: 'Dumbbell', difficulty: 'Intermediate', reps: '8-12', description: 'Decline press targeting the lower chest.' },
+    { name: 'Decline Chest Fly', category: 'chest', muscle: 'Chest', subMuscle: 'Lower Chest', equipment: 'Dumbbell', difficulty: 'Intermediate', reps: '10-15', description: 'Decline fly focusing on lower chest stretch.' },
+    { name: 'Dumbbell Squeeze Press', category: 'chest', muscle: 'Chest', subMuscle: 'Middle Chest', equipment: 'Dumbbell', difficulty: 'Intermediate', reps: '10-12', description: 'Press variation keeping dumbbells together for inner chest activation.' },
+    { name: 'Dumbbell Floor Press', category: 'chest', muscle: 'Chest', subMuscle: 'Middle Chest', equipment: 'Dumbbell', difficulty: 'Intermediate', reps: '8-10', description: 'Limited range press reducing shoulder strain.' },
+    { name: 'Hex Press', category: 'chest', muscle: 'Chest', subMuscle: 'Middle Chest', equipment: 'Dumbbell', difficulty: 'Intermediate', reps: '10-12', description: 'Close-grip dumbbell press emphasizing inner chest.' },
+    { name: 'Incline Dumbbell Bench Press', category: 'chest', muscle: 'Chest', subMuscle: 'Upper Chest', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '8-12', description: 'Incline press targeting upper chest.' },
+    { name: 'Incline Chest Fly', category: 'chest', muscle: 'Chest', subMuscle: 'Upper Chest', equipment: 'Dumbbell', difficulty: 'Beginner', reps: '10-15', description: 'Incline fly for upper chest stretch and isolation.' },
+    { name: 'Front Raise', category: 'shoulders', muscle: 'Shoulders', subMuscle: 'Front Delt', equipment: 'Barbell', difficulty: 'Beginner', reps: '10-15', description: 'Isolation movement targeting the front deltoids.' },
+    { name: 'Overhead Press', category: 'shoulders', muscle: 'Shoulders', subMuscle: 'Front Delt', equipment: 'Barbell', difficulty: 'Beginner', reps: '5-8', description: 'Fundamental compound movement for shoulder strength and size.' },
+    { name: 'Push Press', category: 'shoulders', muscle: 'Shoulders', subMuscle: 'Front Delt', equipment: 'Barbell', difficulty: 'Intermediate', reps: '3-6', description: 'Explosive press using leg drive to lift heavier weights.' },
+    { name: 'Seated Overhead Press', category: 'shoulders', muscle: 'Shoulders', subMuscle: 'Front Delt', equipment: 'Barbell', difficulty: 'Intermediate', reps: '6-10', description: 'Strict overhead press performed seated to isolate shoulders.' },
+    { name: 'Single Arm Landmine Press', category: 'shoulders', muscle: 'Shoulders', subMuscle: 'Front Delt', equipment: 'Barbell', difficulty: 'Intermediate', reps: '8-12 each arm', description: 'Unilateral pressing movement using a landmine setup.' },
+    { name: 'Standing Military Press', category: 'shoulders', muscle: 'Shoulders', subMuscle: 'Front Delt', equipment: 'Barbell', difficulty: 'Intermediate', reps: '5-8', description: 'Strict standing overhead press focusing on shoulder strength.' },
+    { name: 'Upright Row', category: 'shoulders', muscle: 'Shoulders', subMuscle: 'Side Delt', equipment: 'Barbell', difficulty: 'Intermediate', reps: '8-12', description: 'Pulling movement targeting shoulders and traps.' },
+    { name: 'Box Squat', category: 'legs', muscle: 'Legs', subMuscle: 'Quads', equipment: 'Barbell', difficulty: 'Intermediate', reps: '5-8', description: 'Squat variation using a box to control depth and improve form.' },
+    { name: 'Front Squat', category: 'legs', muscle: 'Legs', subMuscle: 'Quads', equipment: 'Barbell', difficulty: 'Intermediate', reps: '5-8', description: 'Front-loaded squat emphasizing quads and core stability.' },
+    { name: 'Full Squat', category: 'legs', muscle: 'Legs', subMuscle: 'Quads', equipment: 'Barbell', difficulty: 'Beginner', reps: '6-10', description: 'Deep squat targeting full lower body with emphasis on quads.' },
+    { name: 'Hack Squat', category: 'legs', muscle: 'Legs', subMuscle: 'Quads', equipment: 'Barbell', difficulty: 'Intermediate', reps: '8-12', description: 'Barbell variation performed behind the legs to target quads.' },
+    { name: 'Barbell Lunge', category: 'legs', muscle: 'Legs', subMuscle: 'Quads', equipment: 'Barbell', difficulty: 'Beginner', reps: '8-12 each leg', description: 'Forward stepping movement improving leg strength and balance.' },
+    { name: 'Pause Squat', category: 'legs', muscle: 'Legs', subMuscle: 'Quads', equipment: 'Barbell', difficulty: 'Advanced', reps: '3-6', description: 'Squat with pause at the bottom to build strength and control.' },
+    { name: 'Reverse Lunge', category: 'legs', muscle: 'Legs', subMuscle: 'Quads', equipment: 'Barbell', difficulty: 'Beginner', reps: '8-12 each leg', description: 'Backward stepping lunge reducing knee stress and improving stability.' },
+    { name: 'Barbell Squat', category: 'legs', muscle: 'Legs', subMuscle: 'Quads', equipment: 'Barbell', difficulty: 'Beginner', reps: '5-10', description: 'Fundamental compound lift for lower body strength.' },
+    { name: 'Good Morning', category: 'legs', muscle: 'Legs', subMuscle: 'Hamstrings', equipment: 'Barbell', difficulty: 'Intermediate', reps: '8-12', description: 'Hip hinge movement targeting hamstrings and lower back.' },
+    { name: 'Romanian Deadlift', category: 'legs', muscle: 'Legs', subMuscle: 'Hamstrings', equipment: 'Barbell', difficulty: 'Beginner', reps: '8-12', description: 'Controlled deadlift variation focusing on hamstring stretch and glutes.' },
+    { name: 'Single Leg Romanian Deadlift', category: 'legs', muscle: 'Legs', subMuscle: 'Hamstrings', equipment: 'Barbell', difficulty: 'Advanced', reps: '8-10 each leg', description: 'Unilateral movement improving balance and hamstring isolation.' },
+    { name: 'Straight Leg Deadlift', category: 'legs', muscle: 'Legs', subMuscle: 'Hamstrings', equipment: 'Barbell', difficulty: 'Intermediate', reps: '8-12', description: 'Deadlift variation with minimal knee bend emphasizing hamstrings.' },
+    { name: 'Barbell Deadlift', category: 'legs', muscle: 'Legs', subMuscle: 'Glutes', equipment: 'Barbell', difficulty: 'Intermediate', reps: '3-6', description: 'Compound lift targeting glutes, hamstrings, and lower back.' },
+    { name: 'Hip Thrust', category: 'legs', muscle: 'Legs', subMuscle: 'Glutes', equipment: 'Barbell', difficulty: 'Beginner', reps: '8-12', description: 'Primary glute-building exercise with strong contraction at the top.' },
+    { name: 'Partial Glute Bridge', category: 'legs', muscle: 'Legs', subMuscle: 'Glutes', equipment: 'Barbell', difficulty: 'Beginner', reps: '12-15', description: 'Short-range glute bridge focusing on peak contraction.' },
+    { name: 'Sumo Deadlift', category: 'legs', muscle: 'Legs', subMuscle: 'Glutes', equipment: 'Barbell', difficulty: 'Intermediate', reps: '3-6', description: 'Wide stance deadlift emphasizing glutes and inner thighs.' },
+    { name: 'Behind the Back Wrist Curl', category: 'arms', muscle: 'Arms', subMuscle: 'Forearms', equipment: 'Barbell', difficulty: 'Intermediate', reps: '12-15', description: 'Wrist curl performed behind the body to target forearm flexors.' },
+    { name: 'Seated Wrist Extension', category: 'arms', muscle: 'Arms', subMuscle: 'Forearms', equipment: 'Barbell', difficulty: 'Beginner', reps: '12-15', description: 'Reverse wrist curl targeting forearm extensors for balanced strength.' },
+    { name: 'Wide Grip Bench Press', category: 'chest', muscle: 'Chest', subMuscle: 'Middle Chest', equipment: 'Barbell', difficulty: 'Intermediate', reps: '6-10', description: 'Bench press variation with wider grip to emphasize chest activation.' },
+    { name: 'Barbell Bench Press', category: 'chest', muscle: 'Chest', subMuscle: 'Middle Chest', equipment: 'Barbell', difficulty: 'Beginner', reps: '5-10', description: 'Fundamental compound movement for building chest strength and size.' },
+    { name: 'Decline Bench Press', category: 'chest', muscle: 'Chest', subMuscle: 'Lower Chest', equipment: 'Barbell', difficulty: 'Intermediate', reps: '6-10', description: 'Targets lower chest with a decline angle for better contraction.' },
+    { name: 'Feet Up Bench Press', category: 'chest', muscle: 'Chest', subMuscle: 'Middle Chest', equipment: 'Barbell', difficulty: 'Intermediate', reps: '6-10', description: 'Bench press variation that removes leg drive to increase chest isolation.' },
+    { name: 'Floor Press', category: 'chest', muscle: 'Chest', subMuscle: 'Middle Chest', equipment: 'Barbell', difficulty: 'Intermediate', reps: '5-8', description: 'Partial range press that reduces shoulder strain and targets triceps and chest.' },
+    { name: 'Incline Bench Press', category: 'chest', muscle: 'Chest', subMuscle: 'Upper Chest', equipment: 'Barbell', difficulty: 'Intermediate', reps: '6-10', description: 'Incline press targeting upper chest and front delts.' },
+    { name: 'Single Leg Standing Calf Raise', category: 'legs', muscle: 'Legs', subMuscle: 'Calves', equipment: 'Barbell', difficulty: 'Intermediate', reps: '10-15 each leg', description: 'Single-leg calf raise with added resistance for increased intensity.' },
+    { name: 'Standing Calf Raise', category: 'legs', muscle: 'Legs', subMuscle: 'Calves', equipment: 'Barbell', difficulty: 'Beginner', reps: '12-20', description: 'Barbell calf raise to build strength and size in the calves.' },
+    { name: '21s Bicep Curl', category: 'arms', muscle: 'Arms', subMuscle: 'Biceps', equipment: 'Barbell', difficulty: 'Advanced', reps: '21 reps', description: 'High-intensity curl variation combining partial and full reps.' },
+    { name: 'Barbell Bicep Curl', category: 'arms', muscle: 'Arms', subMuscle: 'Biceps', equipment: 'Barbell', difficulty: 'Beginner', reps: '8-12', description: 'Basic barbell curl to build bicep strength and size.' },
+    { name: 'Drag Curl', category: 'arms', muscle: 'Arms', subMuscle: 'Biceps', equipment: 'Barbell', difficulty: 'Intermediate', reps: '8-12', description: 'Curl variation that keeps the bar close to the body for better isolation.' },
+    { name: 'EZ Bar Biceps Curl', category: 'arms', muscle: 'Arms', subMuscle: 'Biceps', equipment: 'Barbell', difficulty: 'Beginner', reps: '8-12', description: 'Curl variation using an EZ bar for reduced wrist strain.' },
+    { name: 'Preacher Curl', category: 'arms', muscle: 'Arms', subMuscle: 'Biceps', equipment: 'Barbell', difficulty: 'Intermediate', reps: '10-12', description: 'Strict curl performed on a preacher bench for isolation.' },
+    { name: 'Reverse Curl', category: 'arms', muscle: 'Arms', subMuscle: 'Biceps', equipment: 'Barbell', difficulty: 'Intermediate', reps: '10-12', description: 'Overhand grip curl targeting biceps and forearms.' },
+    { name: 'Spider Curl', category: 'arms', muscle: 'Arms', subMuscle: 'Biceps', equipment: 'Barbell', difficulty: 'Intermediate', reps: '10-12', description: 'Curl performed lying on an incline bench for strict form.' },
+    { name: 'Close Grip Bench Press', category: 'arms', muscle: 'Arms', subMuscle: 'Triceps', equipment: 'Barbell', difficulty: 'Intermediate', reps: '6-10', description: 'Bench press variation with a narrow grip to emphasize triceps.' },
+    { name: 'JM Press', category: 'arms', muscle: 'Arms', subMuscle: 'Triceps', equipment: 'Barbell', difficulty: 'Advanced', reps: '6-10', description: 'Hybrid movement between a press and skullcrusher targeting triceps.' },
+    { name: 'Skullcrusher', category: 'arms', muscle: 'Arms', subMuscle: 'Triceps', equipment: 'Barbell', difficulty: 'Intermediate', reps: '8-12', description: 'Isolation exercise targeting triceps through elbow extension.' },
+    { name: 'Barbell Triceps Extension', category: 'arms', muscle: 'Arms', subMuscle: 'Triceps', equipment: 'Barbell', difficulty: 'Beginner', reps: '10-12', description: 'Overhead or lying extension movement focusing on triceps.' },
+    { name: 'Bent Over Row', category: 'back', muscle: 'Back', subMuscle: 'Upper Back', equipment: 'Barbell', difficulty: 'Intermediate', reps: '8-12', description: 'Classic compound rowing movement for building upper back thickness.' },
+    { name: 'Landmine Row', category: 'back', muscle: 'Back', subMuscle: 'Upper Back', equipment: 'Barbell', difficulty: 'Intermediate', reps: '8-12', description: 'Rowing variation using a landmine setup for controlled back engagement.' },
+    { name: 'Meadows Row', category: 'back', muscle: 'Back', subMuscle: 'Upper Back', equipment: 'Barbell', difficulty: 'Advanced', reps: '8-10 each side', description: 'Single-arm landmine row variation targeting upper back and lats.' },
+    { name: 'Pendlay Row', category: 'back', muscle: 'Back', subMuscle: 'Upper Back', equipment: 'Barbell', difficulty: 'Advanced', reps: '5-8', description: 'Explosive row performed from the floor to build strength and power.' },
+    { name: 'Rack Pull', category: 'back', muscle: 'Back', subMuscle: 'Upper Back', equipment: 'Barbell', difficulty: 'Intermediate', reps: '5-8', description: 'Partial deadlift variation focusing on upper back and traps.' },
+    { name: 'T Bar Row', category: 'back', muscle: 'Back', subMuscle: 'Upper Back', equipment: 'Barbell', difficulty: 'Intermediate', reps: '8-12', description: 'Rowing movement using a barbell setup for back thickness.' },
+    { name: 'Bird Dog', category: 'legs', muscle: 'Legs', subMuscle: 'Glutes', equipment: 'None', difficulty: 'Beginner', reps: '10-12 each side', description: 'Stability exercise that strengthens glutes and core while improving balance.' },
+    { name: 'Fire Hydrants', category: 'legs', muscle: 'Legs', subMuscle: 'Glutes', equipment: 'None', difficulty: 'Beginner', reps: '12-15 each side', description: 'Isolation movement targeting glutes through lateral hip rotation.' },
+    { name: 'Glute Bridge', category: 'legs', muscle: 'Legs', subMuscle: 'Glutes', equipment: 'None', difficulty: 'Beginner', reps: '12-15', description: 'Foundational glute exercise focusing on hip extension.' },
+    { name: 'Glute Kickback on Floor', category: 'legs', muscle: 'Legs', subMuscle: 'Glutes', equipment: 'None', difficulty: 'Beginner', reps: '12-15 each leg', description: 'Bodyweight glute isolation exercise performed on all fours.' },
+    { name: 'Hip Thrust', category: 'legs', muscle: 'Legs', subMuscle: 'Glutes', equipment: 'None', difficulty: 'Intermediate', reps: '10-12', description: 'Powerful glute-building movement focusing on hip extension.' },
+    { name: 'Lateral Leg Raises', category: 'legs', muscle: 'Legs', subMuscle: 'Glutes', equipment: 'None', difficulty: 'Beginner', reps: '12-15 each side', description: 'Targets glute medius and improves hip stability.' },
+    { name: 'Single Leg Glute Bridge', category: 'legs', muscle: 'Legs', subMuscle: 'Glutes', equipment: 'None', difficulty: 'Intermediate', reps: '10-12 each leg', description: 'Unilateral glute bridge to improve strength and balance.' },
+    { name: 'Single Leg Hip Thrust', category: 'legs', muscle: 'Legs', subMuscle: 'Glutes', equipment: 'None', difficulty: 'Intermediate', reps: '8-10 each leg', description: 'Advanced unilateral hip thrust for increased glute activation.' },
+    { name: 'Single Leg Standing Calf Raise', category: 'legs', muscle: 'Legs', subMuscle: 'Calves', equipment: 'None', difficulty: 'Intermediate', reps: '12-15 each leg', description: 'Single-leg calf raise to improve balance and isolate calf muscles.' },
+    { name: 'Standing Calf Raise', category: 'legs', muscle: 'Legs', subMuscle: 'Calves', equipment: 'None', difficulty: 'Beginner', reps: '15-20', description: 'Basic calf exercise to build strength and endurance.' },
+    { name: 'Superman', category: 'back', muscle: 'Back', subMuscle: 'Lower Back', equipment: 'None', difficulty: 'Beginner', reps: '10-15 or 20-40 sec hold', description: 'Bodyweight exercise that strengthens the lower back and improves spinal stability.' },
+    { name: 'Negative Pull Up', category: 'back', muscle: 'Back', subMuscle: 'Lats', equipment: 'None', difficulty: 'Beginner', reps: '6-10', description: 'Focuses on the lowering phase of a pull-up to build strength for full reps.' },
+    { name: 'Assisted Pistol Squats', category: 'legs', muscle: 'Legs', subMuscle: 'Quads', equipment: 'None', difficulty: 'Intermediate', reps: '6-10', description: 'Single-leg squat variation using support for balance and control.' },
+    { name: 'Frog Jumps', category: 'legs', muscle: 'Legs', subMuscle: 'Quads', equipment: 'None', difficulty: 'Intermediate', reps: '10-15', description: 'Explosive jumping movement targeting quads and improving power.' },
+    { name: 'Jump Squat', category: 'legs', muscle: 'Legs', subMuscle: 'Quads', equipment: 'None', difficulty: 'Intermediate', reps: '10-15', description: 'Plyometric squat variation to build leg power and explosiveness.' },
+    { name: 'Jumping Lunge', category: 'legs', muscle: 'Legs', subMuscle: 'Quads', equipment: 'None', difficulty: 'Intermediate', reps: '10-12 each leg', description: 'Alternating jumping lunges to target quads and improve agility.' },
+    { name: 'Lateral Lunge', category: 'legs', muscle: 'Legs', subMuscle: 'Quads', equipment: 'None', difficulty: 'Beginner', reps: '10-12 each side', description: 'Side-to-side lunge targeting quads and inner thighs.' },
+    { name: 'Lateral Squat', category: 'legs', muscle: 'Legs', subMuscle: 'Quads', equipment: 'None', difficulty: 'Beginner', reps: '10-12', description: 'Side movement squat variation focusing on quads and stability.' },
+    { name: 'Lunge', category: 'legs', muscle: 'Legs', subMuscle: 'Quads', equipment: 'None', difficulty: 'Beginner', reps: '10-12 each leg', description: 'Basic lower body movement targeting quads and glutes.' },
+    { name: 'Pistol Squat', category: 'legs', muscle: 'Legs', subMuscle: 'Quads', equipment: 'None', difficulty: 'Advanced', reps: '5-8', description: 'Single-leg squat requiring strength, balance, and mobility.' },
+    { name: 'Handstand Push Up', category: 'shoulders', muscle: 'Shoulders', subMuscle: 'Front Delt', equipment: 'None', difficulty: 'Advanced', reps: '5-10', description: 'Bodyweight overhead press variation performed in a handstand position.' },
+    { name: 'Pike Pushup', category: 'shoulders', muscle: 'Shoulders', subMuscle: 'Front Delt', equipment: 'None', difficulty: 'Intermediate', reps: '8-12', description: 'Bodyweight shoulder press variation targeting the front delts.' },
+    { name: 'Shoulder Taps', category: 'shoulders', muscle: 'Shoulders', subMuscle: 'Front Delt', equipment: 'None', difficulty: 'Beginner', reps: '10-20', description: 'Core and shoulder stability exercise involving alternating shoulder taps.' },
+    { name: 'Dead Hang', category: 'back', muscle: 'Back', subMuscle: 'Upper Back', equipment: 'None', difficulty: 'Beginner', reps: '20-60 sec', description: 'Static hold exercise that improves grip strength and engages upper back muscles.' },
+    { name: 'Scapular Pull Ups', category: 'back', muscle: 'Back', subMuscle: 'Upper Back', equipment: 'None', difficulty: 'Beginner', reps: '8-12', description: 'Focuses on scapular movement to strengthen upper back and improve pull-up form.' },
+    { name: 'Diamond Push Up', category: 'arms', muscle: 'Arms', subMuscle: 'Triceps', equipment: 'None', difficulty: 'Intermediate', reps: '10-15', description: 'Close-grip push-up variation targeting the triceps.' },
+    { name: 'Floor Triceps Dip', category: 'arms', muscle: 'Arms', subMuscle: 'Triceps', equipment: 'None', difficulty: 'Beginner', reps: '10-15', description: 'Bodyweight dip variation performed on the floor to target triceps.' },
+    { name: 'Clap Push Ups', category: 'chest', muscle: 'Chest', subMuscle: 'Middle Chest', equipment: 'None', difficulty: 'Advanced', reps: '8-12', description: 'Explosive bodyweight press where you drive up hard, clap in the air, and land back into the next rep with control.' },
+    { name: 'Incline Push Ups', category: 'chest', muscle: 'Chest', subMuscle: 'Upper Chest', equipment: 'None', difficulty: 'Beginner', reps: '8-12', description: 'Hands are elevated on a bench or box so you can press through the upper chest with a smoother, easier angle.' },
+    { name: 'Kneeling Push Up', category: 'chest', muscle: 'Chest', subMuscle: 'Middle Chest', equipment: 'None', difficulty: 'Beginner', reps: '8-12', description: 'Modified push-up from the knees that helps build chest control, pressing strength, and full-range movement quality.' },
+    { name: 'One Arm Push Up', category: 'chest', muscle: 'Chest', subMuscle: 'Middle Chest', equipment: 'None', difficulty: 'Advanced', reps: '8-12', description: 'Single-arm chest press variation that challenges strength, stability, and anti-rotation control through the torso.' },
+    { name: 'Plank Pushup', category: 'chest', muscle: 'Chest', subMuscle: 'Middle Chest', equipment: 'None', difficulty: 'Intermediate', reps: '8-12', description: 'Transition from forearm plank to high plank one side at a time while keeping the chest active and hips steady.' },
+    { name: 'Push Up', category: 'chest', muscle: 'Chest', subMuscle: 'Middle Chest', equipment: 'None', difficulty: 'Beginner', reps: '8-12', description: 'Classic bodyweight chest press with a controlled drop, strong lockout, and straight-line body position.' },
+    { name: 'Push Up - Close Grip', category: 'chest', muscle: 'Chest', subMuscle: 'Middle Chest', equipment: 'None', difficulty: 'Intermediate', reps: '8-12', description: 'Close-hand push-up that keeps the chest engaged while increasing the work done by the triceps.' },
+    { name: 'Push Up (Weighted)', category: 'chest', muscle: 'Chest', subMuscle: 'Middle Chest', equipment: 'None', difficulty: 'Advanced', reps: '8-12', description: 'Standard push-up pattern performed with added external load to increase chest pressing intensity.' }
   ];
 
   const colorByLevel = {
@@ -65,6 +204,7 @@
 
   let exercises = fallbackExercises.slice();
   let selectedMuscle = 'all';
+  let selectedSubMuscle = null;
   let selectedEquipment = null;
   let workoutSession = readWorkoutSession();
   let stopwatchState = createStopwatchState(workoutSession);
@@ -89,11 +229,25 @@
     }
 
     selectedMuscle = btn.getAttribute('data-filter') || 'all';
+    selectedSubMuscle = null;
     selectedEquipment = null;
     filterRow.querySelectorAll('.pill').forEach(function (node) {
       node.classList.remove('active');
     });
     btn.classList.add('active');
+    renderSubMuscleFilters();
+    renderEquipmentFilters();
+    render();
+  });
+
+  subMuscleFilterRow.addEventListener('click', function (event) {
+    const btn = event.target.closest('button[data-sub-muscle-filter]');
+    if (!btn) {
+      return;
+    }
+
+    selectedSubMuscle = btn.getAttribute('data-sub-muscle-filter') || null;
+    renderSubMuscleFilters();
     renderEquipmentFilters();
     render();
   });
@@ -300,11 +454,33 @@
   });
 
   function render() {
-    const filtered = selectedMuscle === 'all'
-      ? exercises
-      : exercises.filter(function (item) {
-        return item.category === selectedMuscle;
-      });
+    const filtered = exercises.filter(function (item) {
+      const normalizedMuscle = String(item.category || '').toLowerCase();
+      const normalizedSelectedMuscle = String(selectedMuscle || '').toLowerCase();
+      const normalizedSubMuscle = String(item.subMuscle || '').toLowerCase();
+      const normalizedSelectedSubMuscle = String(selectedSubMuscle || '').toLowerCase();
+      const normalizedEquipment = String(item.equipment || '').toLowerCase();
+      const normalizedSelectedEquipment = String(selectedEquipment || '').toLowerCase();
+
+      const matchesMuscle = normalizedSelectedMuscle === 'all'
+        ? true
+        : normalizedMuscle === normalizedSelectedMuscle;
+      const matchesSubMuscle = selectedSubMuscle === null
+        ? true
+        : normalizedSubMuscle === normalizedSelectedSubMuscle;
+      const matchesEquipment = selectedEquipment === null || normalizedSelectedEquipment === 'all'
+        ? true
+        : normalizedEquipment === normalizedSelectedEquipment;
+
+      return matchesMuscle && matchesSubMuscle && matchesEquipment;
+    });
+
+    console.log('[Exercise Filters]', {
+      selectedMuscle: selectedMuscle,
+      selectedSubMuscle: selectedSubMuscle,
+      selectedEquipment: selectedEquipment
+    });
+    console.log('[Filtered Exercises]', filtered);
 
     count.textContent = 'Showing ' + filtered.length + ' exercise' + (filtered.length === 1 ? '' : 's');
     mount.innerHTML = filtered.map(function (item) {
@@ -330,7 +506,7 @@
   }
 
   function renderEquipmentFilters() {
-    const shouldShowEquipment = selectedMuscle !== 'all';
+    const shouldShowEquipment = selectedMuscle !== 'all' && selectedSubMuscle !== null;
 
     equipmentFilterSection.hidden = !shouldShowEquipment;
     if (!shouldShowEquipment) {
@@ -343,6 +519,26 @@
       return (
         '<button class="pill' + (isActive ? ' active' : '') + '" type="button" data-equipment-filter="' + escapeHtml(option.value) + '">' +
           escapeHtml(option.label) +
+        '</button>'
+      );
+    }).join('');
+  }
+
+  function renderSubMuscleFilters() {
+    const options = subMuscleOptionsByMuscle[selectedMuscle] || [];
+    const shouldShowSubMuscles = selectedMuscle !== 'all' && options.length > 0;
+
+    subMuscleFilterSection.hidden = !shouldShowSubMuscles;
+    if (!shouldShowSubMuscles) {
+      subMuscleFilterRow.innerHTML = '';
+      return;
+    }
+
+    subMuscleFilterRow.innerHTML = options.map(function (option) {
+      const isActive = selectedSubMuscle === option;
+      return (
+        '<button class="pill' + (isActive ? ' active' : '') + '" type="button" data-sub-muscle-filter="' + escapeHtml(option) + '">' +
+          escapeHtml(option) +
         '</button>'
       );
     }).join('');
@@ -364,39 +560,113 @@
   }
 
   function normalizeExercise(item) {
+    const normalizedCategory = item && item.muscle_group ? item.muscle_group : 'general';
+    const normalizedMuscle = item && item.muscle
+      ? item.muscle
+      : toDisplayMuscle(normalizedCategory);
+
     return {
       name: item && item.name ? item.name : 'Exercise',
-      category: item && item.muscle_group ? item.muscle_group : 'general',
+      category: normalizedCategory,
+      muscle: normalizedMuscle,
+      subMuscle: item && item.subMuscle
+        ? item.subMuscle
+        : inferSubMuscle(normalizedCategory, item && item.name),
+      equipment: item && item.equipment ? item.equipment : 'Other',
       difficulty: item && item.difficulty ? item.difficulty : 'Beginner',
       reps: item && item.recommended_reps ? item.recommended_reps : '8-12',
       description: item && item.description ? item.description : 'Exercise details will be available soon.'
     };
   }
 
-  function loadExercises() {
-    if (typeof app.requestJson !== 'function') {
-      renderSessionStatus();
-      render();
-      return;
+  function toDisplayMuscle(category) {
+    const key = String(category || '').toLowerCase();
+
+    if (key === 'chest') {
+      return 'Chest';
+    }
+    if (key === 'back') {
+      return 'Back';
+    }
+    if (key === 'legs') {
+      return 'Legs';
+    }
+    if (key === 'shoulders') {
+      return 'Shoulders';
+    }
+    if (key === 'arms') {
+      return 'Arms';
     }
 
-    count.textContent = 'Loading exercises...';
+    return 'General';
+  }
 
-    app.requestJson('exercises')
-      .then(function (data) {
-        if (data && Array.isArray(data.exercises) && data.exercises.length) {
-          exercises = data.exercises.map(normalizeExercise);
-        }
-        renderEquipmentFilters();
-        renderSessionStatus();
-        render();
-      })
-      .catch(function () {
-        exercises = fallbackExercises.slice();
-        renderEquipmentFilters();
-        renderSessionStatus();
-        render();
-      });
+  function inferSubMuscle(category, name) {
+    const normalizedCategory = String(category || '').toLowerCase();
+    const normalizedName = String(name || '').toLowerCase();
+
+    if (normalizedCategory === 'chest') {
+      if (normalizedName.indexOf('incline') !== -1) {
+        return 'Upper Chest';
+      }
+      if (normalizedName.indexOf('dip') !== -1 || normalizedName.indexOf('decline') !== -1) {
+        return 'Lower Chest';
+      }
+      return 'Middle Chest';
+    }
+
+    if (normalizedCategory === 'back') {
+      if (normalizedName.indexOf('deadlift') !== -1) {
+        return 'Lower Back';
+      }
+      if (normalizedName.indexOf('pull') !== -1 || normalizedName.indexOf('lat') !== -1) {
+        return 'Lats';
+      }
+      return 'Upper Back';
+    }
+
+    if (normalizedCategory === 'shoulders') {
+      if (normalizedName.indexOf('lateral') !== -1 || normalizedName.indexOf('side') !== -1) {
+        return 'Side Delt';
+      }
+      if (normalizedName.indexOf('rear') !== -1 || normalizedName.indexOf('face pull') !== -1) {
+        return 'Rear Delt';
+      }
+      return 'Front Delt';
+    }
+
+    if (normalizedCategory === 'arms') {
+      if (normalizedName.indexOf('tricep') !== -1 || normalizedName.indexOf('pushdown') !== -1) {
+        return 'Triceps';
+      }
+      if (normalizedName.indexOf('forearm') !== -1 || normalizedName.indexOf('wrist') !== -1) {
+        return 'Forearms';
+      }
+      return 'Biceps';
+    }
+
+    if (normalizedCategory === 'legs') {
+      if (normalizedName.indexOf('calf') !== -1) {
+        return 'Calves';
+      }
+      if (normalizedName.indexOf('hamstring') !== -1 || normalizedName.indexOf('romanian') !== -1) {
+        return 'Hamstrings';
+      }
+      if (normalizedName.indexOf('glute') !== -1 || normalizedName.indexOf('hip thrust') !== -1) {
+        return 'Glutes';
+      }
+      return 'Quads';
+    }
+
+    return 'General';
+  }
+
+  function loadExercises() {
+    exercises = fallbackExercises.slice();
+    renderSubMuscleFilters();
+    renderEquipmentFilters();
+    renderSessionStatus();
+    render();
   }
 
   function createEmptyWorkoutSession() {
@@ -707,5 +977,6 @@
   }
 
   loadExercises();
+  renderSubMuscleFilters();
   renderEquipmentFilters();
 })();
