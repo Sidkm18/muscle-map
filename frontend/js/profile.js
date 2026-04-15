@@ -56,6 +56,12 @@
     trackingForm: document.getElementById('fitness-tracker-form'),
     trackingSave: document.getElementById('fitness-tracker-save'),
     trackingSimulate: document.getElementById('fitness-tracker-simulate'),
+    trackingStopwatchDisplay: document.getElementById('tracking-stopwatch-display'),
+    trackingStopwatchStart: document.getElementById('tracking-stopwatch-start'),
+    trackingStopwatchStop: document.getElementById('tracking-stopwatch-stop'),
+    trackingStopwatchReset: document.getElementById('tracking-stopwatch-reset'),
+    trackingPrWorkout: document.getElementById('tracking-pr-workout'),
+    trackingPrSteps: document.getElementById('tracking-pr-steps'),
     trackingStepsInput: document.getElementById('tracking-steps-input'),
     trackingActiveInput: document.getElementById('tracking-active-input'),
     trackingHeartButton: document.getElementById('tracking-heart-button'),
@@ -70,6 +76,10 @@
   };
   let selectedProfilePhoto = '';
   let fitnessTrackerState = readTrackingState();
+  let workoutTimerInterval = null;
+  let workoutTimerStartedAt = 0;
+  let workoutElapsedSeconds = 0;
+  let workoutTimerDayKey = '';
   let trackingHeartProgress = {
     steps: 0,
     calories: 0,
@@ -87,6 +97,15 @@
     }
     if (fields.trackingSimulate) {
       fields.trackingSimulate.addEventListener('click', handleTrackingSimulation);
+    }
+    if (fields.trackingStopwatchStart) {
+      fields.trackingStopwatchStart.addEventListener('click', handleStopwatchStart);
+    }
+    if (fields.trackingStopwatchStop) {
+      fields.trackingStopwatchStop.addEventListener('click', handleStopwatchStop);
+    }
+    if (fields.trackingStopwatchReset) {
+      fields.trackingStopwatchReset.addEventListener('click', handleStopwatchReset);
     }
     if (fields.trackingHeartButton) {
       fields.trackingHeartButton.addEventListener('click', function () {
@@ -355,6 +374,50 @@
     }
   }
 
+  function handleStopwatchStart() {
+    const today = getTodayKey();
+    const currentDay = ensureTrackingDay(today);
+
+    if (workoutTimerInterval) {
+      return;
+    }
+
+    workoutTimerDayKey = today;
+    workoutElapsedSeconds = Number(currentDay.workoutDurationSeconds || 0);
+    workoutTimerStartedAt = Date.now() - (workoutElapsedSeconds * 1000);
+    workoutTimerInterval = window.setInterval(function () {
+      workoutElapsedSeconds = Math.max(0, Math.floor((Date.now() - workoutTimerStartedAt) / 1000));
+      updateStopwatchDisplay(workoutElapsedSeconds);
+    }, 1000);
+    updateStopwatchDisplay(workoutElapsedSeconds);
+  }
+
+  function handleStopwatchStop() {
+    const today = workoutTimerDayKey || getTodayKey();
+    const currentDay = ensureTrackingDay(today);
+    const totalSeconds = workoutTimerInterval
+      ? Math.max(0, Math.floor((Date.now() - workoutTimerStartedAt) / 1000))
+      : Number(currentDay.workoutDurationSeconds || 0);
+
+    clearWorkoutTimer();
+    workoutElapsedSeconds = totalSeconds;
+    updateStopwatchDisplay(totalSeconds);
+    updateTrackingDay(today, {
+      workoutDurationSeconds: totalSeconds
+    });
+  }
+
+  function handleStopwatchReset() {
+    const today = workoutTimerDayKey || getTodayKey();
+    clearWorkoutTimer();
+    workoutElapsedSeconds = 0;
+    workoutTimerDayKey = today;
+    updateStopwatchDisplay(0);
+    updateTrackingDay(today, {
+      workoutDurationSeconds: 0
+    });
+  }
+
   function renderTracking() {
     const today = getTodayKey();
     const currentDay = ensureTrackingDay(today);
@@ -388,6 +451,12 @@
 
     fields.trackingStepsInput.value = String(currentDay.steps);
     fields.trackingActiveInput.value = String(currentDay.activeMinutes);
+    if (!workoutTimerInterval || workoutTimerDayKey !== today) {
+      workoutElapsedSeconds = Number(currentDay.workoutDurationSeconds || 0);
+      workoutTimerDayKey = today;
+      updateStopwatchDisplay(workoutElapsedSeconds);
+    }
+    renderPrTracking();
     trackingHeartProgress = progress;
     updateTrackingHeart(progress);
     updateTrackingHeartCenter(averageProgress);
@@ -413,6 +482,7 @@
     const day = fitnessTrackerState[dayKey];
     day.goals = Object.assign(createDefaultTrackingDay().goals, day.goals || {});
     day.calories = calculateCalories(day.steps || 0, day.activeMinutes || 0);
+    day.workoutDurationSeconds = normalizeNumber(day.workoutDurationSeconds, 0);
     return day;
   }
 
@@ -421,6 +491,7 @@
     const next = Object.assign({}, current, updates || {});
     next.steps = normalizeNumber(next.steps, 0);
     next.activeMinutes = normalizeNumber(next.activeMinutes, 0);
+    next.workoutDurationSeconds = normalizeNumber(next.workoutDurationSeconds, current.workoutDurationSeconds || 0);
     next.calories = calculateCalories(next.steps, next.activeMinutes);
     next.updatedAt = new Date().toISOString();
     fitnessTrackerState[dayKey] = next;
@@ -437,6 +508,7 @@
       steps: 0,
       activeMinutes: 0,
       calories: 0,
+      workoutDurationSeconds: 0,
       goals: {
         steps: 10000,
         calories: 500,
@@ -615,6 +687,54 @@
     window.requestAnimationFrame(step);
   }
 
+  function updateStopwatchDisplay(totalSeconds) {
+    if (!fields.trackingStopwatchDisplay) {
+      return;
+    }
+
+    fields.trackingStopwatchDisplay.textContent = formatDuration(totalSeconds);
+  }
+
+  function clearWorkoutTimer() {
+    if (workoutTimerInterval) {
+      window.clearInterval(workoutTimerInterval);
+      workoutTimerInterval = null;
+    }
+  }
+
+  function renderPrTracking() {
+    if (!fields.trackingPrWorkout || !fields.trackingPrSteps) {
+      return;
+    }
+
+    const metrics = Object.keys(fitnessTrackerState).reduce(function (accumulator, key) {
+      const entry = fitnessTrackerState[key];
+
+      if (!entry || typeof entry !== 'object') {
+        return accumulator;
+      }
+
+      const nextSteps = Number(entry.steps || 0);
+      const nextWorkout = Number(entry.workoutDurationSeconds || 0);
+
+      if (nextSteps > accumulator.highestSteps) {
+        accumulator.highestSteps = nextSteps;
+      }
+
+      if (nextWorkout > accumulator.longestWorkout) {
+        accumulator.longestWorkout = nextWorkout;
+      }
+
+      return accumulator;
+    }, {
+      highestSteps: 0,
+      longestWorkout: 0
+    });
+
+    fields.trackingPrWorkout.textContent = formatDuration(metrics.longestWorkout);
+    fields.trackingPrSteps.textContent = formatCount(metrics.highestSteps);
+  }
+
   function renderStreakCalendar(dayKey) {
     if (!fields.trackingStreakCalendar || !fields.trackingStreakMonth) {
       return;
@@ -753,6 +873,14 @@
     const previousUtc = Date.UTC(previousDate.getFullYear(), previousDate.getMonth(), previousDate.getDate());
     const currentUtc = Date.UTC(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
     return Math.round((currentUtc - previousUtc) / millisecondsPerDay);
+  }
+
+  function formatDuration(totalSeconds) {
+    const safeSeconds = Math.max(0, Number(totalSeconds || 0));
+    const hours = String(Math.floor(safeSeconds / 3600)).padStart(2, '0');
+    const minutes = String(Math.floor((safeSeconds % 3600) / 60)).padStart(2, '0');
+    const seconds = String(Math.floor(safeSeconds % 60)).padStart(2, '0');
+    return hours + ':' + minutes + ':' + seconds;
   }
 
   function formatMetric(value, unit) {

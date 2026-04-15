@@ -1114,6 +1114,260 @@ td.center {
   background: rgba(255, 255, 255, 0.03);
 }
 
+.workout-session-shell {
+  display: grid;
+  gap: 0.45rem;
+  width: 100%;
+  margin: 0.75rem 0 0.6rem;
+  padding: 0.7rem 0.85rem;
+}
+
+.workout-session-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 1rem;
+}
+
+.workout-session-copy {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.workout-session-title {
+  margin: 0;
+  font-size: 0.96rem;
+}
+
+.workout-session-status {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.workout-session-head .button {
+  align-self: flex-start;
+  flex-shrink: 0;
+  padding: 0.48rem 0.72rem;
+  font-size: 0.78rem;
+}
+
+.workout-session-count-text {
+  flex: 0 1 auto;
+  text-align: right;
+  font-size: 0.76rem;
+}
+
+.exercise-card-actions {
+  margin-top: 0.9rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.exercise-add-button {
+  min-width: 8.5rem;
+}
+
+.workout-floating-panel {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  width: min(22rem, calc(100vw - 2rem));
+  max-height: min(68vh, 32rem);
+  z-index: 44;
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  overflow: hidden;
+}
+
+.workout-floating-panel[hidden] {
+  display: none !important;
+}
+
+.workout-floating-panel.is-dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.workout-floating-panel.is-inactive {
+  border-style: dashed;
+}
+
+.workout-floating-controls {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.65rem;
+  border-radius: 12px;
+  border: 1px solid rgba(var(--primary-rgb), 0.12);
+  background: rgba(var(--primary-rgb), 0.04);
+  cursor: grab;
+}
+
+.workout-floating-controls-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.65rem;
+}
+
+.workout-floating-timer-display-wrap {
+  display: grid;
+  gap: 0.12rem;
+  min-width: 8rem;
+  flex: 1 1 auto;
+}
+
+.workout-floating-timer-display {
+  color: var(--text);
+  font-family: "Barlow Condensed", Impact, sans-serif;
+  font-size: clamp(1.45rem, 3.8vw, 1.9rem);
+  line-height: 0.95;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  white-space: nowrap;
+}
+
+.workout-floating-timer-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  flex: 0 0 auto;
+  max-width: 9rem;
+}
+
+.workout-floating-timer-actions .button {
+  flex: 0 0 auto;
+  min-width: 3.9rem;
+  padding: 0.44rem 0.65rem;
+  font-size: 0.74rem;
+}
+
+.workout-floating-progress {
+  display: grid;
+  gap: 0.28rem;
+  flex: 1 1 auto;
+  width: 100%;
+}
+
+.workout-floating-progress-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.workout-floating-progress-meta strong {
+  color: var(--text);
+  font-family: "Barlow Condensed", Impact, sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+}
+
+.workout-floating-progress-meta .muted {
+  font-size: 0.66rem;
+}
+
+.workout-floating-list {
+  display: grid;
+  gap: 0.4rem;
+  overflow-y: auto;
+  padding-right: 0.2rem;
+}
+
+.workout-floating-laps {
+  display: grid;
+  gap: 0.18rem;
+  max-height: 4rem;
+  overflow-y: auto;
+  padding-right: 0.1rem;
+}
+
+.workout-floating-lap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  padding: 0.3rem 0.4rem;
+  border-radius: 8px;
+  border: 1px solid rgba(var(--primary-rgb), 0.12);
+  background: rgba(var(--primary-rgb), 0.04);
+}
+
+.workout-floating-lap-label {
+  color: var(--muted);
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.workout-floating-lap-time {
+  color: var(--text);
+  font-family: "Barlow Condensed", Impact, sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.workout-floating-empty {
+  border: 1px dashed var(--line);
+  border-radius: 14px;
+  padding: 0.6rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.workout-floating-item {
+  display: grid;
+  gap: 0.35rem;
+  border: 1px solid rgba(var(--primary-rgb), 0.12);
+  border-radius: 14px;
+  padding: 0.55rem;
+  background: rgba(var(--primary-rgb), 0.04);
+}
+
+.workout-floating-item-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.workout-floating-item-title {
+  margin: 0;
+  font-family: "Barlow Condensed", Impact, sans-serif;
+  font-size: 0.74rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.workout-floating-item-remove {
+  min-width: auto;
+  padding: 0.34rem 0.5rem;
+  font-size: 0.66rem;
+}
+
+.workout-floating-inputs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem;
+}
+
+.workout-floating-inputs input {
+  padding-block: 0.42rem;
+  font-size: 0.78rem;
+}
+
 .fitness-stat-value,
 .fitness-summary-value {
   font-family: "Barlow Condensed", Impact, sans-serif;
@@ -1335,6 +1589,39 @@ td.center {
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
+}
+
+.fitness-stopwatch-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.fitness-stopwatch-actions .button {
+  flex: 1 1 7rem;
+}
+
+.fitness-pr-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.fitness-pr-item {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.8rem;
+  border-radius: 14px;
+  border: 1px solid rgba(var(--primary-rgb), 0.14);
+  background: rgba(var(--primary-rgb), 0.05);
+}
+
+.fitness-pr-item strong {
+  color: var(--text);
+  font-family: "Barlow Condensed", Impact, sans-serif;
+  font-size: 1.55rem;
+  letter-spacing: 0.04em;
+  line-height: 0.95;
 }
 
 .streak-calendar-head {
@@ -1691,6 +1978,49 @@ img {
   .fitness-tracker-head,
   .fitness-tracker-actions {
     flex-direction: column;
+  }
+
+  .workout-session-head,
+  .workout-session-status,
+  .exercise-card-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .exercise-add-button,
+  .workout-session-head .button {
+    width: 100%;
+  }
+
+  .workout-session-count-text {
+    text-align: left;
+  }
+
+  .workout-floating-panel {
+    right: 0.75rem;
+    bottom: 0.75rem;
+    width: calc(100vw - 1.5rem);
+    max-height: 66vh;
+  }
+
+  .workout-floating-controls-row,
+  .workout-floating-timer-actions,
+  .workout-floating-progress-meta,
+  .workout-floating-item-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .workout-floating-timer-actions {
+    max-width: none;
+  }
+
+  .workout-floating-inputs {
+    grid-template-columns: 1fr;
+  }
+
+  .fitness-pr-grid {
+    grid-template-columns: 1fr;
   }
 
   .fitness-tracker-actions .button {

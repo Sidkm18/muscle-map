@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Exercises | MuscleMap</title>
-    <link rel="stylesheet" href="../css/styles.css" />
+    <link rel="stylesheet" href="../css/styles.css?v=20260415g" />
   </head>
   <body>
     <div class="page-shell">
@@ -29,16 +29,58 @@
             </div>
           </div>
 
+          <div class="glass-card card workout-session-shell">
+            <div class="workout-session-head">
+              <div class="workout-session-copy">
+                <p class="mini-label" style="margin:0 0 .35rem;">Workout Builder</p>
+                <button id="start-workout-button" class="button button-primary" type="button">Start Workout</button>
+              </div>
+            </div>
+            <div class="workout-session-status">
+              <span id="workout-session-count" class="muted"></span>
+            </div>
+          </div>
+
           <p class="muted" id="exercise-count"></p>
           <div class="exercise-grid" id="exercise-grid"></div>
         </section>
+
+        <aside id="workout-floating-panel" class="glass-card card workout-floating-panel" aria-live="polite" hidden>
+          <div id="workout-floating-timer-block" class="workout-floating-controls" hidden>
+            <div class="workout-floating-controls-row">
+              <div class="workout-floating-timer-display-wrap">
+                <span class="mini-label">Workout Duration</span>
+                <strong id="workout-floating-timer-display" class="workout-floating-timer-display">00:00:00</strong>
+              </div>
+              <div class="workout-floating-timer-actions">
+                <button id="workout-timer-start" class="button button-primary" type="button">Start</button>
+                <button id="workout-timer-stop" class="button button-outline" type="button">Stop</button>
+                <button id="workout-timer-lap" class="button button-outline" type="button">Lap</button>
+                <button id="workout-timer-reset" class="button button-outline" type="button">Reset</button>
+              </div>
+            </div>
+            <div class="workout-floating-controls-row workout-floating-controls-row-secondary">
+              <div class="workout-floating-progress">
+                <div class="workout-floating-progress-meta">
+                  <span id="workout-floating-progress-label" class="muted">No exercises configured yet.</span>
+                  <strong id="workout-floating-progress-value">0%</strong>
+                </div>
+                <div class="wizard-progress">
+                  <div id="workout-floating-progress-bar" class="wizard-progress-fill"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="workout-floating-laps" class="workout-floating-laps" hidden></div>
+          <div id="workout-floating-list" class="workout-floating-list"></div>
+        </aside>
       </main>
 
       <div id="site-footer"></div>
     </div>
 
-    <script src="../js/site-runtime.js" defer></script>
-    <script src="../js/site.js" defer></script>
-    <script src="../js/exercises.js" defer></script>
+    <script src="../js/site-runtime.js?v=20260415g" defer></script>
+    <script src="../js/site.js?v=20260415g" defer></script>
+    <script src="../js/exercises.js?v=20260415g" defer></script>
   </body>
 </html>
