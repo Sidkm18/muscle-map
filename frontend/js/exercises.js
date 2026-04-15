@@ -41,13 +41,10 @@
     { value: 'none', label: 'None' },
     { value: 'barbell', label: 'Barbell' },
     { value: 'dumbbell', label: 'Dumbbell' },
-    { value: 'kettlebell', label: 'Kettlebell' },
-    { value: 'machine', label: 'Machine' },
-    { value: 'plate', label: 'Plate' },
-    { value: 'resistance-band', label: 'Resistance Band' },
-    { value: 'suspension-band', label: 'Suspension Band' },
-    { value: 'other', label: 'Other' }
+    { value: 'machine', label: 'Machine' }
   ];
+
+  const allowedEquipmentValues = ['none', 'barbell', 'dumbbell', 'machine'];
 
   const fallbackExercises = [
     { name: 'Romanian Deadlift', category: 'legs', muscle: 'Legs', subMuscle: 'Hamstrings', equipment: 'Dumbbell', difficulty: 'Intermediate', reps: '8-12', description: 'Dumbbell hip-hinge movement that emphasizes hamstring stretch and glute control.' },
@@ -461,6 +458,7 @@
       const normalizedSelectedSubMuscle = String(selectedSubMuscle || '').toLowerCase();
       const normalizedEquipment = String(item.equipment || '').toLowerCase();
       const normalizedSelectedEquipment = String(selectedEquipment || '').toLowerCase();
+      const hasAllowedEquipment = allowedEquipmentValues.indexOf(normalizedEquipment) !== -1;
 
       const matchesMuscle = normalizedSelectedMuscle === 'all'
         ? true
@@ -472,7 +470,7 @@
         ? true
         : normalizedEquipment === normalizedSelectedEquipment;
 
-      return matchesMuscle && matchesSubMuscle && matchesEquipment;
+      return hasAllowedEquipment && matchesMuscle && matchesSubMuscle && matchesEquipment;
     });
 
     console.log('[Exercise Filters]', {
