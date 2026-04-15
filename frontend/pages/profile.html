@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Profile | MuscleMap</title>
-    <link rel="stylesheet" href="../css/styles.css" />
+    <link rel="stylesheet" href="../css/styles.css?v=20260416a" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
     <div class="page-shell">
@@ -178,6 +179,9 @@
                   <strong id="tracking-status-text" class="fitness-summary-value">Getting started</strong>
                   <p class="muted">Your activity is stored per day in local storage and refreshes automatically when values change.</p>
                 </div>
+              </div>
+
+              <div class="fitness-tracker-insights">
                 <div class="fitness-summary-card">
                   <div class="streak-calendar-head">
                     <div>
@@ -206,6 +210,29 @@
                     <span>Sa</span>
                   </div>
                   <div id="tracking-streak-calendar" class="streak-calendar-grid" aria-label="Current month activity streak calendar"></div>
+                </div>
+
+                <div class="fitness-steps-chart-card">
+                  <div class="fitness-steps-chart-head">
+                    <div>
+                      <span class="mini-label">Steps</span>
+                      <h3 class="page-title fitness-steps-chart-title">Steps This Week</h3>
+                      <div class="fitness-steps-chart-stats">
+                        <div class="fitness-steps-chart-stat">
+                          <strong id="steps-chart-total">3,789</strong>
+                          <span>Steps</span>
+                        </div>
+                        <div class="fitness-steps-chart-stat">
+                          <strong id="steps-chart-distance">2.1</strong>
+                          <span>km</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="fitness-steps-chart-wrap">
+                    <canvas id="stepsChart" aria-label="Daily steps bar graph" role="img"></canvas>
+                    <div id="stepsChartFallback" class="fitness-steps-chart-fallback" aria-hidden="true" hidden></div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -342,8 +369,8 @@
       <div id="site-footer"></div>
     </div>
 
-    <script src="../js/site-runtime.js" defer></script>
-    <script src="../js/site.js" defer></script>
-    <script src="../js/profile.js" defer></script>
+    <script src="../js/site-runtime.js?v=20260416b" defer></script>
+    <script src="../js/site.js?v=20260416c" defer></script>
+    <script src="../js/profile.js?v=20260416d" defer></script>
   </body>
 </html>

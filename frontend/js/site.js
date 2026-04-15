@@ -65,38 +65,6 @@
         '--button-text': '#ffffff'
       }
     },
-    red: {
-      id: 'red',
-      label: 'Red',
-      description: 'High-contrast charcoal surfaces with a soft red glow.',
-      preview: ['#0b0b0b', '#ff4d4d', '#121212'],
-      tokens: {
-        '--bg': '#0b0b0b',
-        '--surface': 'rgba(18, 18, 18, 0.92)',
-        '--surface-strong': '#121212',
-        '--surface-soft': 'rgba(255, 255, 255, 0.03)',
-        '--text': '#f5f5f5',
-        '--muted': '#b4b4b4',
-        '--line': 'rgba(255, 255, 255, 0.1)',
-        '--primary': '#ff4d4d',
-        '--primary-strong': '#ff6666',
-        '--primary-rgb': '255, 77, 77',
-        '--accent': '#ff7a7a',
-        '--accent-rgb': '255, 122, 122',
-        '--danger': '#ff4d4d',
-        '--success': '#ff7a7a',
-        '--shadow': '0 18px 46px rgba(0, 0, 0, 0.46)',
-        '--page-gradient': 'radial-gradient(circle at 12% 12%, rgba(255, 77, 77, 0.14), transparent 24%), radial-gradient(circle at 84% 14%, rgba(255, 122, 122, 0.08), transparent 22%), radial-gradient(circle at 80% 86%, rgba(255, 77, 77, 0.06), transparent 25%), linear-gradient(180deg, #080808 0%, #0b0b0b 52%, #070707 100%)',
-        '--orb-one': 'rgba(255, 77, 77, 0.24)',
-        '--orb-two': 'rgba(255, 122, 122, 0.14)',
-        '--nav-bg': 'rgba(11, 11, 11, 0.88)',
-        '--panel-bg': 'rgba(11, 11, 11, 0.96)',
-        '--nav-link-color': 'rgba(245, 245, 245, 0.82)',
-        '--nav-link-hover-bg': 'rgba(255, 77, 77, 0.08)',
-        '--nav-link-active-color': '#ff4d4d',
-        '--button-text': '#ffffff'
-      }
-    },
     glass: {
       id: 'glass',
       label: 'Blue',
@@ -231,6 +199,12 @@
     document.querySelectorAll('[data-theme-current]').forEach(function (label) {
       label.textContent = theme.label;
     });
+
+    document.dispatchEvent(new CustomEvent('mm:themechange', {
+      detail: {
+        themeId: theme.id
+      }
+    }));
   }
 
   applyTheme(getStoredThemeId());

@@ -72,8 +72,12 @@
     trackingCurrentStreak: document.getElementById('tracking-current-streak'),
     trackingLongestStreak: document.getElementById('tracking-longest-streak'),
     trackingStreakMonth: document.getElementById('tracking-streak-month'),
-    trackingStreakCalendar: document.getElementById('tracking-streak-calendar')
+    trackingStreakCalendar: document.getElementById('tracking-streak-calendar'),
+    stepsChart: document.getElementById('stepsChart'),
+    stepsChartFallback: document.getElementById('stepsChartFallback')
   };
+  const weeklyStepsLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const weeklyStepsFallback = [1800, 2600, 2200, 3400, 3900, 3100, 5200];
   let selectedProfilePhoto = '';
   let fitnessTrackerState = readTrackingState();
   let workoutTimerInterval = null;
@@ -87,6 +91,7 @@
   };
   let lastCompletedTrackingKey = '';
   let lastHeartCenterDisplayValue = 0;
+  let stepsChartInstance = null;
 
   document.addEventListener('DOMContentLoaded', function () {
     loadProfile();
@@ -124,6 +129,7 @@
     if (fields.logout) {
       fields.logout.addEventListener('click', handleLogout);
     }
+    document.addEventListener('mm:themechange', handleThemeChange);
   });
 
   function loadProfile() {
@@ -462,6 +468,7 @@
     updateTrackingHeartCenter(averageProgress);
     syncTrackingHeartCompletion(today, isComplete);
     renderStreakCalendar(today);
+    renderStepsChart();
   }
 
   function readTrackingState() {
@@ -579,6 +586,213 @@
 
   function randomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function renderStepsChart() {
+    const chartValues = getWeeklyStepsChartData();
+    const chartPalette = getStepsChartPalette();
+    const baseBarColor = chartPalette.baseBarColor;
+    const activeBarColor = chartPalette.activeBarColor;
+    const hoverBarColor = chartPalette.hoverBarColor;
+    const hoverActiveBarColor = chartPalette.hoverActiveBarColor;
+    const axisLabelColor = chartPalette.axisLabelColor;
+    const highlightedIndex = 4;
+    const highlightedSteps = Number(chartValues[highlightedIndex] || 0);
+    const approxDistance = (highlightedSteps / 1312).toFixed(1);
+
+    if (document.getElementById('steps-chart-total')) {
+      document.getElementById('steps-chart-total').textContent = formatCount(highlightedSteps);
+    }
+    if (document.getElementById('steps-chart-distance')) {
+      document.getElementById('steps-chart-distance').textContent = approxDistance;
+    }
+
+    if (!fields.stepsChart || typeof window.Chart !== 'function') {
+      renderStepsChartFallback(chartValues, highlightedIndex);
+      return;
+    }
+
+    if (fields.stepsChartFallback) {
+      fields.stepsChartFallback.hidden = true;
+    }
+    fields.stepsChart.hidden = false;
+
+    if (stepsChartInstance) {
+      stepsChartInstance.data.labels = weeklyStepsLabels;
+      stepsChartInstance.data.datasets[0].data = chartValues;
+      stepsChartInstance.data.datasets[0].backgroundColor = weeklyStepsLabels.map(function (_, index) {
+        return index === highlightedIndex ? activeBarColor : baseBarColor;
+      });
+      stepsChartInstance.data.datasets[0].hoverBackgroundColor = weeklyStepsLabels.map(function (_, index) {
+        return index === highlightedIndex ? hoverActiveBarColor : hoverBarColor;
+      });
+      stepsChartInstance.options.animation.duration = 160;
+      stepsChartInstance.options.scales.x.ticks.color = axisLabelColor;
+      stepsChartInstance.update('none');
+      return;
+    }
+
+    try {
+      stepsChartInstance = new window.Chart(fields.stepsChart.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: weeklyStepsLabels,
+          datasets: [
+            {
+              data: chartValues,
+              borderRadius: 12,
+              borderSkipped: false,
+              backgroundColor: weeklyStepsLabels.map(function (_, index) {
+                return index === highlightedIndex ? activeBarColor : baseBarColor;
+              }),
+              hoverBackgroundColor: weeklyStepsLabels.map(function (_, index) {
+                return index === highlightedIndex ? hoverActiveBarColor : hoverBarColor;
+              }),
+              categoryPercentage: 0.7,
+              barPercentage: 0.78,
+              maxBarThickness: 18
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: {
+            duration: 180,
+            easing: 'easeOutQuart'
+          },
+          interaction: {
+            mode: 'nearest',
+            intersect: false
+          },
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              enabled: false
+            }
+          },
+          scales: {
+            y: {
+              display: false,
+              beginAtZero: true,
+              grid: {
+                display: false,
+                drawBorder: false
+              },
+              ticks: {
+                display: false
+              },
+              border: {
+                display: false
+              }
+            },
+            x: {
+              grid: {
+                display: false,
+                drawBorder: false
+              },
+              ticks: {
+                color: axisLabelColor,
+                font: {
+                  size: 11,
+                  weight: '600'
+                }
+              },
+              border: {
+                display: false
+              }
+            }
+          }
+        }
+      });
+    } catch (error) {
+      console.warn('Unable to render Chart.js steps graph. Falling back to static bars.', error);
+      renderStepsChartFallback(chartValues, highlightedIndex);
+    }
+  }
+
+  function getWeeklyStepsChartData() {
+    return weeklyStepsFallback.slice();
+  }
+
+  function getStepsChartPalette() {
+    const rootStyles = window.getComputedStyle(document.documentElement);
+    const primaryRgb = String(rootStyles.getPropertyValue('--primary-rgb') || '197, 255, 47').trim();
+    const primary = String(rootStyles.getPropertyValue('--primary') || '#c5ff2f').trim();
+    const text = String(rootStyles.getPropertyValue('--text') || '#edf1e4').trim();
+    const themeId = document.documentElement.dataset.theme || 'dark';
+    const baseOpacity = themeId === 'light' ? 0.46 : 0.58;
+    const hoverOpacity = themeId === 'light' ? 0.68 : 0.82;
+    const axisOpacity = themeId === 'light' ? 0.62 : 0.44;
+
+    return {
+      baseBarColor: 'rgba(' + primaryRgb + ', ' + baseOpacity + ')',
+      activeBarColor: primary,
+      hoverBarColor: 'rgba(' + primaryRgb + ', ' + hoverOpacity + ')',
+      hoverActiveBarColor: primary,
+      axisLabelColor: toRgbaColor(text, axisOpacity)
+    };
+  }
+
+  function toRgbaColor(color, alpha) {
+    const normalized = String(color || '').trim();
+
+    if (normalized.indexOf('#') === 0) {
+      const hex = normalized.slice(1);
+      const value = hex.length === 3
+        ? hex.split('').map(function (part) { return part + part; }).join('')
+        : hex;
+
+      if (value.length === 6) {
+        const red = parseInt(value.slice(0, 2), 16);
+        const green = parseInt(value.slice(2, 4), 16);
+        const blue = parseInt(value.slice(4, 6), 16);
+        return 'rgba(' + red + ', ' + green + ', ' + blue + ', ' + alpha + ')';
+      }
+    }
+
+    if (normalized.indexOf('rgb(') === 0) {
+      return normalized.replace('rgb(', 'rgba(').replace(')', ', ' + alpha + ')');
+    }
+
+    if (normalized.indexOf('rgba(') === 0) {
+      return normalized.replace(/rgba\(([^)]+),[^,]+\)$/, 'rgba($1, ' + alpha + ')');
+    }
+
+    return normalized;
+  }
+
+  function renderStepsChartFallback(chartValues, highlightedIndex) {
+    if (!fields.stepsChartFallback) {
+      return;
+    }
+
+    const maxValue = Math.max.apply(null, chartValues.concat([1]));
+
+    if (fields.stepsChart) {
+      fields.stepsChart.hidden = true;
+    }
+    fields.stepsChartFallback.hidden = false;
+    fields.stepsChartFallback.innerHTML = weeklyStepsLabels.map(function (label, index) {
+      const value = Number(chartValues[index] || 0);
+      const height = Math.max(12, Math.round((value / maxValue) * 100));
+      const className = index === highlightedIndex
+        ? 'fitness-steps-chart-fallback-bar is-active'
+        : 'fitness-steps-chart-fallback-bar';
+
+      return (
+        '<div class="fitness-steps-chart-fallback-col">' +
+          '<div class="' + className + '" style="height:' + height + '%" title="' + escapeHtml(label + ': ' + formatCount(value) + ' steps') + '"></div>' +
+          '<span>' + label + '</span>' +
+        '</div>'
+      );
+    }).join('');
+  }
+
+  function handleThemeChange() {
+    renderStepsChart();
   }
 
   function updateTrackingHeart(progress) {
