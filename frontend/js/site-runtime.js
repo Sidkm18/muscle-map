@@ -23,6 +23,7 @@
       login: base + 'pages/login.html',
       register: base + 'pages/register.html',
       profile: base + 'pages/profile.html',
+      profileEdit: base + 'pages/profile-edit.html',
       onboarding: base + 'pages/onboarding.html',
       about: base + 'pages/about.html',
       contact: base + 'pages/contact.html',

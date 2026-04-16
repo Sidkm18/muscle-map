@@ -22,6 +22,7 @@
     metaDob: document.getElementById('profile-meta-dob'),
     metaStatus: document.getElementById('profile-meta-status'),
     banner: document.getElementById('profile-banner'),
+    profileEditToggle: document.getElementById('profile-edit-toggle'),
     fullName: document.getElementById('profile-full-name'),
     username: document.getElementById('profile-username'),
     email: document.getElementById('profile-email'),
@@ -115,6 +116,11 @@
     loadProfile();
     renderTracking();
     form.addEventListener('submit', handleSubmit);
+    if (fields.profileEditToggle) {
+      fields.profileEditToggle.addEventListener('click', function () {
+        toggleProfileEditor(true);
+      });
+    }
     if (fields.trackingForm) {
       fields.trackingForm.addEventListener('submit', handleTrackingSubmit);
     }
@@ -266,6 +272,7 @@
         if (typeof app.cacheAvatarPreview === 'function' && selectedProfilePhoto && selectedProfilePhoto.indexOf('data:image/') === 0) {
           app.cacheAvatarPreview(selectedProfilePhoto);
         }
+        toggleProfileEditor(false);
         if (window.showToast) {
           window.showToast('Profile updated successfully!', 'success');
         }
@@ -281,6 +288,15 @@
           app.setButtonBusy(submitButton, false);
         }
       });
+  }
+
+  function toggleProfileEditor(isOpen) {
+    if (!fields.profileEditToggle || !form) {
+      return;
+    }
+
+    fields.profileEditToggle.hidden = isOpen;
+    form.hidden = !isOpen;
   }
 
   function handlePhotoSelection(event) {

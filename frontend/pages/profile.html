@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Profile | MuscleMap</title>
-    <link rel="stylesheet" href="../css/styles.css?v=20260416b" />
+    <link rel="stylesheet" href="../css/styles.css?v=20260416c" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
@@ -18,7 +18,6 @@
             <div class="profile-avatar-wrap">
               <button id="profile-avatar-trigger" class="profile-avatar-button" type="button" aria-label="Change profile photo">
                 <img id="profile-avatar" class="profile-avatar" alt="User avatar" />
-                <span class="profile-avatar-overlay">Click To Change</span>
               </button>
               <input id="profile-photo-input" type="file" accept="image/*" hidden />
               <div class="profile-photo-actions">
@@ -52,6 +51,7 @@
             </div>
 
             <div class="profile-actions">
+              <a class="button button-outline profile-edit-button" href="./profile-edit.html">Edit Profile</a>
               <button id="profile-logout" class="button button-outline" type="button">Logout</button>
             </div>
           </div>
@@ -241,11 +241,11 @@
           </section>
 
           <div class="profile-grid">
-            <section class="glass-card card">
+            <section class="glass-card card" hidden>
               <h2 class="page-title profile-panel-title">Edit Account Profile</h2>
               <p class="muted profile-panel-copy">Update your identity, demographics, public bio, and profile photo. Click the avatar to upload an image when you want to replace the placeholder.</p>
 
-              <form id="profile-form" class="profile-field-grid">
+              <form id="profile-form" class="profile-field-grid" hidden>
                 <div class="form-row">
                   <div>
                     <label class="mini-label" for="profile-full-name">Full Name</label>
@@ -406,6 +406,6 @@
 
     <script src="../js/site-runtime.js?v=20260416b" defer></script>
     <script src="../js/site.js?v=20260416c" defer></script>
-    <script src="../js/profile.js?v=20260416f" defer></script>
+    <script src="../js/profile.js?v=20260416g" defer></script>
   </body>
 </html>
