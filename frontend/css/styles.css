@@ -1753,17 +1753,21 @@ td.center {
 
 .fitness-pr-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 0.75rem;
 }
 
 .fitness-pr-item {
   display: grid;
-  gap: 0.25rem;
-  padding: 0.8rem;
+  gap: 0.28rem;
+  padding: 0.62rem 0.78rem;
   border-radius: 14px;
   border: 1px solid rgba(var(--primary-rgb), 0.14);
   background: rgba(var(--primary-rgb), 0.05);
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background-color 180ms ease;
+  align-content: center;
+  min-height: 5.8rem;
+  position: relative;
 }
 
 .fitness-pr-item strong {
@@ -1772,6 +1776,71 @@ td.center {
   font-size: 1.55rem;
   letter-spacing: 0.04em;
   line-height: 0.95;
+  align-self: center;
+  margin-top: 0.02rem;
+}
+
+.fitness-pr-head {
+  display: block;
+  width: 100%;
+}
+
+.fitness-pr-head .mini-label {
+  margin: 0;
+  display: block;
+  padding-right: 5rem;
+}
+
+.fitness-pr-edit {
+  position: absolute;
+  top: 0.78rem;
+  right: 0.78rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  flex: 0 0 auto;
+  min-height: 2rem;
+  padding: 0.34rem 0.72rem;
+}
+
+.fitness-pr-input-row {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  flex-wrap: nowrap;
+  width: 100%;
+  min-width: 0;
+}
+
+.fitness-pr-input-row[hidden] {
+  display: none !important;
+}
+
+.fitness-pr-input-row input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.5rem 0.68rem;
+  font-size: 0.84rem;
+}
+
+.fitness-pr-edit,
+.fitness-pr-save {
+  flex: 0 0 auto;
+  width: fit-content;
+  min-width: 3.7rem;
+  padding: 0.42rem 0.58rem;
+  font-size: 0.72rem;
+  line-height: 1;
+  white-space: nowrap;
+  align-self: center;
+}
+
+.fitness-pr-item.is-saved {
+  transform: translateY(-2px) scale(1.01);
+  border-color: rgba(var(--primary-rgb), 0.42);
+  background: rgba(var(--primary-rgb), 0.1);
+  box-shadow: 0 0 0 1px rgba(var(--primary-rgb), 0.08), 0 0 20px rgba(var(--primary-rgb), 0.14);
 }
 
 .streak-calendar-head {
@@ -1914,6 +1983,13 @@ td.center {
 
 .profile-panel-copy {
   margin: 0 0 1rem;
+}
+
+.fitness-pr-grid + .profile-panel-copy {
+  margin-top: 0.85rem;
+  padding-left: 0.2rem;
+  max-width: 30rem;
+  line-height: 1.45;
 }
 
 .profile-stat-grid {

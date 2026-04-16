@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Profile | MuscleMap</title>
-    <link rel="stylesheet" href="../css/styles.css?v=20260416a" />
+    <link rel="stylesheet" href="../css/styles.css?v=20260416b" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
@@ -327,8 +327,41 @@
                     <span class="mini-label">Highest Steps</span>
                     <strong id="tracking-pr-steps">0</strong>
                   </div>
+                  <div class="fitness-pr-item">
+                    <div class="fitness-pr-head">
+                      <span class="mini-label">Deadlift PR</span>
+                      <button id="tracking-pr-deadlift-edit" class="button button-outline fitness-pr-edit" type="button">Edit</button>
+                    </div>
+                    <strong id="tracking-pr-deadlift">0 kg</strong>
+                    <div id="tracking-pr-deadlift-editor" class="fitness-pr-input-row" hidden>
+                      <input id="tracking-pr-deadlift-input" type="number" min="0" step="1" placeholder="Enter kg" />
+                      <button id="tracking-pr-deadlift-save" class="button button-outline fitness-pr-save" type="button">Save</button>
+                    </div>
+                  </div>
+                  <div class="fitness-pr-item">
+                    <div class="fitness-pr-head">
+                      <span class="mini-label">Bench Press PR</span>
+                      <button id="tracking-pr-bench-edit" class="button button-outline fitness-pr-edit" type="button">Edit</button>
+                    </div>
+                    <strong id="tracking-pr-bench">0 kg</strong>
+                    <div id="tracking-pr-bench-editor" class="fitness-pr-input-row" hidden>
+                      <input id="tracking-pr-bench-input" type="number" min="0" step="1" placeholder="Enter kg" />
+                      <button id="tracking-pr-bench-save" class="button button-outline fitness-pr-save" type="button">Save</button>
+                    </div>
+                  </div>
+                  <div class="fitness-pr-item">
+                    <div class="fitness-pr-head">
+                      <span class="mini-label">Squat PR</span>
+                      <button id="tracking-pr-squat-edit" class="button button-outline fitness-pr-edit" type="button">Edit</button>
+                    </div>
+                    <strong id="tracking-pr-squat">0 kg</strong>
+                    <div id="tracking-pr-squat-editor" class="fitness-pr-input-row" hidden>
+                      <input id="tracking-pr-squat-input" type="number" min="0" step="1" placeholder="Enter kg" />
+                      <button id="tracking-pr-squat-save" class="button button-outline fitness-pr-save" type="button">Save</button>
+                    </div>
+                  </div>
                 </div>
-                <p class="muted profile-panel-copy">Personal bests update automatically from your saved workout and activity history.</p>
+                <p class="muted profile-panel-copy">Longest workout and highest steps update automatically. Strength PRs can be saved manually and stay stored on this device.</p>
               </section>
 
               <section class="glass-card card">
@@ -373,6 +406,6 @@
 
     <script src="../js/site-runtime.js?v=20260416b" defer></script>
     <script src="../js/site.js?v=20260416c" defer></script>
-    <script src="../js/profile.js?v=20260416e" defer></script>
+    <script src="../js/profile.js?v=20260416f" defer></script>
   </body>
 </html>

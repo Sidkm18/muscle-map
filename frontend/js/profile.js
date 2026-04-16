@@ -2,6 +2,7 @@
   const app = window.MuscleMap || {};
   const form = document.getElementById('profile-form');
   const TRACKING_STORAGE_KEY = 'mm-daily-fitness-tracking';
+  const STRENGTH_PR_STORAGE_KEY = 'mm-strength-prs';
 
   if (!form) {
     return;
@@ -62,6 +63,21 @@
     trackingStopwatchReset: document.getElementById('tracking-stopwatch-reset'),
     trackingPrWorkout: document.getElementById('tracking-pr-workout'),
     trackingPrSteps: document.getElementById('tracking-pr-steps'),
+    trackingPrDeadlift: document.getElementById('tracking-pr-deadlift'),
+    trackingPrBench: document.getElementById('tracking-pr-bench'),
+    trackingPrSquat: document.getElementById('tracking-pr-squat'),
+    trackingPrDeadliftEdit: document.getElementById('tracking-pr-deadlift-edit'),
+    trackingPrBenchEdit: document.getElementById('tracking-pr-bench-edit'),
+    trackingPrSquatEdit: document.getElementById('tracking-pr-squat-edit'),
+    trackingPrDeadliftEditor: document.getElementById('tracking-pr-deadlift-editor'),
+    trackingPrBenchEditor: document.getElementById('tracking-pr-bench-editor'),
+    trackingPrSquatEditor: document.getElementById('tracking-pr-squat-editor'),
+    trackingPrDeadliftInput: document.getElementById('tracking-pr-deadlift-input'),
+    trackingPrBenchInput: document.getElementById('tracking-pr-bench-input'),
+    trackingPrSquatInput: document.getElementById('tracking-pr-squat-input'),
+    trackingPrDeadliftSave: document.getElementById('tracking-pr-deadlift-save'),
+    trackingPrBenchSave: document.getElementById('tracking-pr-bench-save'),
+    trackingPrSquatSave: document.getElementById('tracking-pr-squat-save'),
     trackingStepsInput: document.getElementById('tracking-steps-input'),
     trackingActiveInput: document.getElementById('tracking-active-input'),
     trackingHeartButton: document.getElementById('tracking-heart-button'),
@@ -81,6 +97,7 @@
   let selectedProfilePhoto = '';
   let fitnessTrackerState = readTrackingState();
   ensureDemoTrackingStreak();
+  let strengthPrState = readStrengthPrState();
   let workoutTimerInterval = null;
   let workoutTimerStartedAt = 0;
   let workoutElapsedSeconds = 0;
@@ -130,6 +147,7 @@
     if (fields.logout) {
       fields.logout.addEventListener('click', handleLogout);
     }
+    bindStrengthPrActions();
     document.addEventListener('mm:themechange', handleThemeChange);
   });
 
@@ -481,6 +499,24 @@
     }
   }
 
+  function readStrengthPrState() {
+    try {
+      const raw = localStorage.getItem(STRENGTH_PR_STORAGE_KEY);
+      const parsed = raw ? JSON.parse(raw) : {};
+      return {
+        deadlift: normalizeNumber(parsed.deadlift, 0),
+        bench: normalizeNumber(parsed.bench, 0),
+        squat: normalizeNumber(parsed.squat, 0)
+      };
+    } catch (error) {
+      return {
+        deadlift: 0,
+        bench: 0,
+        squat: 0
+      };
+    }
+  }
+
   function ensureDemoTrackingStreak() {
     const today = parseDayKey(getTodayKey());
     if (!today) {
@@ -548,6 +584,10 @@
 
   function persistTrackingState() {
     localStorage.setItem(TRACKING_STORAGE_KEY, JSON.stringify(fitnessTrackerState));
+  }
+
+  function persistStrengthPrState() {
+    localStorage.setItem(STRENGTH_PR_STORAGE_KEY, JSON.stringify(strengthPrState));
   }
 
   function createDefaultTrackingDay() {
@@ -987,6 +1027,143 @@
 
     fields.trackingPrWorkout.textContent = formatDuration(metrics.longestWorkout);
     fields.trackingPrSteps.textContent = formatCount(metrics.highestSteps);
+    renderStrengthPrState();
+  }
+
+  function renderStrengthPrState() {
+    if (fields.trackingPrDeadlift) {
+      fields.trackingPrDeadlift.textContent = formatWeight(strengthPrState.deadlift);
+    }
+    if (fields.trackingPrBench) {
+      fields.trackingPrBench.textContent = formatWeight(strengthPrState.bench);
+    }
+    if (fields.trackingPrSquat) {
+      fields.trackingPrSquat.textContent = formatWeight(strengthPrState.squat);
+    }
+    if (fields.trackingPrDeadliftInput) {
+      fields.trackingPrDeadliftInput.value = strengthPrState.deadlift ? String(strengthPrState.deadlift) : '';
+    }
+    if (fields.trackingPrBenchInput) {
+      fields.trackingPrBenchInput.value = strengthPrState.bench ? String(strengthPrState.bench) : '';
+    }
+    if (fields.trackingPrSquatInput) {
+      fields.trackingPrSquatInput.value = strengthPrState.squat ? String(strengthPrState.squat) : '';
+    }
+  }
+
+  function bindStrengthPrActions() {
+    if (fields.trackingPrDeadliftEdit) {
+      fields.trackingPrDeadliftEdit.addEventListener('click', function () {
+        toggleStrengthPrEditor('deadlift', true);
+      });
+    }
+    if (fields.trackingPrBenchEdit) {
+      fields.trackingPrBenchEdit.addEventListener('click', function () {
+        toggleStrengthPrEditor('bench', true);
+      });
+    }
+    if (fields.trackingPrSquatEdit) {
+      fields.trackingPrSquatEdit.addEventListener('click', function () {
+        toggleStrengthPrEditor('squat', true);
+      });
+    }
+    if (fields.trackingPrDeadliftSave) {
+      fields.trackingPrDeadliftSave.addEventListener('click', function () {
+        saveStrengthPr('deadlift', fields.trackingPrDeadliftInput);
+      });
+    }
+    if (fields.trackingPrBenchSave) {
+      fields.trackingPrBenchSave.addEventListener('click', function () {
+        saveStrengthPr('bench', fields.trackingPrBenchInput);
+      });
+    }
+    if (fields.trackingPrSquatSave) {
+      fields.trackingPrSquatSave.addEventListener('click', function () {
+        saveStrengthPr('squat', fields.trackingPrSquatInput);
+      });
+    }
+  }
+
+  function saveStrengthPr(key, input) {
+    if (!input) {
+      return;
+    }
+
+    const rawValue = String(input.value || '').trim();
+    const nextValue = rawValue ? Math.max(0, Math.round(Number(rawValue))) : 0;
+
+    if (Number.isNaN(nextValue)) {
+      if (window.showToast) {
+        window.showToast('Enter a valid PR value.', 'error');
+      }
+      return;
+    }
+
+    strengthPrState[key] = nextValue;
+    persistStrengthPrState();
+    renderStrengthPrState();
+    animateStrengthPrSave(input);
+    toggleStrengthPrEditor(key, false);
+
+    if (window.showToast) {
+      window.showToast(formatText(key) + ' PR saved.', 'success');
+    }
+  }
+
+  function toggleStrengthPrEditor(key, isOpen) {
+    const config = getStrengthPrEditorConfig(key);
+    if (!config.editButton || !config.editor) {
+      return;
+    }
+
+    config.editButton.hidden = isOpen;
+    config.editor.hidden = !isOpen;
+
+    if (isOpen && config.input) {
+      config.input.focus();
+      config.input.select();
+    }
+  }
+
+  function getStrengthPrEditorConfig(key) {
+    if (key === 'deadlift') {
+      return {
+        editButton: fields.trackingPrDeadliftEdit,
+        editor: fields.trackingPrDeadliftEditor,
+        input: fields.trackingPrDeadliftInput
+      };
+    }
+    if (key === 'bench') {
+      return {
+        editButton: fields.trackingPrBenchEdit,
+        editor: fields.trackingPrBenchEditor,
+        input: fields.trackingPrBenchInput
+      };
+    }
+    return {
+      editButton: fields.trackingPrSquatEdit,
+      editor: fields.trackingPrSquatEditor,
+      input: fields.trackingPrSquatInput
+    };
+  }
+
+  function animateStrengthPrSave(input) {
+    const prCard = input && typeof input.closest === 'function'
+      ? input.closest('.fitness-pr-item')
+      : null;
+
+    if (!prCard) {
+      return;
+    }
+
+    prCard.classList.remove('is-saved');
+    window.requestAnimationFrame(function () {
+      prCard.classList.add('is-saved');
+    });
+
+    window.setTimeout(function () {
+      prCard.classList.remove('is-saved');
+    }, 720);
   }
 
   function renderStreakCalendar(dayKey) {
@@ -1135,6 +1312,10 @@
     const minutes = String(Math.floor((safeSeconds % 3600) / 60)).padStart(2, '0');
     const seconds = String(Math.floor(safeSeconds % 60)).padStart(2, '0');
     return hours + ':' + minutes + ':' + seconds;
+  }
+
+  function formatWeight(value) {
+    return formatCount(value) + ' kg';
   }
 
   function formatMetric(value, unit) {
