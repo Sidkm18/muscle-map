@@ -214,6 +214,7 @@
     home: './index.html',
     exercises: './pages/exercises.html',
     catalogue: './pages/catalogue.html',
+    connect: './pages/connect.html',
     calculator: './pages/calculator.html',
     pricing: './pages/pricing.html',
     login: './pages/login.html',
@@ -242,6 +243,7 @@
 
     if (path.includes('exercises')) return 'exercises';
     if (path.includes('catalogue')) return 'catalogue';
+    if (path.includes('connect')) return 'connect';
     if (path.includes('calculator')) return 'calculator';
     if (path.includes('pricing')) return 'pricing';
     if (path.includes('login')) return 'login';
@@ -264,11 +266,12 @@
             <div class="nav-links desktop-only">
               <a class="nav-link" data-nav="home" href="${links.home}">Home</a>
               <a class="nav-link" data-nav="exercises" href="${links.exercises}">Exercises</a>
+              <a class="nav-link" data-nav="connect" href="${links.connect}">Connect</a>
               <a class="nav-link" data-nav="calculator" href="${links.calculator}">Calculator</a>
-              <a class="nav-link" data-nav="pricing" href="${links.pricing}">Pricing</a>
               <div class="nav-menu-dropdown" id="nav-more-menu">
                 <button class="nav-link nav-menu-trigger" data-nav="more" type="button" aria-expanded="false">More</button>
                 <div class="nav-menu-panel" id="nav-more-panel">
+                  <a class="nav-link nav-menu-item" data-nav="pricing" href="${links.pricing}">Pricing</a>
                   <a class="nav-link nav-menu-item" data-nav="catalogue" href="${links.catalogue}">Catalogue</a>
                   <a class="nav-link nav-menu-item" data-nav="about" href="${links.about}">About</a>
                   <a class="nav-link nav-menu-item" data-nav="contact" href="${links.contact}">Contact</a>
@@ -286,6 +289,7 @@
           <div class="mobile-menu" id="mobile-menu">
             <a class="nav-link" data-nav="home" href="${links.home}">Home</a>
             <a class="nav-link" data-nav="exercises" href="${links.exercises}">Exercises</a>
+            <a class="nav-link" data-nav="connect" href="${links.connect}">Connect</a>
             <a class="nav-link" data-nav="calculator" href="${links.calculator}">Calculator</a>
             <a class="nav-link" data-nav="pricing" href="${links.pricing}">Pricing</a>
             <a class="nav-link" data-nav="catalogue" href="${links.catalogue}">Catalogue</a>
@@ -330,7 +334,7 @@
       item.classList.add('active');
     });
 
-    if (['catalogue', 'about', 'contact', 'register', 'profile', 'onboarding', 'privacy', 'terms'].includes(activeKey)) {
+    if (['pricing', 'catalogue', 'about', 'contact', 'register', 'profile', 'onboarding', 'privacy', 'terms'].includes(activeKey)) {
       const moreTrigger = document.querySelector('[data-nav="more"]');
       if (moreTrigger) {
         moreTrigger.classList.add('active');

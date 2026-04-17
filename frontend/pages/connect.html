@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Connect | MuscleMap</title>
+    <link rel="stylesheet" href="../css/styles.css?v=20260418e" />
+    <script>
+      if (window.localStorage.getItem('isLoggedIn') !== 'true') {
+        window.location.replace('./login.html');
+      }
+    </script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <div class="bg-grid"></div>
+      <header id="site-nav"></header>
+
+      <main id="connect-page-main" hidden>
+        <section class="container connect-page-shell" id="connect-page">
+          <header class="connect-page-header">
+            <h1 class="page-title connect-page-title">Connect</h1>
+            <p class="muted connect-page-subtitle">Find and follow people in your fitness journey</p>
+          </header>
+
+          <section class="glass-card card connect-welcome-card" aria-label="Welcome">
+            <div class="connect-welcome-copy">
+              <span class="mini-label">Welcome</span>
+              <h2 class="page-title connect-welcome-title" id="connect-welcome-name">Hey</h2>
+              <p class="muted connect-welcome-description">Connect with athletes and grow your fitness network</p>
+            </div>
+            <div class="connect-welcome-action">
+              <button class="button button-primary" id="connect-explore-button" type="button">Explore</button>
+            </div>
+          </section>
+
+          <section class="connect-suggested-section" id="connect-suggested-section" aria-label="Suggested Athletes">
+            <div class="connect-section-head">
+              <h2 class="page-title connect-section-title">Suggested Athletes</h2>
+            </div>
+            <div class="connect-placeholder-grid" id="connect-athletes-grid"></div>
+          </section>
+        </section>
+      </main>
+
+      <div id="site-footer"></div>
+    </div>
+
+    <script src="../js/site-runtime.js?v=20260418e" defer></script>
+    <script src="../js/site.js?v=20260418e" defer></script>
+    <script src="../js/connect.js?v=20260418e" defer></script>
+  </body>
+</html>
+

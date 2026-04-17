@@ -18,6 +18,7 @@
       home: base + 'index.html',
       exercises: base + 'pages/exercises.html',
       catalogue: base + 'pages/catalogue.html',
+      connect: base + 'pages/connect.html',
       calculator: base + 'pages/calculator.html',
       pricing: base + 'pages/pricing.html',
       login: base + 'pages/login.html',

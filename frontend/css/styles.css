@@ -637,6 +637,375 @@ html[data-theme="light"] .profile-name {
   color: var(--muted);
 }
 
+.connect-page-shell {
+  display: grid;
+  gap: 1.6rem;
+}
+
+.connect-page-header {
+  display: grid;
+  gap: 0.45rem;
+  max-width: 40rem;
+}
+
+.connect-page-title {
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  margin: 0;
+}
+
+.connect-page-subtitle {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.connect-welcome-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-radius: 24px;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(var(--primary-rgb), 0.04);
+}
+
+.connect-welcome-copy {
+  display: grid;
+  gap: 0.55rem;
+  max-width: 34rem;
+}
+
+.connect-welcome-title {
+  margin: 0;
+  font-size: clamp(1.9rem, 3vw, 2.5rem);
+}
+
+.connect-welcome-description {
+  margin: 0;
+  line-height: 1.7;
+}
+
+.connect-welcome-action {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 0 0 auto;
+}
+
+.connect-suggested-section {
+  display: grid;
+  gap: 1rem;
+}
+
+.connect-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.connect-section-title {
+  margin: 0;
+  font-size: 1.45rem;
+}
+
+.connect-placeholder-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  overflow: visible;
+}
+
+.connect-placeholder-card,
+.connect-athlete-card {
+  position: relative;
+  overflow: visible;
+  min-height: 190px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.9rem;
+  padding: 1.35rem;
+  border-radius: 22px;
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(var(--primary-rgb), 0.04);
+  background: linear-gradient(180deg, rgba(var(--primary-rgb), 0.04), rgba(255, 255, 255, 0.02));
+}
+
+.connect-placeholder-avatar,
+.connect-placeholder-line {
+  background: rgba(var(--primary-rgb), 0.08);
+  border: 1px solid rgba(var(--primary-rgb), 0.12);
+}
+
+.connect-placeholder-avatar {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+}
+
+.connect-placeholder-line {
+  width: 100%;
+  height: 12px;
+  border-radius: 999px;
+}
+
+.connect-placeholder-line-lg {
+  width: 72%;
+  height: 14px;
+}
+
+html[data-theme="light"] .connect-welcome-card,
+html[data-theme="light"] .connect-placeholder-card,
+html[data-theme="light"] .connect-athlete-card {
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(var(--primary-rgb), 0.05);
+}
+
+.connect-athlete-card {
+  justify-content: space-between;
+  gap: 1.1rem;
+}
+
+.connect-athlete-card.has-open-menu {
+  z-index: 30;
+}
+
+.connect-athlete-top {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.connect-athlete-avatar-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.connect-athlete-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(var(--primary-rgb), 0.28);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  background: var(--surface-strong);
+}
+
+.connect-athlete-active-dot {
+  position: absolute;
+  right: 2px;
+  bottom: 4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 2px solid var(--surface-strong);
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.35);
+}
+
+.connect-athlete-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--primary-rgb), 0.22);
+  background: rgba(var(--primary-rgb), 0.08);
+  color: var(--primary);
+  font-family: "Barlow Condensed", Impact, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.connect-athlete-copy {
+  display: grid;
+  gap: 0.28rem;
+  width: 100%;
+}
+
+.connect-athlete-actions {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 0.7rem;
+}
+
+.connect-athlete-name {
+  margin: 0;
+  color: var(--text);
+  font-family: "Barlow Condensed", Impact, sans-serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+.connect-athlete-tag {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.96rem;
+  line-height: 1.5;
+}
+
+.connect-athlete-followers {
+  margin: 0.05rem 0 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.4;
+  opacity: 0.9;
+}
+
+.connect-athlete-followers,
+.connect-athlete-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+}
+
+.connect-athlete-status {
+  margin: 0.08rem 0 0;
+  color: var(--accent);
+  font-size: 0.82rem;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+.connect-inline-icon {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex: 0 0 0.9rem;
+  opacity: 0.92;
+}
+
+.connect-follow-button {
+  min-width: 112px;
+  padding-inline: 1rem;
+}
+
+.connect-follow-button.is-following {
+  border-color: rgba(var(--primary-rgb), 0.36);
+  background: rgba(var(--primary-rgb), 0.08);
+  color: var(--primary);
+  box-shadow: 0 0 18px rgba(var(--primary-rgb), 0.08);
+}
+
+.connect-follow-menu {
+  position: absolute;
+  top: calc(100% + 0.55rem);
+  left: 0;
+  z-index: 40;
+  min-width: 190px;
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  background: rgba(12, 14, 18, 0.96);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 22px 46px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(var(--primary-rgb), 0.06);
+}
+
+.connect-follow-menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  border: 0;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text);
+  text-align: left;
+  padding: 0.78rem 0.84rem;
+  font-family: "Manrope", system-ui, -apple-system, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.connect-follow-menu-item:hover {
+  background: rgba(var(--primary-rgb), 0.12);
+  color: var(--primary);
+  transform: translateX(1px);
+}
+
+.connect-follow-menu-item.is-danger {
+  color: #ff8e8e;
+}
+
+.connect-follow-menu-item.is-danger:hover {
+  background: rgba(255, 111, 111, 0.12);
+  color: #ffb0b0;
+}
+
+.connect-follow-menu-icon {
+  width: 1.15rem;
+  height: 1.15rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 1.15rem;
+  opacity: 0.94;
+}
+
+.connect-menu-inline-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.connect-follow-menu-label {
+  display: inline-flex;
+  align-items: center;
+}
+
+html[data-theme="light"] .connect-follow-menu {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(15, 23, 42, 0.08);
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(var(--primary-rgb), 0.05);
+}
+
+html[data-theme="light"] .connect-follow-menu-item {
+  background: rgba(15, 23, 42, 0.02);
+}
+
+@media (max-width: 760px) {
+  .connect-welcome-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .connect-welcome-action {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+@media (min-width: 760px) {
+  .connect-placeholder-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1040px) {
+  .connect-placeholder-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1320px) {
+  .connect-placeholder-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
 .mini-label {
   font-size: 0.66rem;
   color: var(--muted);
