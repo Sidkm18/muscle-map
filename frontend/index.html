@@ -3,104 +3,512 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MuscleMap | Strength Tracking</title>
-    <meta name="description" content="MuscleMap is a vanilla JS strength tracking platform with exercise logging, calculator tools, and membership pricing." />
+    <title>MuscleMap | Gym Buddy For Routines, Lifts, And Streaks</title>
+    <meta
+      name="description"
+      content="MuscleMap is an all-in-one gym buddy app for planning routines, browsing exercises, logging lifts, tracking daily activity, and choosing the right membership plan."
+    />
     <link rel="stylesheet" href="./css/styles.css?v=20260416a" />
+    <link rel="stylesheet" href="./css/home.css?v=20260418a" />
   </head>
-  <body>
+  <body class="landing-page">
     <div class="page-shell">
       <div class="bg-grid"></div>
       <header id="site-nav"></header>
 
-      <main>
-        <section class="container hero-grid">
-          <div>
-            <span class="badge">Strength Training Companion</span>
-            <h1 class="hero-title">Train Better. <span class="primary-text">Track Clearly.</span></h1>
-            <p class="lead">MuscleMap gives you practical tools for real training: a usable exercise library, a fast workout calculator, and pricing that is easy to understand.</p>
-            <div class="cta-row">
-              <a class="button button-primary" href="./pages/login.html">Get Started</a>
-              <a class="button button-outline" href="#services">See Features</a>
+      <main class="landing-main">
+        <section id="landing-hero" class="landing-hero">
+          <div class="landing-hero-glow landing-hero-glow-one" aria-hidden="true"></div>
+          <div class="landing-hero-glow landing-hero-glow-two" aria-hidden="true"></div>
+          <div class="container landing-hero-inner">
+            <div class="landing-copy">
+              <span class="badge landing-eyebrow" data-hero-badge>All-In-One Gym Buddy</span>
+              <p class="landing-brand" data-hero-brand>MuscleMap</p>
+              <h1 class="landing-title" data-hero-title>MuscleMap keeps your routines, lifts, streaks, and daily momentum in one playful flow.</h1>
+              <p class="landing-lead" data-hero-copy>
+                Build the week, browse the exercise library, log the session, track activity, and move into paid plans only when your training wants more.
+              </p>
+              <div class="landing-cta-row" data-hero-actions>
+                <a class="button button-primary" href="./pages/pricing.html">Start Free Plan</a>
+                <a class="button button-outline" href="#home-feature-story">Explore The Flow</a>
+              </div>
+              <ul class="landing-points" data-hero-points>
+                <li>Weekly routines that stay easy to scan</li>
+                <li>Workout and activity tracking in one rhythm</li>
+                <li>Pricing that scales with your training season</li>
+              </ul>
             </div>
-          </div>
 
-          <div class="glass-card card">
-            <span class="badge">What You Get</span>
-            <div style="display:grid; gap:1rem; margin-top:1rem;">
-              <div style="display:flex; gap:.8rem;">
-                <div class="pill-badge" style="width:38px; height:38px; border-radius:10px; display:grid; place-items:center; background:rgba(197,255,47,.12); color:var(--primary);">1</div>
-                <div>
-                  <h3 class="page-title" style="font-size:1.1rem; margin:.2rem 0;">Exercise Library</h3>
-                  <p class="muted" style="margin:0;">Quickly find movements by muscle group, level, and rep range.</p>
-                </div>
+            <div class="landing-visual">
+              <div class="landing-chip landing-chip-top" data-hero-chip>
+                <span class="landing-chip-label">Crew energy</span>
+                <strong>12 day streak</strong>
               </div>
-              <div style="display:flex; gap:.8rem;">
-                <div class="pill-badge" style="width:38px; height:38px; border-radius:10px; display:grid; place-items:center; background:rgba(197,255,47,.12); color:var(--primary);">2</div>
-                <div>
-                  <h3 class="page-title" style="font-size:1.1rem; margin:.2rem 0;">Workout Calculator</h3>
-                  <p class="muted" style="margin:0;">Calculate volume, estimated 1RM, calories, and sets in one place.</p>
-                </div>
+              <div class="landing-chip landing-chip-right" data-hero-chip>
+                <span class="landing-chip-label">Tonight</span>
+                <strong>Push session ready</strong>
               </div>
-              <div style="display:flex; gap:.8rem;">
-                <div class="pill-badge" style="width:38px; height:38px; border-radius:10px; display:grid; place-items:center; background:rgba(197,255,47,.12); color:var(--primary);">3</div>
-                <div>
-                  <h3 class="page-title" style="font-size:1.1rem; margin:.2rem 0;">Transparent Pricing</h3>
-                  <p class="muted" style="margin:0;">Compare plans side by side and instantly see duration discounts.</p>
+              <div class="landing-chip landing-chip-bottom" data-hero-chip>
+                <span class="landing-chip-label">Weekly goal</span>
+                <strong>82% on track</strong>
+              </div>
+
+              <div class="hero-device" data-hero-device>
+                <div class="phone-shell hero-phone-shell">
+                  <div class="phone-frame">
+                    <div class="phone-notch" aria-hidden="true"></div>
+                    <div class="phone-screen">
+                      <div class="phone-status">
+                        <span>Tue 6:10 PM</span>
+                        <span>MuscleMap</span>
+                      </div>
+
+                      <section class="mock-hero-screen">
+                        <div class="mock-hero-topline">
+                          <div>
+                            <span class="mini-label">Tonight's block</span>
+                            <h2>Upper Push</h2>
+                          </div>
+                          <div class="mock-hero-ring">
+                            <span>82%</span>
+                          </div>
+                        </div>
+
+                        <div class="mock-chip-row">
+                          <span class="mock-chip active">Chest</span>
+                          <span class="mock-chip">Shoulders</span>
+                          <span class="mock-chip">Triceps</span>
+                        </div>
+
+                        <div class="mock-list">
+                          <article class="mock-list-item">
+                            <div>
+                              <strong>Bench Press</strong>
+                              <span>4 sets x 8 reps</span>
+                            </div>
+                            <span class="mock-list-tag">Main lift</span>
+                          </article>
+                          <article class="mock-list-item">
+                            <div>
+                              <strong>Incline Dumbbell Press</strong>
+                              <span>3 sets x 10 reps</span>
+                            </div>
+                            <span class="mock-list-tag">Volume</span>
+                          </article>
+                          <article class="mock-list-item">
+                            <div>
+                              <strong>Cable Fly</strong>
+                              <span>3 sets x 12 reps</span>
+                            </div>
+                            <span class="mock-list-tag">Finish</span>
+                          </article>
+                        </div>
+
+                        <div class="mock-hero-footer">
+                          <div>
+                            <span class="mini-label">Daily activity</span>
+                            <strong>7,920 steps</strong>
+                          </div>
+                          <div>
+                            <span class="mini-label">Active time</span>
+                            <strong>54 mins</strong>
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        <section id="services" class="section section-bordered">
+        <section id="home-proof" class="home-proof section">
           <div class="container">
-            <div class="section-header">
+            <div class="home-proof-header home-reveal" data-home-reveal>
               <div>
-                <span class="badge">Core Tools</span>
-                <h2 class="section-title">What You Can <span class="primary-text">Use Today</span></h2>
+                <span class="badge">Live Momentum</span>
+                <h2 class="section-title">Built for people who want the <span class="primary-text">next workout</span> to feel easier to start.</h2>
               </div>
-              <p class="muted">Built for people who care more about consistency than noise. Open a tool, log your session, and move on.</p>
+              <p class="muted">
+                The product story stays practical: show the plan, log the work, keep the streak moving, and surface just enough signal to stay consistent.
+              </p>
             </div>
 
-            <div class="grid-3">
-              <article class="glass-card card">
-                <h3 class="page-title" style="font-size:1.3rem;">Exercise Logging</h3>
-                <p class="muted">Browse tried-and-tested movements and filter quickly by the muscle group you want to train.</p>
-                <a class="primary-text" href="./pages/exercises.html">Browse Exercises</a>
+            <div class="proof-grid">
+              <article class="proof-item home-reveal" data-home-reveal>
+                <span class="mini-label">Routine plans launched</span>
+                <strong class="proof-number" data-counter-to="82" data-counter-suffix="k+">82k+</strong>
+                <p>Weekly templates spun up fast enough to survive real schedules.</p>
               </article>
-              <article class="glass-card card">
-                <h3 class="page-title" style="font-size:1.3rem;">Workout Calculator</h3>
-                <p class="muted">Log each lift and instantly see workload, estimated max strength, and energy cost.</p>
-                <a class="primary-text" href="./pages/calculator.html">Open Calculator</a>
+              <article class="proof-item home-reveal" data-home-reveal>
+                <span class="mini-label">Lifts logged</span>
+                <strong class="proof-number" data-counter-to="1.8" data-counter-decimals="1" data-counter-suffix="m+">1.8m+</strong>
+                <p>From first sessions to repeat blocks that keep building over time.</p>
               </article>
-              <article class="glass-card card">
-                <h3 class="page-title" style="font-size:1.3rem;">Premium Plans</h3>
-                <p class="muted">Review plans and pick the one that fits your schedule and training stage.</p>
-                <a class="primary-text" href="./pages/pricing.html">View Pricing</a>
+              <article class="proof-item home-reveal" data-home-reveal>
+                <span class="mini-label">Weekly goals kept</span>
+                <strong class="proof-number" data-counter-to="91" data-counter-suffix="%">91%</strong>
+                <p>Daily activity, streaks, and progress cues staying in the same loop.</p>
+              </article>
+              <article class="proof-item home-reveal" data-home-reveal>
+                <span class="mini-label">Community vibe</span>
+                <strong class="proof-number" data-counter-to="4.9" data-counter-decimals="1" data-counter-suffix="/5">4.9/5</strong>
+                <p>Playful enough to keep showing up, focused enough to still feel serious.</p>
               </article>
             </div>
           </div>
         </section>
 
-        <section class="section">
+        <section id="home-feature-story" class="home-feature-story section">
+          <div class="container story-layout">
+            <div class="story-copy home-reveal" data-home-reveal>
+              <span class="badge">Before The Session</span>
+              <h2 class="section-title">Know the plan before the bar ever leaves the rack.</h2>
+              <p class="lead">
+                MuscleMap keeps weekly structure, exercise browsing, and profile context close enough that you can walk in with a clear next move instead of rebuilding the session on the gym floor.
+              </p>
+              <div class="story-list">
+                <article>
+                  <span class="story-list-kicker">Weekly rhythm</span>
+                  <p>Stack push, pull, legs, cardio, or mobility days into a routine that still reads clean on busy weeks.</p>
+                </article>
+                <article>
+                  <span class="story-list-kicker">Exercise library</span>
+                  <p>Surface movements by muscle group, level, and effort so swaps happen fast when equipment changes.</p>
+                </article>
+                <article>
+                  <span class="story-list-kicker">Profile fit</span>
+                  <p>Keep goals, frequency, nutrition, and onboarding details close enough to inform the next block.</p>
+                </article>
+              </div>
+              <a class="button button-outline" href="./pages/exercises.html">Browse Exercises</a>
+            </div>
+
+            <div class="story-visual home-reveal" data-home-reveal>
+              <div class="story-panel story-panel-large">
+                <div class="story-panel-head">
+                  <span class="mini-label">This week</span>
+                  <strong>Build around the sessions that matter</strong>
+                </div>
+                <div class="story-week-grid">
+                  <article class="story-day-card active">
+                    <span>Mon</span>
+                    <strong>Upper Strength</strong>
+                    <p>Bench, row, incline</p>
+                  </article>
+                  <article class="story-day-card">
+                    <span>Tue</span>
+                    <strong>Steps + Core</strong>
+                    <p>7k step target</p>
+                  </article>
+                  <article class="story-day-card">
+                    <span>Thu</span>
+                    <strong>Leg Power</strong>
+                    <p>Squat, RDL, split squat</p>
+                  </article>
+                  <article class="story-day-card">
+                    <span>Sat</span>
+                    <strong>Conditioning</strong>
+                    <p>Bike, carries, mobility</p>
+                  </article>
+                </div>
+              </div>
+
+              <div class="story-panel story-panel-tall">
+                <div class="story-panel-head">
+                  <span class="mini-label">Selected movement</span>
+                  <strong>Bench press</strong>
+                </div>
+                <div class="story-library-tags">
+                  <span class="mock-chip active">Compound</span>
+                  <span class="mock-chip">Chest</span>
+                  <span class="mock-chip">Intermediate</span>
+                </div>
+                <ul class="story-library-list">
+                  <li>
+                    <span class="mini-label">Rep target</span>
+                    <strong>4 x 8</strong>
+                  </li>
+                  <li>
+                    <span class="mini-label">Focus</span>
+                    <strong>Strength volume</strong>
+                  </li>
+                  <li>
+                    <span class="mini-label">Fallback</span>
+                    <strong>Dumbbell press</strong>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="home-journey" class="home-journey section">
           <div class="container">
-            <div class="glass-card card" style="padding:2rem; text-align:center;">
-              <span class="badge">About MuscleMap</span>
-              <h2 class="section-title" style="margin-top:.7rem;">Built For <span class="primary-text">Lifters</span></h2>
-              <p class="lead" style="margin:1rem auto 1.4rem; max-width:700px;">This project started as a practical training log for people who lift regularly and wanted cleaner tools than bloated apps.</p>
-              <div class="stats-grid">
-                <div>
-                  <div class="metric-value">50k+</div>
-                  <div class="mini-label">Active Users</div>
+            <div class="journey-head home-reveal" data-home-reveal>
+              <div>
+                <span class="badge">During + After</span>
+                <h2 class="section-title">Move through the workout in one uninterrupted loop.</h2>
+              </div>
+              <p class="muted">
+                One device surface shifts from planning to logging to review, while the copy keeps the attention on the next useful action instead of another screen hunt.
+              </p>
+            </div>
+
+            <div class="journey-pin">
+              <div class="journey-layout">
+                <div class="journey-steps">
+                  <article class="journey-step is-active" data-journey-step="0">
+                    <span class="journey-step-index">01</span>
+                    <div class="journey-step-body">
+                      <span class="mini-label">Discover a session</span>
+                      <h3>Open today&apos;s block with enough signal to start fast.</h3>
+                      <p>Walk in with your priority lifts, target sets, and a clean sense of what matters for the session.</p>
+                    </div>
+                  </article>
+                  <article class="journey-step" data-journey-step="1">
+                    <span class="journey-step-index">02</span>
+                    <div class="journey-step-body">
+                      <span class="mini-label">Log the work</span>
+                      <h3>Track sets, reps, and quick calculator checks without leaving the lift.</h3>
+                      <p>Keep the session moving while still capturing volume, effort, and the numbers you care about later.</p>
+                    </div>
+                  </article>
+                  <article class="journey-step" data-journey-step="2">
+                    <span class="journey-step-index">03</span>
+                    <div class="journey-step-body">
+                      <span class="mini-label">Review the signal</span>
+                      <h3>Save the lift, update the streak, and see whether the week is still on track.</h3>
+                      <p>Progress, activity, and daily momentum stay close enough to keep the next workout easy to commit to.</p>
+                    </div>
+                  </article>
                 </div>
-                <div>
-                  <div class="metric-value">1M+</div>
-                  <div class="mini-label">Workouts Logged</div>
+
+                <div class="journey-device-column">
+                  <div class="phone-shell journey-phone-shell" data-journey-device>
+                    <div class="phone-frame">
+                      <div class="phone-notch" aria-hidden="true"></div>
+                      <div class="phone-screen journey-screen-stack">
+                        <section class="journey-state is-active" data-journey-state="0">
+                          <div class="journey-state-head">
+                            <div>
+                              <span class="mini-label">Ready to train</span>
+                              <strong>Push session</strong>
+                            </div>
+                            <span class="journey-state-pill">6 exercises</span>
+                          </div>
+                          <div class="journey-state-surface">
+                            <article>
+                              <span class="mini-label">Priority</span>
+                              <strong>Bench press</strong>
+                              <p>4 x 8 at working weight</p>
+                            </article>
+                            <article>
+                              <span class="mini-label">Support</span>
+                              <strong>Incline dumbbell press</strong>
+                              <p>3 x 10 with tempo focus</p>
+                            </article>
+                            <article>
+                              <span class="mini-label">Finish</span>
+                              <strong>Cable fly</strong>
+                              <p>3 x 12 with short rest</p>
+                            </article>
+                          </div>
+                        </section>
+
+                        <section class="journey-state" data-journey-state="1">
+                          <div class="journey-state-head">
+                            <div>
+                              <span class="mini-label">Live logging</span>
+                              <strong>Bench press</strong>
+                            </div>
+                            <span class="journey-state-pill active">Set 3</span>
+                          </div>
+                          <div class="journey-log-grid">
+                            <div>
+                              <span class="mini-label">Weight</span>
+                              <strong>82.5 kg</strong>
+                            </div>
+                            <div>
+                              <span class="mini-label">Reps</span>
+                              <strong>8</strong>
+                            </div>
+                            <div>
+                              <span class="mini-label">Volume</span>
+                              <strong>1,980</strong>
+                            </div>
+                            <div>
+                              <span class="mini-label">1RM</span>
+                              <strong>104 kg</strong>
+                            </div>
+                          </div>
+                          <div class="journey-log-bar">
+                            <span></span>
+                          </div>
+                          <p class="journey-log-note">Calculator checkpoints stay close enough to keep the workout moving.</p>
+                        </section>
+
+                        <section class="journey-state" data-journey-state="2">
+                          <div class="journey-state-head">
+                            <div>
+                              <span class="mini-label">Daily wrap</span>
+                              <strong>Momentum saved</strong>
+                            </div>
+                            <span class="journey-state-pill success">Complete</span>
+                          </div>
+                          <div class="journey-review-top">
+                            <div class="journey-review-ring">
+                              <span>87%</span>
+                            </div>
+                            <div class="journey-review-copy">
+                              <span class="mini-label">Weekly target</span>
+                              <strong>4 of 5 sessions locked</strong>
+                              <p>Daily activity and workout consistency stay in the same summary.</p>
+                            </div>
+                          </div>
+                          <div class="journey-review-stats">
+                            <article>
+                              <span class="mini-label">Steps</span>
+                              <strong>9,480</strong>
+                            </article>
+                            <article>
+                              <span class="mini-label">Active mins</span>
+                              <strong>72</strong>
+                            </article>
+                            <article>
+                              <span class="mini-label">Streak</span>
+                              <strong>12 days</strong>
+                            </article>
+                          </div>
+                        </section>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="journey-progress-dots" aria-hidden="true">
+                    <span class="is-active" data-journey-dot="0"></span>
+                    <span data-journey-dot="1"></span>
+                    <span data-journey-dot="2"></span>
+                  </div>
                 </div>
-                <div>
-                  <div class="metric-value">4.9</div>
-                  <div class="mini-label">Average Rating</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="home-tools" class="home-tools section">
+          <div class="container">
+            <div class="tools-head home-reveal" data-home-reveal>
+              <div>
+                <span class="badge">Extra Utility</span>
+                <h2 class="section-title">When the gym day spills into the rest of life, the tools still stay useful.</h2>
+              </div>
+              <p class="muted">
+                The app stays helpful before training, between sessions, and on quieter days when you still want numbers, guidance, and a reason to keep the streak alive.
+              </p>
+            </div>
+
+            <div class="tools-grid">
+              <article class="tool-panel home-reveal" data-home-reveal>
+                <div class="tool-panel-head">
+                  <span class="mini-label">Calculator</span>
+                  <strong>Lift math without friction</strong>
                 </div>
+                <div class="tool-metric-list">
+                  <div><span>1RM</span><strong>112 kg</strong></div>
+                  <div><span>Volume</span><strong>5,460</strong></div>
+                  <div><span>Calories</span><strong>428 kcal</strong></div>
+                </div>
+                <p>Estimate max strength, track workload, and sanity-check the session without leaving the workflow.</p>
+                <a class="button button-outline" href="./pages/calculator.html">Open Calculator</a>
+              </article>
+
+              <article class="tool-panel home-reveal" data-home-reveal>
+                <div class="tool-panel-head">
+                  <span class="mini-label">Daily tracking</span>
+                  <strong>Keep movement visible between lifts</strong>
+                </div>
+                <div class="activity-stack">
+                  <div class="activity-row">
+                    <span>Steps</span>
+                    <strong>9,480 / 10,000</strong>
+                  </div>
+                  <div class="activity-row">
+                    <span>Active mins</span>
+                    <strong>72 / 90</strong>
+                  </div>
+                  <div class="activity-row">
+                    <span>Calories</span>
+                    <strong>418 / 500</strong>
+                  </div>
+                </div>
+                <p>Track the quieter activity signals that still matter when training consistency is the goal.</p>
+                <a class="button button-outline" href="./pages/profile.html">See Activity</a>
+              </article>
+
+              <article class="tool-panel home-reveal" data-home-reveal>
+                <div class="tool-panel-head">
+                  <span class="mini-label">Profile fit</span>
+                  <strong>Shape the app around your actual week</strong>
+                </div>
+                <ul class="tool-checklist">
+                  <li>Training frequency and experience level</li>
+                  <li>Goals, nutrition, and workout preferences</li>
+                  <li>Profile details that keep recommendations grounded</li>
+                </ul>
+                <p>Onboarding and profile setup give the product enough context to feel like a real gym buddy instead of a blank tracker.</p>
+                <a class="button button-outline" href="./pages/onboarding.html">Start Onboarding</a>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section id="home-pricing" class="home-pricing section">
+          <div class="container pricing-layout">
+            <div class="pricing-copy home-reveal" data-home-reveal>
+              <span class="badge">Ready To Level Up?</span>
+              <h2 class="section-title">Start with the plan that matches your training season.</h2>
+              <p class="lead">
+                Keep the entry light, move up when you want more depth, and compare the full pricing view the second your routine wants premium support.
+              </p>
+              <div class="pricing-actions">
+                <a class="button button-primary" href="./pages/pricing.html">Start Free Plan</a>
+                <a class="button button-outline" href="./pages/pricing.html">Compare All Plans</a>
+              </div>
+            </div>
+
+            <div class="pricing-rail">
+              <article class="pricing-tier home-reveal" data-home-reveal>
+                <span class="mini-label">Basic</span>
+                <strong>₹100 / month</strong>
+                <p>Exercise browsing, workout logging, and a clean place to keep moving.</p>
+              </article>
+              <article class="pricing-tier pricing-tier-featured home-reveal" data-home-reveal>
+                <span class="mini-label">Pro</span>
+                <strong>₹250 / month</strong>
+                <p>Unlock deeper progress analytics and a stronger rhythm for repeat training blocks.</p>
+              </article>
+              <article class="pricing-tier home-reveal" data-home-reveal>
+                <span class="mini-label">Elite</span>
+                <strong>₹500 / month</strong>
+                <p>For serious seasons that want personalized plans, premium tooling, and priority help.</p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section id="home-cta" class="home-cta section">
+          <div class="container">
+            <div class="home-cta-shell home-reveal" data-home-reveal>
+              <span class="badge">Next Session</span>
+              <h2 class="section-title">Keep the next workout moving before motivation has to do all the work.</h2>
+              <p class="lead">
+                MuscleMap is built for people who want their gym buddy app to feel fast, clear, and energetic enough to come back to tomorrow.
+              </p>
+              <div class="landing-cta-row">
+                <a class="button button-primary" href="./pages/pricing.html">Start Free Plan</a>
+                <a class="button button-outline" href="./pages/register.html">Create Account</a>
               </div>
             </div>
           </div>
@@ -111,5 +519,8 @@
     </div>
 
     <script src="./js/site.js?v=20260416b" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
+    <script src="./js/home.js" defer></script>
   </body>
 </html>
