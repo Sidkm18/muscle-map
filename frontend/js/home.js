@@ -6,13 +6,38 @@
   }
 
   const root = document.documentElement;
-  const journeySection = document.getElementById("home-journey");
-  const journeyPin = journeySection ? journeySection.querySelector(".journey-pin") : null;
-  const journeyDevice = journeySection ? journeySection.querySelector("[data-journey-device]") : null;
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const storyDayButtons = Array.from(document.querySelectorAll("[data-story-day]"));
+  const storyTagButtons = Array.from(document.querySelectorAll("[data-story-tag]"));
+  const storyMovementTitle = document.querySelector("[data-story-movement-title]");
+  const storyStatValues = Array.from(document.querySelectorAll("[data-story-stat-value]"));
   const journeySteps = Array.from(document.querySelectorAll("[data-journey-step]"));
   const journeyStates = Array.from(document.querySelectorAll("[data-journey-state]"));
   const journeyDots = Array.from(document.querySelectorAll("[data-journey-dot]"));
+  const journeyScroller = document.querySelector("[data-journey-scroller]");
   let currentJourneyStage = 0;
+  const storyDayMap = {
+    mon: {
+      movement: "Bench press",
+      tags: ["Compound", "Chest", "Intermediate"],
+      stats: ["4 x 8", "Strength volume", "Dumbbell press"]
+    },
+    tue: {
+      movement: "Dead bug circuit",
+      tags: ["Core", "Recovery", "Beginner"],
+      stats: ["3 rounds", "Stability and steps", "Cable crunch"]
+    },
+    thu: {
+      movement: "Back squat",
+      tags: ["Compound", "Legs", "Intermediate"],
+      stats: ["5 x 5", "Power output", "Goblet squat"]
+    },
+    sat: {
+      movement: "Bike intervals",
+      tags: ["Conditioning", "Cardio", "All levels"],
+      stats: ["8 rounds", "Engine work", "Rower intervals"]
+    }
+  };
 
   function syncThemeState() {
     const computed = window.getComputedStyle(root);
@@ -21,30 +46,22 @@
     if (primaryRgb) {
       body.style.setProperty("--home-primary-rgb-live", primaryRgb);
     }
-
-    if (window.ScrollTrigger) {
-      window.requestAnimationFrame(function () {
-        window.ScrollTrigger.refresh();
-      });
-    }
   }
 
   function toggleJourneyClasses(index) {
     journeySteps.forEach(function (step, stepIndex) {
       step.classList.toggle("is-active", stepIndex === index);
+      step.setAttribute("aria-pressed", stepIndex === index ? "true" : "false");
     });
 
     journeyDots.forEach(function (dot, dotIndex) {
       dot.classList.toggle("is-active", dotIndex === index);
+      dot.setAttribute("aria-pressed", dotIndex === index ? "true" : "false");
     });
   }
 
-  function setJourneyStage(index, options) {
-    const animate = !options || options.animate !== false;
-    const gsapRef = options ? options.gsap : null;
-
-    if (!journeyStates.length || index === currentJourneyStage && animate) {
-      toggleJourneyClasses(index);
+  function setJourneyStage(index) {
+    if (!journeyStates.length || index < 0 || index >= journeyStates.length) {
       return;
     }
 
@@ -52,35 +69,22 @@
     toggleJourneyClasses(index);
 
     journeyStates.forEach(function (state, stateIndex) {
-      const isActive = stateIndex === index;
+      state.classList.toggle("is-active", stateIndex === index);
+    });
+  }
 
-      state.classList.toggle("is-active", isActive);
+  function scrollJourneyTo(index) {
+    const target = journeyStates[index];
 
-      if (!gsapRef || !animate) {
-        state.style.opacity = isActive ? "1" : "0";
-        state.style.visibility = isActive ? "visible" : "hidden";
-        state.style.transform = isActive ? "translate3d(0, 0, 0) scale(1)" : "translate3d(0, 18px, 0) scale(0.96)";
-        return;
-      }
+    if (!journeyScroller || !target) {
+      setJourneyStage(index);
+      return;
+    }
 
-      gsapRef.to(state, {
-        autoAlpha: isActive ? 1 : 0,
-        y: isActive ? 0 : stateIndex < index ? -18 : 18,
-        scale: isActive ? 1 : 0.96,
-        duration: 0.45,
-        ease: "power2.out",
-        overwrite: "auto",
-        onStart: function () {
-          if (isActive) {
-            state.classList.add("is-active");
-          }
-        },
-        onComplete: function () {
-          if (!isActive) {
-            state.classList.remove("is-active");
-          }
-        }
-      });
+    setJourneyStage(index);
+    journeyScroller.scrollTo({
+      top: target.offsetTop,
+      behavior: prefersReducedMotion ? "auto" : "smooth"
     });
   }
 
@@ -92,264 +96,175 @@
     return Math.round(value).toString() + suffix;
   }
 
-  function initCounters(gsapRef, ScrollTriggerRef, reduceMotion) {
-    document.querySelectorAll("[data-counter-to]").forEach(function (element) {
-      const target = Number(element.getAttribute("data-counter-to") || "0");
-      const decimals = Number(element.getAttribute("data-counter-decimals") || "0");
-      const suffix = element.getAttribute("data-counter-suffix") || "";
+  function setActiveStoryTag(index) {
+    storyTagButtons.forEach(function (button, buttonIndex) {
+      const isActive = buttonIndex === index;
+      button.classList.toggle("active", isActive);
+      button.setAttribute("aria-pressed", isActive ? "true" : "false");
+    });
+  }
 
-      if (reduceMotion) {
-        element.textContent = formatCounter(target, decimals, suffix);
-        return;
+  function setStoryDay(dayKey) {
+    const story = storyDayMap[dayKey];
+
+    if (!story || !storyMovementTitle || storyStatValues.length < 3) {
+      return;
+    }
+
+    storyDayButtons.forEach(function (button) {
+      const isActive = button.getAttribute("data-story-day") === dayKey;
+      button.classList.toggle("active", isActive);
+      button.setAttribute("aria-pressed", isActive ? "true" : "false");
+    });
+
+    storyMovementTitle.textContent = story.movement;
+
+    storyTagButtons.forEach(function (button, index) {
+      if (story.tags[index]) {
+        button.textContent = story.tags[index];
       }
+    });
 
-      ScrollTriggerRef.create({
-        trigger: element,
-        start: "top 82%",
-        once: true,
-        onEnter: function () {
-          const counter = { value: 0 };
+    story.stats.forEach(function (value, index) {
+      if (storyStatValues[index]) {
+        storyStatValues[index].textContent = value;
+      }
+    });
 
-          gsapRef.to(counter, {
-            value: target,
-            duration: 1.2,
-            ease: "power2.out",
-            onUpdate: function () {
-              element.textContent = formatCounter(counter.value, decimals, suffix);
-            }
-          });
+    setActiveStoryTag(0);
+  }
+
+  function initStoryPanel() {
+    if (!storyDayButtons.length || !storyTagButtons.length) {
+      return;
+    }
+
+    storyDayButtons.forEach(function (button) {
+      button.addEventListener("click", function () {
+        setStoryDay(button.getAttribute("data-story-day") || "mon");
+      });
+    });
+
+    storyTagButtons.forEach(function (button, index) {
+      button.addEventListener("click", function () {
+        setActiveStoryTag(index);
+      });
+    });
+  }
+
+  function animateCounter(element, target, decimals, suffix) {
+    if (prefersReducedMotion) {
+      element.textContent = formatCounter(target, decimals, suffix);
+      return;
+    }
+
+    const duration = 900;
+    const startTime = window.performance.now();
+
+    function frame(now) {
+      const progress = Math.min((now - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const value = target * eased;
+      element.textContent = formatCounter(value, decimals, suffix);
+
+      if (progress < 1) {
+        window.requestAnimationFrame(frame);
+      }
+    }
+
+    window.requestAnimationFrame(frame);
+  }
+
+  function initCounters() {
+    const counters = Array.from(document.querySelectorAll("[data-counter-to]"));
+
+    if (!counters.length) {
+      return;
+    }
+
+    if (!("IntersectionObserver" in window)) {
+      counters.forEach(function (element) {
+        const target = Number(element.getAttribute("data-counter-to") || "0");
+        const decimals = Number(element.getAttribute("data-counter-decimals") || "0");
+        const suffix = element.getAttribute("data-counter-suffix") || "";
+        animateCounter(element, target, decimals, suffix);
+      });
+      return;
+    }
+
+    const observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) {
+          return;
         }
+
+        const element = entry.target;
+        const target = Number(element.getAttribute("data-counter-to") || "0");
+        const decimals = Number(element.getAttribute("data-counter-decimals") || "0");
+        const suffix = element.getAttribute("data-counter-suffix") || "";
+
+        animateCounter(element, target, decimals, suffix);
+        observer.unobserve(element);
+      });
+    }, {
+      rootMargin: "0px 0px -12% 0px",
+      threshold: 0.2
+    });
+
+    counters.forEach(function (element) {
+      observer.observe(element);
+    });
+  }
+
+  function initJourney() {
+    if (!journeyScroller || !journeySteps.length || !journeyStates.length) {
+      return;
+    }
+
+    setJourneyStage(0);
+    journeyScroller.scrollTop = 0;
+
+    journeySteps.forEach(function (step) {
+      step.addEventListener("click", function () {
+        const index = Number(step.getAttribute("data-journey-step") || "0");
+        scrollJourneyTo(index);
       });
     });
-  }
 
-  function initHeroEntrance(gsapRef, reduceMotion) {
-    if (reduceMotion) {
-      return;
-    }
-
-    const heroTimeline = gsapRef.timeline({
-      defaults: {
-        duration: 0.82,
-        ease: "power3.out"
-      }
-    });
-
-    heroTimeline
-      .from("[data-hero-badge]", { y: 24, autoAlpha: 0 })
-      .from("[data-hero-brand]", { y: 30, autoAlpha: 0 }, "-=0.52")
-      .from("[data-hero-title]", { y: 42, autoAlpha: 0 }, "-=0.52")
-      .from("[data-hero-copy]", { y: 26, autoAlpha: 0 }, "-=0.48")
-      .from("[data-hero-actions]", { y: 22, autoAlpha: 0 }, "-=0.45")
-      .from("[data-hero-points] li", { y: 16, autoAlpha: 0, stagger: 0.1 }, "-=0.36")
-      .from("[data-hero-device]", { y: 54, autoAlpha: 0, scale: 0.94, rotate: -4 }, "-=0.92")
-      .from("[data-hero-chip]", { autoAlpha: 0, x: 18, y: 18, stagger: 0.12 }, "-=0.65");
-
-    gsapRef.to("[data-hero-chip]", {
-      y: function (index) {
-        return index % 2 === 0 ? -10 : 10;
-      },
-      duration: 2.8,
-      repeat: -1,
-      yoyo: true,
-      stagger: 0.18,
-      ease: "sine.inOut"
-    });
-
-    gsapRef.to(".landing-hero-glow-one", {
-      x: -14,
-      y: 16,
-      scale: 1.04,
-      duration: 4.4,
-      repeat: -1,
-      yoyo: true,
-      ease: "sine.inOut"
-    });
-
-    gsapRef.to(".landing-hero-glow-two", {
-      x: 12,
-      y: -10,
-      scale: 1.06,
-      duration: 5.1,
-      repeat: -1,
-      yoyo: true,
-      ease: "sine.inOut"
-    });
-  }
-
-  function initRevealBatches(gsapRef, ScrollTriggerRef, reduceMotion) {
-    if (reduceMotion) {
-      return;
-    }
-
-    ScrollTriggerRef.batch("[data-home-reveal]", {
-      start: "top 84%",
-      once: true,
-      onEnter: function (batch) {
-        gsapRef.from(batch, {
-          y: 36,
-          autoAlpha: 0,
-          duration: 0.82,
-          ease: "power3.out",
-          stagger: 0.12,
-          overwrite: "auto",
-          clearProps: "transform,opacity,visibility"
-        });
-      }
-    });
-  }
-
-  function initHeroScroll(gsapRef, ScrollTriggerRef, reduceMotion) {
-    if (reduceMotion) {
-      return;
-    }
-
-    gsapRef.to("[data-hero-device]", {
-      yPercent: -6,
-      rotate: -1.5,
-      ease: "none",
-      scrollTrigger: {
-        trigger: "#landing-hero",
-        start: "top top",
-        end: "bottom top",
-        scrub: 1
-      }
-    });
-
-    gsapRef.to("[data-hero-chip]", {
-      yPercent: function (index) {
-        return index % 2 === 0 ? -18 : 16;
-      },
-      ease: "none",
-      scrollTrigger: {
-        trigger: "#landing-hero",
-        start: "top top",
-        end: "bottom top",
-        scrub: 1.1
-      }
-    });
-  }
-
-  function initJourney(gsapRef, ScrollTriggerRef, isDesktop, reduceMotion) {
-    if (!journeySection || !journeyPin || !journeyDevice || !journeySteps.length || !journeyStates.length) {
-      return;
-    }
-
-    setJourneyStage(0, { animate: false });
-
-    if (reduceMotion) {
-      journeySteps.forEach(function (step, index) {
-        ScrollTriggerRef.create({
-          trigger: step,
-          start: "top 70%",
-          end: "bottom 40%",
-          onEnter: function () {
-            setJourneyStage(index, { animate: false });
-          },
-          onEnterBack: function () {
-            setJourneyStage(index, { animate: false });
-          }
-        });
+    journeyDots.forEach(function (dot) {
+      dot.addEventListener("click", function () {
+        const index = Number(dot.getAttribute("data-journey-dot") || "0");
+        scrollJourneyTo(index);
       });
+    });
 
+    if (!("IntersectionObserver" in window)) {
       return;
     }
 
-    if (isDesktop) {
-      const journeyTimeline = gsapRef.timeline({
-        scrollTrigger: {
-          trigger: journeySection,
-          start: "top top+=96",
-          end: "+=1800",
-          pin: journeyPin,
-          scrub: 0.9,
-          anticipatePin: 1
+    const observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) {
+          return;
         }
+
+        const index = Number(entry.target.getAttribute("data-journey-state") || "0");
+        setJourneyStage(index);
       });
-
-      journeyTimeline
-        .call(function () {
-          setJourneyStage(0, { gsap: gsapRef });
-        }, null, 0)
-        .to(journeyDevice, { yPercent: -3, rotation: -1.4, duration: 1 }, 0)
-        .call(function () {
-          setJourneyStage(1, { gsap: gsapRef });
-        }, null, 1)
-        .to(journeyDevice, { yPercent: 1.5, rotation: 1, duration: 1 }, 1)
-        .call(function () {
-          setJourneyStage(2, { gsap: gsapRef });
-        }, null, 2)
-        .to(journeyDevice, { yPercent: -1.5, rotation: -0.6, duration: 1 }, 2);
-
-      return;
-    }
-
-    gsapRef.from(journeyDevice, {
-      y: 42,
-      autoAlpha: 0,
-      duration: 0.82,
-      ease: "power3.out",
-      scrollTrigger: {
-        trigger: journeyDevice,
-        start: "top 84%",
-        once: true
-      }
+    }, {
+      root: journeyScroller,
+      threshold: 0.6
     });
 
-    journeySteps.forEach(function (step, index) {
-      ScrollTriggerRef.create({
-        trigger: step,
-        start: "top 72%",
-        end: "bottom 45%",
-        onEnter: function () {
-          setJourneyStage(index, { gsap: gsapRef });
-        },
-        onEnterBack: function () {
-          setJourneyStage(index, { gsap: gsapRef });
-        }
-      });
+    journeyStates.forEach(function (state) {
+      observer.observe(state);
     });
   }
 
   syncThemeState();
   document.addEventListener("mm:themechange", syncThemeState);
 
-  if (!window.gsap || !window.ScrollTrigger) {
-    setJourneyStage(0, { animate: false });
-    return;
-  }
-
-  const gsapRef = window.gsap;
-  const ScrollTriggerRef = window.ScrollTrigger;
-
-  gsapRef.registerPlugin(ScrollTriggerRef);
-  gsapRef.defaults({
-    duration: 0.8,
-    ease: "power2.out"
-  });
-
-  const media = gsapRef.matchMedia();
-
-  media.add(
-    {
-      isDesktop: "(min-width: 961px)",
-      isMobile: "(max-width: 960px)",
-      reduceMotion: "(prefers-reduced-motion: reduce)"
-    },
-    function (context) {
-      const conditions = context.conditions;
-      const isDesktop = Boolean(conditions && conditions.isDesktop);
-      const reduceMotion = Boolean(conditions && conditions.reduceMotion);
-
-      initCounters(gsapRef, ScrollTriggerRef, reduceMotion);
-      initHeroEntrance(gsapRef, reduceMotion);
-      initRevealBatches(gsapRef, ScrollTriggerRef, reduceMotion);
-      initHeroScroll(gsapRef, ScrollTriggerRef, reduceMotion);
-      initJourney(gsapRef, ScrollTriggerRef, isDesktop, reduceMotion);
-
-      return function () {
-        setJourneyStage(currentJourneyStage, { animate: false });
-      };
-    }
-  );
+  initStoryPanel();
+  initCounters();
+  initJourney();
 })();

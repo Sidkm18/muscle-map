@@ -157,6 +157,11 @@ a {
   transition: background 240ms ease, border-color 240ms ease, box-shadow 240ms ease;
 }
 
+.landing-page .site-nav {
+  backdrop-filter: none;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
+}
+
 .site-nav-row {
   display: flex;
   align-items: center;
@@ -204,6 +209,10 @@ a {
   margin-top: 0.1rem;
   display: none;
   z-index: 40;
+}
+
+.landing-page .nav-menu-panel {
+  backdrop-filter: none;
 }
 
 .nav-menu-item {

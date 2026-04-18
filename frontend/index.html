@@ -9,7 +9,7 @@
       content="MuscleMap is an all-in-one gym buddy app for planning routines, browsing exercises, logging lifts, tracking daily activity, and choosing the right membership plan."
     />
     <link rel="stylesheet" href="./css/styles.css?v=20260416a" />
-    <link rel="stylesheet" href="./css/home.css?v=20260418a" />
+    <link rel="stylesheet" href="./css/home.css?v=20260418b" />
   </head>
   <body class="landing-page">
     <div class="page-shell">
@@ -24,7 +24,10 @@
             <div class="landing-copy">
               <span class="badge landing-eyebrow" data-hero-badge>All-In-One Gym Buddy</span>
               <p class="landing-brand" data-hero-brand>MuscleMap</p>
-              <h1 class="landing-title" data-hero-title>MuscleMap keeps your routines, lifts, streaks, and daily momentum in one playful flow.</h1>
+              <h1 class="landing-title" data-hero-title>
+                <span class="landing-title-line">Train Better.</span>
+                <span class="landing-title-line">Track Clearly.</span>
+              </h1>
               <p class="landing-lead" data-hero-copy>
                 Build the week, browse the exercise library, log the session, track activity, and move into paid plans only when your training wants more.
               </p>
@@ -192,51 +195,51 @@
                   <strong>Build around the sessions that matter</strong>
                 </div>
                 <div class="story-week-grid">
-                  <article class="story-day-card active">
+                  <button class="story-day-card active" type="button" data-story-day="mon" aria-pressed="true">
                     <span>Mon</span>
                     <strong>Upper Strength</strong>
                     <p>Bench, row, incline</p>
-                  </article>
-                  <article class="story-day-card">
+                  </button>
+                  <button class="story-day-card" type="button" data-story-day="tue" aria-pressed="false">
                     <span>Tue</span>
                     <strong>Steps + Core</strong>
                     <p>7k step target</p>
-                  </article>
-                  <article class="story-day-card">
+                  </button>
+                  <button class="story-day-card" type="button" data-story-day="thu" aria-pressed="false">
                     <span>Thu</span>
                     <strong>Leg Power</strong>
                     <p>Squat, RDL, split squat</p>
-                  </article>
-                  <article class="story-day-card">
+                  </button>
+                  <button class="story-day-card" type="button" data-story-day="sat" aria-pressed="false">
                     <span>Sat</span>
                     <strong>Conditioning</strong>
                     <p>Bike, carries, mobility</p>
-                  </article>
+                  </button>
                 </div>
               </div>
 
               <div class="story-panel story-panel-tall">
                 <div class="story-panel-head">
                   <span class="mini-label">Selected movement</span>
-                  <strong>Bench press</strong>
+                  <strong data-story-movement-title>Bench press</strong>
                 </div>
                 <div class="story-library-tags">
-                  <span class="mock-chip active">Compound</span>
-                  <span class="mock-chip">Chest</span>
-                  <span class="mock-chip">Intermediate</span>
+                  <button class="mock-chip active" type="button" data-story-tag="0" aria-pressed="true">Compound</button>
+                  <button class="mock-chip" type="button" data-story-tag="1" aria-pressed="false">Chest</button>
+                  <button class="mock-chip" type="button" data-story-tag="2" aria-pressed="false">Intermediate</button>
                 </div>
-                <ul class="story-library-list">
+                <ul class="story-library-list" data-story-movement-stats>
                   <li>
                     <span class="mini-label">Rep target</span>
-                    <strong>4 x 8</strong>
+                    <strong data-story-stat-value="0">4 x 8</strong>
                   </li>
                   <li>
                     <span class="mini-label">Focus</span>
-                    <strong>Strength volume</strong>
+                    <strong data-story-stat-value="1">Strength volume</strong>
                   </li>
                   <li>
                     <span class="mini-label">Fallback</span>
-                    <strong>Dumbbell press</strong>
+                    <strong data-story-stat-value="2">Dumbbell press</strong>
                   </li>
                 </ul>
               </div>
@@ -259,38 +262,38 @@
             <div class="journey-pin">
               <div class="journey-layout">
                 <div class="journey-steps">
-                  <article class="journey-step is-active" data-journey-step="0">
+                  <button class="journey-step is-active" type="button" data-journey-step="0" aria-controls="journey-state-plan" aria-pressed="true">
                     <span class="journey-step-index">01</span>
                     <div class="journey-step-body">
                       <span class="mini-label">Discover a session</span>
                       <h3>Open today&apos;s block with enough signal to start fast.</h3>
                       <p>Walk in with your priority lifts, target sets, and a clean sense of what matters for the session.</p>
                     </div>
-                  </article>
-                  <article class="journey-step" data-journey-step="1">
+                  </button>
+                  <button class="journey-step" type="button" data-journey-step="1" aria-controls="journey-state-log" aria-pressed="false">
                     <span class="journey-step-index">02</span>
                     <div class="journey-step-body">
                       <span class="mini-label">Log the work</span>
                       <h3>Track sets, reps, and quick calculator checks without leaving the lift.</h3>
                       <p>Keep the session moving while still capturing volume, effort, and the numbers you care about later.</p>
                     </div>
-                  </article>
-                  <article class="journey-step" data-journey-step="2">
+                  </button>
+                  <button class="journey-step" type="button" data-journey-step="2" aria-controls="journey-state-review" aria-pressed="false">
                     <span class="journey-step-index">03</span>
                     <div class="journey-step-body">
                       <span class="mini-label">Review the signal</span>
                       <h3>Save the lift, update the streak, and see whether the week is still on track.</h3>
                       <p>Progress, activity, and daily momentum stay close enough to keep the next workout easy to commit to.</p>
                     </div>
-                  </article>
+                  </button>
                 </div>
 
                 <div class="journey-device-column">
                   <div class="phone-shell journey-phone-shell" data-journey-device>
                     <div class="phone-frame">
                       <div class="phone-notch" aria-hidden="true"></div>
-                      <div class="phone-screen journey-screen-stack">
-                        <section class="journey-state is-active" data-journey-state="0">
+                      <div class="phone-screen journey-screen-stack" data-journey-scroller>
+                        <section class="journey-state is-active" id="journey-state-plan" data-journey-state="0">
                           <div class="journey-state-head">
                             <div>
                               <span class="mini-label">Ready to train</span>
@@ -317,7 +320,7 @@
                           </div>
                         </section>
 
-                        <section class="journey-state" data-journey-state="1">
+                        <section class="journey-state" id="journey-state-log" data-journey-state="1">
                           <div class="journey-state-head">
                             <div>
                               <span class="mini-label">Live logging</span>
@@ -349,7 +352,7 @@
                           <p class="journey-log-note">Calculator checkpoints stay close enough to keep the workout moving.</p>
                         </section>
 
-                        <section class="journey-state" data-journey-state="2">
+                        <section class="journey-state" id="journey-state-review" data-journey-state="2">
                           <div class="journey-state-head">
                             <div>
                               <span class="mini-label">Daily wrap</span>
@@ -386,10 +389,10 @@
                     </div>
                   </div>
 
-                  <div class="journey-progress-dots" aria-hidden="true">
-                    <span class="is-active" data-journey-dot="0"></span>
-                    <span data-journey-dot="1"></span>
-                    <span data-journey-dot="2"></span>
+                  <div class="journey-progress-dots" role="group" aria-label="Journey views">
+                    <button class="is-active" type="button" data-journey-dot="0" aria-controls="journey-state-plan" aria-label="Show planning view" aria-pressed="true"></button>
+                    <button type="button" data-journey-dot="1" aria-controls="journey-state-log" aria-label="Show logging view" aria-pressed="false"></button>
+                    <button type="button" data-journey-dot="2" aria-controls="journey-state-review" aria-label="Show review view" aria-pressed="false"></button>
                   </div>
                 </div>
               </div>
@@ -479,21 +482,21 @@
             </div>
 
             <div class="pricing-rail">
-              <article class="pricing-tier home-reveal" data-home-reveal>
+              <a class="pricing-tier home-reveal" data-home-reveal href="./pages/pricing.html" aria-label="Open Basic plan details">
                 <span class="mini-label">Basic</span>
                 <strong>₹100 / month</strong>
                 <p>Exercise browsing, workout logging, and a clean place to keep moving.</p>
-              </article>
-              <article class="pricing-tier pricing-tier-featured home-reveal" data-home-reveal>
+              </a>
+              <a class="pricing-tier pricing-tier-featured home-reveal" data-home-reveal href="./pages/pricing.html" aria-label="Open Pro plan details">
                 <span class="mini-label">Pro</span>
                 <strong>₹250 / month</strong>
                 <p>Unlock deeper progress analytics and a stronger rhythm for repeat training blocks.</p>
-              </article>
-              <article class="pricing-tier home-reveal" data-home-reveal>
+              </a>
+              <a class="pricing-tier home-reveal" data-home-reveal href="./pages/pricing.html" aria-label="Open Elite plan details">
                 <span class="mini-label">Elite</span>
                 <strong>₹500 / month</strong>
                 <p>For serious seasons that want personalized plans, premium tooling, and priority help.</p>
-              </article>
+              </a>
             </div>
           </div>
         </section>
@@ -519,9 +522,7 @@
     </div>
 
     <script src="./js/site.js?v=20260418e" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
-    <script src="./js/home.js" defer></script>
+    <script src="./js/home.js?v=20260418c" defer></script>
   </body>
 </html>
 

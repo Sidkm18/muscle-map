@@ -175,7 +175,7 @@
         '<article class="glass-card card connect-athlete-card' + (isMenuOpen ? ' has-open-menu' : '') + '" data-athlete-id="' + user.id + '">' +
           '<div class="connect-athlete-top">' +
             '<div class="connect-athlete-avatar-wrap">' +
-              '<img class="connect-athlete-avatar" src="' + user.profileImage + '" alt="' + user.username + ' profile photo" loading="lazy" />' +
+              '<img class="connect-athlete-avatar" src="' + user.profileImage + '" alt="' + user.username + ' profile photo" loading="lazy" decoding="async" width="72" height="72" />' +
               (isActiveToday ? '<span class="connect-athlete-active-dot" aria-label="Active today"></span>' : '') +
             '</div>' +
             '<span class="connect-athlete-badge">Suggested</span>' +
