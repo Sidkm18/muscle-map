@@ -180,12 +180,34 @@
   padding: 0.9rem 1rem;
   border: 1px solid rgba(var(--primary-rgb), 0.22);
   border-radius: 18px;
-  background: color-mix(in srgb, var(--panel-bg) 94%, transparent);
+  background: color-mix(in srgb, var(--panel-bg) 98%, rgba(var(--primary-rgb), 0.04));
   box-shadow: var(--home-soft-shadow);
   z-index: 3;
   overflow: hidden;
   transform: translate3d(0, 0, 0);
   transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease, background-color 220ms ease;
+}
+
+@keyframes landing-chip-wobble {
+  0% {
+    transform: translate3d(0, -0.35rem, 0) scale(1.02) rotate(0deg);
+  }
+
+  25% {
+    transform: translate3d(0, -0.35rem, 0) scale(1.02) rotate(-0.75deg);
+  }
+
+  50% {
+    transform: translate3d(0, -0.32rem, 0) scale(1.02) rotate(0.55deg);
+  }
+
+  75% {
+    transform: translate3d(0, -0.35rem, 0) scale(1.02) rotate(-0.35deg);
+  }
+
+  100% {
+    transform: translate3d(0, -0.35rem, 0) scale(1.02) rotate(0deg);
+  }
 }
 
 .landing-chip::after {
@@ -219,10 +241,11 @@
 
 @media (hover: hover) and (pointer: fine) {
   .landing-chip:hover {
+    animation: landing-chip-wobble 480ms ease-out 120ms 1;
     transform: translate3d(0, -0.35rem, 0) scale(1.02);
     border-color: rgba(var(--primary-rgb), 0.42);
     box-shadow: 0 16px 30px rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(var(--primary-rgb), 0.12);
-    background: color-mix(in srgb, var(--panel-bg) 90%, rgba(var(--primary-rgb), 0.08));
+    background: color-mix(in srgb, var(--panel-bg) 96%, rgba(var(--primary-rgb), 0.12));
   }
 
   .landing-chip:hover::after {
