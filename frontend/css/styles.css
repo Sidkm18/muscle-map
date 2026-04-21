@@ -136,6 +136,205 @@ a {
   text-transform: uppercase;
 }
 
+.calculator-suggestion {
+  margin-top: 1rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(var(--primary-rgb), 0.18);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.08), rgba(var(--primary-rgb), 0.04));
+}
+
+.calculator-suggestion-copy,
+.calculator-suggestion-note {
+  margin: 0.35rem 0 0;
+}
+
+.calculator-suggestion-card {
+  display: grid;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+}
+
+.calculator-suggestion-label {
+  color: var(--primary);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.calculator-suggestion-value {
+  color: var(--primary);
+  font-family: "Barlow Condensed", Impact, sans-serif;
+  font-size: clamp(1.25rem, 2.2vw, 1.8rem);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.calculator-suggestion-note {
+  color: rgba(237, 241, 228, 0.74);
+}
+
+.strength-level-indicator {
+  margin-top: 0.7rem;
+  font-family: "Barlow Condensed", Impact, sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.strength-level-pending {
+  color: var(--muted);
+}
+
+.strength-level-beginner {
+  color: #aeb5a3;
+}
+
+.strength-level-intermediate {
+  color: #c5ff2f;
+}
+
+.strength-level-advanced {
+  color: #58ff86;
+}
+
+.workout-set-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+  padding: 0.9rem 1rem;
+}
+
+.workout-set-row.is-best {
+  border-color: rgba(var(--primary-rgb), 0.34);
+  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.12), rgba(var(--accent-rgb), 0.06));
+}
+
+.workout-set-meta {
+  display: grid;
+  gap: 0.18rem;
+  min-width: 0;
+}
+
+.workout-set-head {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.workout-set-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.55rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(var(--primary-rgb), 0.14);
+  color: var(--primary);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.workout-set-line {
+  font-size: 1.02rem;
+  font-weight: 700;
+}
+
+.workout-set-time {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.rest-timer-shell {
+  margin-top: 1rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.rest-timer-shell.is-active {
+  border-color: rgba(var(--accent-rgb), 0.34);
+  background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.14), rgba(var(--primary-rgb), 0.05));
+}
+
+.rest-timer-shell.is-complete {
+  border-color: rgba(var(--primary-rgb), 0.34);
+  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.14), rgba(var(--accent-rgb), 0.08));
+}
+
+.rest-timer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.rest-timer-status {
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+}
+
+.rest-timer-display {
+  color: rgba(237, 241, 228, 0.86);
+  font-family: "Barlow Condensed", Impact, sans-serif;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.rest-timer-shell.is-active .rest-timer-display {
+  color: var(--accent);
+}
+
+.rest-timer-shell.is-complete .rest-timer-display {
+  color: var(--primary);
+}
+
+.rest-timer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 0.9rem;
+}
+
+.calculator-feedback {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.calculator-feedback-copy {
+  margin: 0.35rem 0 0;
+  color: rgba(237, 241, 228, 0.72);
+  line-height: 1.5;
+}
+
+.calculator-sets-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.calculator-clear-all {
+  flex: 0 0 auto;
+  max-width: 100%;
+  padding: 0.38rem 0.78rem;
+  font-size: 0.88rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
 .site-nav-wrap {
   position: fixed;
   top: 1.2rem;

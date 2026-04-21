@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Calculator | MuscleMap</title>
-    <link rel="stylesheet" href="../css/styles.css?v=20260416a" />
+    <link rel="stylesheet" href="../css/styles.css?v=20260421f" />
   </head>
   <body>
     <div class="page-shell">
@@ -15,33 +15,58 @@
         <section class="container">
           <span class="badge">Workout Calculator</span>
           <h1 class="page-title" style="font-size:clamp(2.3rem,5vw,4.4rem); margin:.8rem 0;">Workout <span class="primary-text">Calculator</span></h1>
-          <p class="lead">Add exercises and calculate total volume, estimated one-rep max, calories, and total sets.</p>
+          <p class="lead">Log each working set, follow your progression, and watch volume, average reps, and estimated one-rep max update live.</p>
 
           <div class="grid-2" style="align-items:start; margin-top:1.2rem;">
             <div class="glass-card card">
               <h2 class="page-title" style="font-size:1.5rem; margin-top:0;">Add Exercises</h2>
               <form id="calculator-form" class="form-row" style="align-items:end;">
                 <div>
-                  <label class="mini-label" for="weight">Weight (lbs)</label>
+                  <label class="mini-label" for="weight">Weight (kg)</label>
                   <input id="weight" type="number" min="0" placeholder="225" required />
-                </div>
-                <div>
-                  <label class="mini-label" for="sets">Sets</label>
-                  <input id="sets" type="number" min="1" placeholder="3" required />
                 </div>
                 <div>
                   <label class="mini-label" for="reps">Reps</label>
                   <input id="reps" type="number" min="1" placeholder="8" required />
                 </div>
+                <div>
+                  <label class="mini-label" for="bodyweight">Bodyweight (kg)</label>
+                  <input id="bodyweight" type="number" min="0" placeholder="180" />
+                </div>
                 <button class="button button-primary" type="submit">Add</button>
               </form>
 
-              <div style="margin-top:1.2rem;">
-                <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem;">
-                  <p class="mini-label">Added Exercises</p>
-                  <button id="clear-all" class="pill" type="button" style="visibility:hidden; color:var(--danger);">Clear All</button>
+              <section class="calculator-suggestion" aria-live="polite">
+                <div class="mini-label">Suggested Next Set</div>
+                <p id="next-set-empty" class="muted calculator-suggestion-copy">Log a set to get a clear next-weight recommendation.</p>
+                <div id="next-set-card" class="calculator-suggestion-card" hidden>
+                  <div class="calculator-suggestion-label">Suggested</div>
+                  <div id="next-set-value" class="calculator-suggestion-value">0 kg for 6-8 reps</div>
+                  <p id="next-set-note" class="calculator-suggestion-note">Keep the weight steady and own the target range.</p>
                 </div>
-                <p id="empty-state" class="muted">No exercises added yet. Use the form above to add one.</p>
+              </section>
+
+              <section class="rest-timer-shell" aria-live="polite">
+                <div class="rest-timer-head">
+                  <div>
+                    <div class="mini-label">Rest Timer</div>
+                    <p id="rest-timer-status" class="rest-timer-status">Idle until you start a break.</p>
+                  </div>
+                  <div id="rest-timer-display" class="rest-timer-display">Rest: 01:15</div>
+                </div>
+                <div class="rest-timer-actions">
+                  <button id="rest-timer-start" class="button button-primary" type="button">Start Rest Timer</button>
+                  <button id="rest-timer-pause" class="button button-outline" type="button">Pause</button>
+                  <button id="rest-timer-reset" class="button button-outline" type="button">Reset</button>
+                </div>
+              </section>
+
+              <div style="margin-top:1.2rem;">
+                <div class="calculator-sets-head">
+                  <p class="mini-label">Logged Sets</p>
+                  <button id="clear-all" class="pill calculator-clear-all" type="button" style="visibility:hidden; color:var(--danger);">Clear All</button>
+                </div>
+                <p id="empty-state" class="muted">No sets logged yet. Use the form above to add your first set.</p>
                 <div id="exercise-list" style="display:grid; gap:.6rem;"></div>
               </div>
             </div>
@@ -52,17 +77,18 @@
                 <div class="metric-card">
                   <div class="mini-label">Total Volume</div>
                   <div class="metric-value" id="metric-volume">0</div>
-                  <div class="muted">lbs</div>
+                  <div class="muted">kg</div>
                 </div>
                 <div class="metric-card">
                   <div class="mini-label">Estimated 1RM</div>
                   <div class="metric-value" id="metric-1rm">0</div>
-                  <div class="muted">lbs (Epley)</div>
+                  <div class="muted">kg (Epley)</div>
+                  <div id="strength-level" class="strength-level-indicator strength-level-pending">Strength Level: Add bodyweight</div>
                 </div>
                 <div class="metric-card">
-                  <div class="mini-label">Est. Calories</div>
-                  <div class="metric-value" id="metric-calories">0</div>
-                  <div class="muted">kcal</div>
+                  <div class="mini-label">Average Reps</div>
+                  <div class="metric-value" id="metric-avg-reps">0</div>
+                  <div class="muted">per set</div>
                 </div>
                 <div class="metric-card">
                   <div class="mini-label">Total Sets</div>
@@ -70,6 +96,10 @@
                   <div class="muted">sets</div>
                 </div>
               </div>
+              <section class="calculator-feedback" aria-live="polite">
+                <div class="mini-label">Session Feedback</div>
+                <p id="calculator-feedback" class="calculator-feedback-copy">Add a few sets and MuscleMap will summarize how the session is trending.</p>
+              </section>
             </div>
           </div>
         </section>
@@ -80,7 +110,7 @@
 
     <script src="../js/site-runtime.js?v=20260418e" defer></script>
     <script src="../js/site.js?v=20260418e" defer></script>
-    <script src="../js/calculator.js" defer></script>
+    <script src="../js/calculator.js?v=20260421f" defer></script>
   </body>
 </html>
 
