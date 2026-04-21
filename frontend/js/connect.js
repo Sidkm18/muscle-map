@@ -12,10 +12,10 @@
   const exploreButton = document.getElementById('connect-explore-button');
   const suggestedSection = document.getElementById('connect-suggested-section');
   const welcomeName = document.getElementById('connect-welcome-name');
-  const POSTS_STORAGE_KEY = 'mm-connect-posts';
   const followState = {};
   let openMenuId = null;
-  let posts = readPosts();
+  let posts = [];
+  let postsLoaded = false;
   let selectedType = 'post';
   let createStep = 'selectType';
   let selectedMediaFile = null;
@@ -28,45 +28,48 @@
   let cropX = 50;
   let cropY = 50;
   let cropRotation = 0;
-  let demoPosts = [
+  const demoPosts = [
     {
-      id: 1,
+      id: 'demo-1',
       user: 'Atharv',
       avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
       type: 'post',
+      mediaType: 'image',
       media: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1200&q=80',
       persistentMedia: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1200&q=80',
       caption: 'Leg day done',
       likes: 124,
       liked: false,
-      time: '2h ago',
-      createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+      createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+      crop: null
     },
     {
-      id: 2,
+      id: 'demo-2',
       user: 'Rahul',
       avatar: 'https://randomuser.me/api/portraits/men/45.jpg',
       type: 'reel',
+      mediaType: 'image',
       media: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&w=900&q=80',
       persistentMedia: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&w=900&q=80',
       caption: 'Push workout pump',
       likes: 89,
       liked: false,
-      time: '5h ago',
-      createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString()
+      createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+      crop: null
     },
     {
-      id: 3,
+      id: 'demo-3',
       user: 'Sneha',
       avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
       type: 'post',
+      mediaType: 'image',
       media: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1200&q=80',
       persistentMedia: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1200&q=80',
       caption: 'Consistency > motivation',
       likes: 201,
       liked: false,
-      time: '1d ago',
-      createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+      createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+      crop: null
     }
   ];
   const suggestedAthletes = [
@@ -150,6 +153,7 @@
     renderPosts();
     renderSuggestedAthletes();
     bindActions();
+    loadPosts();
 
     if (typeof app.requestJson !== 'function') {
       connectMain.hidden = false;
@@ -628,36 +632,58 @@
     return 'Athlete';
   }
 
-  function readPosts() {
-    try {
-      const raw = window.localStorage.getItem(POSTS_STORAGE_KEY);
-      if (!raw) {
-        return [];
-      }
-
-      const parsed = JSON.parse(raw);
-      if (!Array.isArray(parsed)) {
-        return [];
-      }
-
-      return parsed.filter(function (post) {
-        return post && post.id && (post.persistentMedia || post.media) && post.type;
-      }).sort(function (left, right) {
-        return Number(right.id) - Number(left.id);
-      });
-    } catch (error) {
-      return [];
+  function loadPosts() {
+    if (typeof app.requestJson !== 'function') {
+      postsLoaded = true;
+      renderPosts();
+      return Promise.resolve();
     }
+
+    return app.requestJson('posts')
+      .then(function (data) {
+        posts = normalizePosts(data && data.posts);
+        postsLoaded = true;
+        renderPosts();
+      })
+      .catch(function (error) {
+        postsLoaded = true;
+        renderPosts();
+        if (typeof window.showToast === 'function') {
+          window.showToast(error && error.message ? error.message : 'Unable to load the feed right now.', 'error');
+        }
+      });
   }
 
-  function persistPosts() {
-    try {
-      window.localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(posts));
-    } catch (error) {
-      if (typeof window.showToast === 'function') {
-        window.showToast('Unable to save posts on this device.', 'error');
-      }
+  function normalizePosts(rawPosts) {
+    if (!Array.isArray(rawPosts)) {
+      return [];
     }
+
+    return rawPosts.filter(function (post) {
+      return post && post.id && (post.persistentMedia || post.media) && post.type;
+    }).map(function (post) {
+      return normalizePost(post);
+    }).sort(function (left, right) {
+      return Number(right.id) - Number(left.id);
+    });
+  }
+
+  function normalizePost(post) {
+    const normalizedPost = Object.assign({}, post || {});
+    normalizedPost.id = String(normalizedPost.id || '');
+    normalizedPost.user = String(normalizedPost.user || 'Athlete');
+    normalizedPost.avatar = String(normalizedPost.avatar || '').trim();
+    normalizedPost.type = String(normalizedPost.type || 'post').toLowerCase();
+    normalizedPost.mediaType = String(normalizedPost.mediaType || normalizedPost.type || 'image').toLowerCase();
+    normalizedPost.media = resolveMediaUrl(String(normalizedPost.media || normalizedPost.persistentMedia || ''));
+    normalizedPost.persistentMedia = resolveMediaUrl(String(normalizedPost.persistentMedia || normalizedPost.media || ''));
+    normalizedPost.caption = String(normalizedPost.caption || '');
+    normalizedPost.likes = Number(normalizedPost.likes || 0);
+    normalizedPost.liked = Boolean(normalizedPost.liked);
+    normalizedPost.createdAt = normalizedPost.createdAt || new Date().toISOString();
+    normalizedPost.crop = normalizedPost.crop || null;
+
+    return normalizedPost;
   }
 
   function renderPosts() {
@@ -665,7 +691,17 @@
       return;
     }
 
-    const feedPosts = posts.concat(demoPosts);
+    if (!postsLoaded) {
+      connectPostsGrid.innerHTML = '<article class="glass-card card connect-post-card"><p class="muted">Loading posts...</p></article>';
+      return;
+    }
+
+    const feedPosts = posts.concat(demoPosts.map(normalizePost));
+
+    if (!feedPosts.length) {
+      connectPostsGrid.innerHTML = '<article class="glass-card card connect-post-card"><p class="muted">No posts yet. Be the first to share your workout.</p></article>';
+      return;
+    }
 
     connectPostsGrid.innerHTML = feedPosts.map(function (post) {
       return renderPostCard(post);
@@ -703,12 +739,15 @@
   function renderPostAvatar(post) {
     const avatar = String(post.avatar || '').trim();
     const userLabel = escapeHtml(post.user || 'Athlete');
+    const resolvedAvatar = typeof app.resolveProfilePhoto === 'function'
+      ? app.resolveProfilePhoto(avatar, post.user || 'Athlete')
+      : (avatar || (typeof app.createAvatarPlaceholder === 'function' ? app.createAvatarPlaceholder(post.user || 'Athlete') : ''));
 
-    if (avatar) {
-      return '<img class="connect-post-avatar" src="' + escapeHtml(avatar) + '" alt="' + userLabel + ' avatar" loading="lazy" decoding="async" width="46" height="46" />';
+    if (resolvedAvatar) {
+      return '<img class="connect-post-avatar" src="' + escapeHtml(resolvedAvatar) + '" alt="' + userLabel + ' avatar" loading="lazy" decoding="async" width="46" height="46" />';
     }
 
-    return '<img class="connect-post-avatar" src="' + escapeHtml('https://ui-avatars.com/api/?name=' + encodeURIComponent(post.user || 'Athlete') + '&background=1a2110&color=c5ff2f') + '" alt="' + userLabel + ' avatar" loading="lazy" decoding="async" width="46" height="46" />';
+    return '<span class="connect-post-avatar" aria-hidden="true"></span>';
   }
 
   function renderPostActionButton(post, action, label, iconType) {
@@ -739,13 +778,12 @@
     if (action === 'like') {
       if (postIndex !== -1) {
         posts[postIndex].liked = !posts[postIndex].liked;
-        persistPosts();
         updateSinglePostCard(posts[postIndex]);
         return;
       }
 
       demoPosts[demoPostIndex].liked = !demoPosts[demoPostIndex].liked;
-      updateSinglePostCard(demoPosts[demoPostIndex]);
+      updateSinglePostCard(normalizePost(demoPosts[demoPostIndex]));
       return;
     }
 
@@ -834,46 +872,64 @@
       return;
     }
 
-    if (!selectedMediaPersistent && selectedMediaFile) {
-      readFileAsDataUrl(selectedMediaFile)
-        .then(function (dataUrl) {
-          selectedMediaPersistent = dataUrl;
-          publishDraftPost();
-        })
-        .catch(function () {
-          if (typeof window.showToast === 'function') {
-            window.showToast('Unable to finish preparing this file for posting.', 'error');
-          }
-        });
+    if (!selectedMediaFile) {
+      if (typeof window.showToast === 'function') {
+        window.showToast('Choose a media file before posting.', 'error');
+      }
       return;
     }
 
-    const createdAt = new Date().toISOString();
-    const newPost = {
-      id: Date.now(),
-      user: resolveWelcomeName(),
-      avatar: '',
-      type: selectedType,
-      mediaType: selectedMediaType || 'image',
-      media: selectedMediaPersistent,
-      persistentMedia: selectedMediaPersistent,
-      caption: String(draftCaption || '').trim(),
-      likes: 0,
-      liked: false,
-      time: 'Just now',
-      createdAt: createdAt,
-      crop: selectedMediaType === 'image' ? getDraftMediaCrop() : null
-    };
-
-    posts.unshift(newPost);
-    persistPosts();
-    renderPosts();
-    closeTypeModal();
-    resetCreateFlow();
-
-    if (typeof window.showToast === 'function') {
-      window.showToast(capitalizeWord(selectedType) + ' posted successfully.', 'success');
+    if (typeof app.requestJson !== 'function') {
+      if (typeof window.showToast === 'function') {
+        window.showToast('Posting is unavailable right now.', 'error');
+      }
+      return;
     }
+
+    modalNextButton.disabled = true;
+    modalNextButton.textContent = 'Posting...';
+    const submittedType = selectedType;
+
+    const formData = new FormData();
+    formData.append('type', selectedType);
+    formData.append('caption', String(draftCaption || '').trim());
+    formData.append('media', selectedMediaFile);
+
+    if (selectedMediaType === 'image') {
+      formData.append('crop_scale', String(cropScale));
+      formData.append('crop_x', String(cropX));
+      formData.append('crop_y', String(cropY));
+      formData.append('crop_rotation', String(cropRotation));
+    }
+
+    app.requestJson('posts', {
+      method: 'POST',
+      body: formData
+    })
+      .then(function (data) {
+        if (data && data.post) {
+          posts.unshift(normalizePost(data.post));
+          renderPosts();
+        } else {
+          return loadPosts();
+        }
+      })
+      .then(function () {
+        closeTypeModal();
+        resetCreateFlow();
+        if (typeof window.showToast === 'function') {
+          window.showToast(capitalizeWord(submittedType) + ' posted successfully.', 'success');
+        }
+      })
+      .catch(function (error) {
+        if (typeof window.showToast === 'function') {
+          window.showToast(error && error.message ? error.message : 'Unable to publish post.', 'error');
+        }
+      })
+      .finally(function () {
+        modalNextButton.disabled = false;
+        renderCreateFlow();
+      });
   }
 
   function getDraftMediaCrop() {
@@ -906,6 +962,25 @@
 
   function hasSelectedMedia() {
     return Boolean(selectedMediaPersistent || selectedMediaPreview || selectedMediaFile);
+  }
+
+  function resolveMediaUrl(value) {
+    const mediaValue = String(value || '').trim();
+    if (!mediaValue) {
+      return '';
+    }
+
+    if (mediaValue.startsWith('data:') || mediaValue.startsWith('blob:') || mediaValue.startsWith('http://') || mediaValue.startsWith('https://')) {
+      return mediaValue;
+    }
+
+    const normalizedMediaValue = mediaValue.replace(/\\/g, '/');
+
+    try {
+      return new URL(normalizedMediaValue, window.location.origin).href;
+    } catch (error) {
+      return normalizedMediaValue;
+    }
   }
 
   function readFileAsDataUrl(file) {
