@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Middleware\AuthMiddleware;
+use App\Middleware\CsrfMiddleware;
 use App\Middleware\SecurityMiddleware;
 use App\Middleware\ValidationException;
 use App\Middleware\ValidationMiddleware;
@@ -156,6 +157,7 @@ if (!function_exists('mm_start_session_user')) {
         session_regenerate_id(true);
         $_SESSION['user_id'] = (int) $user['id'];
         $_SESSION['email'] = (string) $user['email'];
+        CsrfMiddleware::generate();
     }
 }
 
