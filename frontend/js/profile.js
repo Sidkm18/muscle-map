@@ -3,6 +3,7 @@
   const form = document.getElementById('profile-form');
   const TRACKING_STORAGE_KEY = 'mm-daily-fitness-tracking';
   const STRENGTH_PR_STORAGE_KEY = 'mm-strength-prs';
+  const WATER_GUIDE_STORAGE_KEY = 'mm-water-guide';
 
   if (!form) {
     return;
@@ -91,7 +92,20 @@
     trackingStreakMonth: document.getElementById('tracking-streak-month'),
     trackingStreakCalendar: document.getElementById('tracking-streak-calendar'),
     stepsChart: document.getElementById('stepsChart'),
-    stepsChartFallback: document.getElementById('stepsChartFallback')
+    stepsChartFallback: document.getElementById('stepsChartFallback'),
+    waterTargetLiters: document.getElementById('water-target-liters'),
+    waterTargetGlasses: document.getElementById('water-target-glasses'),
+    waterGuideContext: document.getElementById('water-guide-context'),
+    waterCreatineToggle: document.getElementById('water-creatine-toggle'),
+    waterGlassGrid: document.getElementById('water-glass-grid'),
+    waterCurrentProgress: document.getElementById('water-current-progress'),
+    waterProgressCopy: document.getElementById('water-progress-copy'),
+    waterProgressFill: document.getElementById('water-progress-fill'),
+    waterReminderToggle: document.getElementById('water-reminder-toggle'),
+    waterNextReminder: document.getElementById('water-next-reminder'),
+    waterReminderNote: document.getElementById('water-reminder-note'),
+    waterAddGlass: document.getElementById('water-add-glass'),
+    waterResetDay: document.getElementById('water-reset-day')
   };
   const weeklyStepsLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   const weeklyStepsFallback = [1800, 2600, 2200, 3400, 3900, 3100, 5200];
@@ -99,10 +113,14 @@
   let fitnessTrackerState = readTrackingState();
   ensureDemoTrackingStreak();
   let strengthPrState = readStrengthPrState();
+  let waterGuideState = readWaterGuideState();
   let workoutTimerInterval = null;
+  let waterReminderTimeout = null;
+  let waterReminderInterval = null;
   let workoutTimerStartedAt = 0;
   let workoutElapsedSeconds = 0;
   let workoutTimerDayKey = '';
+  let profileWeightKg = 70;
   let trackingHeartProgress = {
     steps: 0,
     calories: 0,
@@ -115,6 +133,7 @@
   document.addEventListener('DOMContentLoaded', function () {
     loadProfile();
     renderTracking();
+    renderWaterGuide();
     form.addEventListener('submit', handleSubmit);
     if (fields.profileEditToggle) {
       fields.profileEditToggle.addEventListener('click', function () {
@@ -152,6 +171,18 @@
     }
     if (fields.logout) {
       fields.logout.addEventListener('click', handleLogout);
+    }
+    if (fields.waterCreatineToggle) {
+      fields.waterCreatineToggle.addEventListener('change', handleWaterCreatineToggle);
+    }
+    if (fields.waterAddGlass) {
+      fields.waterAddGlass.addEventListener('click', handleWaterAddGlass);
+    }
+    if (fields.waterResetDay) {
+      fields.waterResetDay.addEventListener('click', handleWaterResetDay);
+    }
+    if (fields.waterReminderToggle) {
+      fields.waterReminderToggle.addEventListener('click', handleWaterReminderToggle);
     }
     bindStrengthPrActions();
     document.addEventListener('mm:themechange', handleThemeChange);
@@ -211,6 +242,7 @@
 
     fields.height.textContent = formatMetric(stats.height, 'cm');
     fields.weight.textContent = formatMetric(stats.weight, 'kg');
+    profileWeightKg = Number(stats.weight || 70) > 0 ? Number(stats.weight) : 70;
     fields.bmi.textContent = stats.bmi ? String(stats.bmi) : '--';
     fields.calories.textContent = stats.daily_calories ? String(stats.daily_calories) : '--';
     fields.frequency.textContent = formatText(fitness.gym_frequency);
@@ -221,6 +253,7 @@
     fields.goals.innerHTML = buildGoals(fitness.goals);
 
     fields.banner.hidden = setupComplete;
+    renderWaterGuide();
 
     localStorage.setItem('isLoggedIn', 'true');
     localStorage.setItem('userName', user.full_name || user.username || '');
@@ -504,6 +537,216 @@
     syncTrackingHeartCompletion(today, isComplete);
     renderStreakCalendar(today);
     renderStepsChart();
+  }
+
+  function readWaterGuideState() {
+    try {
+      const raw = localStorage.getItem(WATER_GUIDE_STORAGE_KEY);
+      const parsed = raw ? JSON.parse(raw) : {};
+      return {
+        useCreatine: Boolean(parsed.useCreatine),
+        reminderEnabled: parsed.reminderEnabled !== false,
+        entries: parsed.entries && typeof parsed.entries === 'object' ? parsed.entries : {}
+      };
+    } catch (error) {
+      return {
+        useCreatine: false,
+        reminderEnabled: true,
+        entries: {}
+      };
+    }
+  }
+
+  function persistWaterGuideState() {
+    localStorage.setItem(WATER_GUIDE_STORAGE_KEY, JSON.stringify(waterGuideState));
+  }
+
+  function getWaterGuideDayKey() {
+    return getTodayKey();
+  }
+
+  function ensureWaterGuideEntry(dayKey) {
+    if (!waterGuideState.entries[dayKey]) {
+      waterGuideState.entries[dayKey] = {
+        glasses: 0,
+        updatedAt: new Date().toISOString()
+      };
+      persistWaterGuideState();
+    }
+
+    return waterGuideState.entries[dayKey];
+  }
+
+  function calculateWaterTargetLiters(weightKg, useCreatine) {
+    const safeWeight = Number(weightKg || 70);
+    const baseLiters = Math.max(2.4, safeWeight * 0.035);
+    return useCreatine ? baseLiters + 0.7 : baseLiters;
+  }
+
+  function calculateWaterTargetGlasses(liters) {
+    return Math.max(8, Math.ceil((Number(liters || 0) * 1000) / 250));
+  }
+
+  function renderWaterGuide() {
+    if (!fields.waterTargetLiters || !fields.waterGlassGrid) {
+      return;
+    }
+
+    const dayKey = getWaterGuideDayKey();
+    const entry = ensureWaterGuideEntry(dayKey);
+    const targetLiters = calculateWaterTargetLiters(profileWeightKg, waterGuideState.useCreatine);
+    const targetGlasses = calculateWaterTargetGlasses(targetLiters);
+    const currentGlasses = Math.min(targetGlasses, normalizeNumber(entry.glasses, 0));
+    const progress = Math.min(100, Math.round((currentGlasses / targetGlasses) * 100));
+    const nextReminderLabel = waterGuideState.reminderEnabled
+      ? formatUpcomingReminderLabel()
+      : 'Reminders paused';
+    const recommendationNote = waterGuideState.useCreatine
+      ? 'Creatine increases your hydration target, so aim a little higher than your normal baseline.'
+      : 'This baseline is based on your body weight and a general training-day hydration target.';
+
+    if (fields.waterCreatineToggle) {
+      fields.waterCreatineToggle.checked = waterGuideState.useCreatine;
+    }
+    fields.waterTargetLiters.textContent = targetLiters.toFixed(1) + ' L';
+    fields.waterTargetGlasses.textContent = targetGlasses + (targetGlasses === 1 ? ' glass / day' : ' glasses / day');
+    fields.waterGuideContext.textContent = 'Using ' + Math.round(profileWeightKg) + ' kg as your body weight. ' + recommendationNote;
+    fields.waterCurrentProgress.textContent = currentGlasses + ' / ' + targetGlasses + ' glasses';
+    fields.waterProgressCopy.textContent = currentGlasses >= targetGlasses
+      ? 'You hit today\'s hydration target. Nice work.'
+      : 'Keep sipping steadily through the day to reach your target.';
+    fields.waterProgressFill.style.width = progress + '%';
+    fields.waterNextReminder.textContent = nextReminderLabel;
+    fields.waterReminderNote.textContent = waterGuideState.reminderEnabled
+      ? 'Hourly reminders are active while this page stays open.'
+      : 'Hourly reminders are paused. Turn them back on when you want a nudge every hour.';
+    if (fields.waterReminderToggle) {
+      fields.waterReminderToggle.textContent = waterGuideState.reminderEnabled ? 'Pause Reminders' : 'Resume Reminders';
+    }
+
+    fields.waterGlassGrid.innerHTML = '';
+    for (let index = 0; index < targetGlasses; index += 1) {
+      const glass = document.createElement('span');
+      glass.className = 'water-glass' + (index < currentGlasses ? ' is-filled' : '') + (index === currentGlasses && currentGlasses < targetGlasses ? ' is-current' : '');
+      glass.innerHTML = '<span class="water-glass-fill"></span>';
+      glass.setAttribute('title', 'Glass ' + (index + 1) + ' of ' + targetGlasses);
+      fields.waterGlassGrid.appendChild(glass);
+    }
+
+    syncWaterReminderSchedule();
+  }
+
+  function handleWaterCreatineToggle() {
+    waterGuideState.useCreatine = Boolean(fields.waterCreatineToggle && fields.waterCreatineToggle.checked);
+    persistWaterGuideState();
+    renderWaterGuide();
+  }
+
+  function handleWaterAddGlass() {
+    const dayKey = getWaterGuideDayKey();
+    const entry = ensureWaterGuideEntry(dayKey);
+    const targetGlasses = calculateWaterTargetGlasses(calculateWaterTargetLiters(profileWeightKg, waterGuideState.useCreatine));
+    entry.glasses = Math.min(targetGlasses, normalizeNumber(entry.glasses, 0) + 1);
+    entry.updatedAt = new Date().toISOString();
+    persistWaterGuideState();
+    renderWaterGuide();
+    if (window.showToast) {
+      window.showToast('Logged one glass of water.', 'success');
+    }
+  }
+
+  function handleWaterResetDay() {
+    const dayKey = getWaterGuideDayKey();
+    waterGuideState.entries[dayKey] = {
+      glasses: 0,
+      updatedAt: new Date().toISOString()
+    };
+    persistWaterGuideState();
+    renderWaterGuide();
+    if (window.showToast) {
+      window.showToast('Today\'s water intake has been reset.', 'success');
+    }
+  }
+
+  function handleWaterReminderToggle() {
+    waterGuideState.reminderEnabled = !waterGuideState.reminderEnabled;
+    persistWaterGuideState();
+
+    if (waterGuideState.reminderEnabled && 'Notification' in window && window.Notification.permission === 'default') {
+      window.Notification.requestPermission().finally(function () {
+        renderWaterGuide();
+      });
+      return;
+    }
+
+    renderWaterGuide();
+    if (window.showToast) {
+      window.showToast(waterGuideState.reminderEnabled ? 'Hourly water reminders enabled.' : 'Hourly water reminders paused.', 'success');
+    }
+  }
+
+  function clearWaterReminderSchedule() {
+    if (waterReminderTimeout) {
+      window.clearTimeout(waterReminderTimeout);
+      waterReminderTimeout = null;
+    }
+    if (waterReminderInterval) {
+      window.clearInterval(waterReminderInterval);
+      waterReminderInterval = null;
+    }
+  }
+
+  function syncWaterReminderSchedule() {
+    clearWaterReminderSchedule();
+
+    if (!waterGuideState.reminderEnabled) {
+      return;
+    }
+
+    const nextReminderAt = getNextHourlyReminderTime();
+    const delay = Math.max(1000, nextReminderAt.getTime() - Date.now());
+
+    waterReminderTimeout = window.setTimeout(function () {
+      sendWaterReminder();
+      waterReminderInterval = window.setInterval(sendWaterReminder, 60 * 60 * 1000);
+      renderWaterGuide();
+    }, delay);
+  }
+
+  function getNextHourlyReminderTime() {
+    const next = new Date();
+    next.setMinutes(0, 0, 0);
+    next.setHours(next.getHours() + 1);
+    return next;
+  }
+
+  function formatUpcomingReminderLabel() {
+    return 'Next at ' + getNextHourlyReminderTime().toLocaleTimeString([], {
+      hour: 'numeric',
+      minute: '2-digit'
+    });
+  }
+
+  function sendWaterReminder() {
+    const targetLiters = calculateWaterTargetLiters(profileWeightKg, waterGuideState.useCreatine);
+    const message = 'Time to drink water. Aim for about ' + targetLiters.toFixed(1) + ' L today.';
+
+    if ('Notification' in window && window.Notification.permission === 'granted') {
+      try {
+        new window.Notification('MuscleMap Hydration Reminder', {
+          body: message
+        });
+      } catch (error) {
+        if (window.showToast) {
+          window.showToast(message, 'success');
+        }
+      }
+      return;
+    }
+
+    if (window.showToast) {
+      window.showToast(message, 'success');
+    }
   }
 
   function readTrackingState() {

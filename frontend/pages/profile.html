@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Profile | MuscleMap</title>
-    <link rel="stylesheet" href="../css/styles.css?v=20260416c" />
+    <link rel="stylesheet" href="../css/styles.css?v=20260421a" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
@@ -240,6 +240,59 @@
             </div>
           </section>
 
+          <section class="glass-card card water-guide-shell">
+            <div class="water-guide-head">
+              <div>
+                <span class="badge">Hydration Guide</span>
+                <h2 class="page-title profile-panel-title">Daily Water Intake</h2>
+                <p class="muted profile-panel-copy">Get a personalized water target based on your body weight, see it in glasses, and keep hourly reminders running while this page stays open.</p>
+              </div>
+              <div class="water-guide-status-card">
+                <span class="mini-label">Next Reminder</span>
+                <strong id="water-next-reminder">Hourly reminders on</strong>
+              </div>
+            </div>
+
+            <div class="water-guide-layout">
+              <div class="water-guide-card water-guide-summary-card">
+                <span class="mini-label">Recommended Intake</span>
+                <div class="water-guide-hero">
+                  <strong id="water-target-liters" class="water-guide-target">0.0 L</strong>
+                  <span id="water-target-glasses" class="water-guide-target-note">0 glasses / day</span>
+                </div>
+                <p id="water-guide-context" class="muted water-guide-context">We&apos;ll tailor this using your saved body weight and whether you&apos;re taking creatine.</p>
+
+                <label class="water-creatine-toggle" for="water-creatine-toggle">
+                  <input id="water-creatine-toggle" type="checkbox" />
+                  <span class="water-creatine-toggle-ui"></span>
+                  <span class="water-creatine-toggle-copy">
+                    <strong>Creatine support</strong>
+                    <span>Boost your daily hydration target when creatine is part of your stack.</span>
+                  </span>
+                </label>
+
+                <div id="water-glass-grid" class="water-glass-grid" aria-label="Recommended water glasses for the day"></div>
+              </div>
+
+              <div class="water-guide-card">
+                <span class="mini-label">Today&apos;s Intake</span>
+                <strong id="water-current-progress" class="water-guide-progress-value">0 / 0 glasses</strong>
+                <p id="water-progress-copy" class="muted water-guide-progress-copy">Start tracking your hydration one glass at a time.</p>
+                <div class="wizard-progress water-progress-bar">
+                  <div id="water-progress-fill" class="wizard-progress-fill"></div>
+                </div>
+
+                <div class="water-guide-actions">
+                  <button id="water-add-glass" class="button button-primary" type="button">Add 1 Glass</button>
+                  <button id="water-reset-day" class="button button-outline" type="button">Reset Today</button>
+                  <button id="water-reminder-toggle" class="button button-outline" type="button">Pause Reminders</button>
+                </div>
+
+                <p id="water-reminder-note" class="muted water-reminder-note">Hourly reminders run while this profile page stays open. If browser notifications are allowed, reminders can appear outside the tab too.</p>
+              </div>
+            </div>
+          </section>
+
           <div class="profile-grid">
             <section class="glass-card card" hidden>
               <h2 class="page-title profile-panel-title">Edit Account Profile</h2>
@@ -406,7 +459,7 @@
 
     <script src="../js/site-runtime.js?v=20260418e" defer></script>
     <script src="../js/site.js?v=20260418e" defer></script>
-    <script src="../js/profile.js?v=20260416g" defer></script>
+    <script src="../js/profile.js?v=20260421a" defer></script>
   </body>
 </html>
 
