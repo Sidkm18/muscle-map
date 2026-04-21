@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Connect | MuscleMap</title>
-    <link rel="stylesheet" href="../css/styles.css?v=20260418e" />
+    <link rel="stylesheet" href="../css/styles.css?v=20260421h" />
     <script>
       if (window.localStorage.getItem('isLoggedIn') !== 'true') {
         window.location.replace('./login.html');
@@ -34,6 +34,16 @@
             </div>
           </section>
 
+          <section class="connect-posts-section" aria-label="Recent Posts">
+            <div class="connect-section-head">
+              <h2 class="page-title connect-section-title">Feed</h2>
+              <button class="connect-create-trigger" id="connect-create-trigger" type="button" aria-haspopup="dialog" aria-controls="connect-type-modal" aria-label="Create content">
+                <span aria-hidden="true">+</span>
+              </button>
+            </div>
+            <div class="connect-posts-feed" id="connect-posts-grid"></div>
+          </section>
+
           <section class="connect-suggested-section" id="connect-suggested-section" aria-label="Suggested Athletes">
             <div class="connect-section-head">
               <h2 class="page-title connect-section-title">Suggested Athletes</h2>
@@ -43,12 +53,30 @@
         </section>
       </main>
 
+      <div class="connect-type-modal-shell" id="connect-type-modal-shell" hidden>
+        <div class="connect-type-modal-backdrop" data-connect-modal-close="true"></div>
+        <section class="glass-card card connect-type-modal" id="connect-type-modal" role="dialog" aria-modal="true" aria-labelledby="connect-type-modal-title">
+          <div class="connect-type-modal-head">
+            <div>
+              <span class="mini-label">Create</span>
+              <h2 class="page-title connect-section-title" id="connect-type-modal-title">Choose A Format</h2>
+            </div>
+            <button class="connect-type-modal-close" id="connect-type-modal-close" type="button" aria-label="Close create options">Close</button>
+          </div>
+          <div id="connect-create-flow"></div>
+          <div class="connect-type-modal-footer" id="connect-type-modal-footer">
+            <button class="button button-outline" id="connect-modal-back" type="button" hidden>Back</button>
+            <button class="button button-primary" id="connect-modal-next" type="button" hidden>Next</button>
+          </div>
+        </section>
+      </div>
+
       <div id="site-footer"></div>
     </div>
 
     <script src="../js/site-runtime.js?v=20260418e" defer></script>
     <script src="../js/site.js?v=20260418e" defer></script>
-    <script src="../js/connect.js?v=20260421a" defer></script>
+    <script src="../js/connect.js?v=20260421h" defer></script>
   </body>
 </html>
 

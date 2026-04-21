@@ -2,11 +2,73 @@
   const app = window.MuscleMap || {};
   const connectMain = document.getElementById('connect-page-main');
   const connectGrid = document.getElementById('connect-athletes-grid');
+  const connectPostsGrid = document.getElementById('connect-posts-grid');
+  const createTrigger = document.getElementById('connect-create-trigger');
+  const typeModalShell = document.getElementById('connect-type-modal-shell');
+  const typeModalClose = document.getElementById('connect-type-modal-close');
+  const createFlow = document.getElementById('connect-create-flow');
+  const modalBackButton = document.getElementById('connect-modal-back');
+  const modalNextButton = document.getElementById('connect-modal-next');
   const exploreButton = document.getElementById('connect-explore-button');
   const suggestedSection = document.getElementById('connect-suggested-section');
   const welcomeName = document.getElementById('connect-welcome-name');
+  const POSTS_STORAGE_KEY = 'mm-connect-posts';
   const followState = {};
   let openMenuId = null;
+  let posts = readPosts();
+  let selectedType = 'post';
+  let createStep = 'selectType';
+  let selectedMediaFile = null;
+  let selectedMediaPreview = '';
+  let selectedMediaPersistent = '';
+  let selectedMediaType = '';
+  let draftCaption = '';
+  let cropControlsOpen = false;
+  let cropScale = 1;
+  let cropX = 50;
+  let cropY = 50;
+  let cropRotation = 0;
+  let demoPosts = [
+    {
+      id: 1,
+      user: 'Atharv',
+      avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+      type: 'post',
+      media: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1200&q=80',
+      persistentMedia: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1200&q=80',
+      caption: 'Leg day done',
+      likes: 124,
+      liked: false,
+      time: '2h ago',
+      createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: 2,
+      user: 'Rahul',
+      avatar: 'https://randomuser.me/api/portraits/men/45.jpg',
+      type: 'reel',
+      media: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&w=900&q=80',
+      persistentMedia: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&w=900&q=80',
+      caption: 'Push workout pump',
+      likes: 89,
+      liked: false,
+      time: '5h ago',
+      createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: 3,
+      user: 'Sneha',
+      avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
+      type: 'post',
+      media: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1200&q=80',
+      persistentMedia: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1200&q=80',
+      caption: 'Consistency > motivation',
+      likes: 201,
+      liked: false,
+      time: '1d ago',
+      createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+    }
+  ];
   const suggestedAthletes = [
     {
       id: 1,
@@ -74,7 +136,7 @@
     }
   ];
 
-  if (!connectMain || !connectGrid) {
+  if (!connectMain || !connectGrid || !connectPostsGrid) {
     return;
   }
 
@@ -85,6 +147,7 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     renderWelcomeName();
+    renderPosts();
     renderSuggestedAthletes();
     bindActions();
 
@@ -116,6 +179,75 @@
   });
 
   function bindActions() {
+    if (createTrigger && typeModalShell) {
+      createTrigger.addEventListener('click', openTypeModal);
+    }
+
+    if (typeModalClose) {
+      typeModalClose.addEventListener('click', closeTypeModal);
+    }
+
+    if (modalBackButton) {
+      modalBackButton.addEventListener('click', handleModalBack);
+    }
+
+    if (modalNextButton) {
+      modalNextButton.addEventListener('click', handleModalNext);
+    }
+
+    if (typeModalShell) {
+      typeModalShell.addEventListener('click', function (event) {
+        const optionButton = event.target.closest('[data-connect-type]');
+        const closeTarget = event.target.closest('[data-connect-modal-close]');
+        const uploadInput = event.target.closest('#connect-upload-input');
+        const toolButton = event.target.closest('[data-connect-upload-tool]');
+
+        if (optionButton) {
+          handleTypeSelection(optionButton);
+          return;
+        }
+
+        if (toolButton) {
+          handleUploadTool(toolButton);
+          return;
+        }
+
+        if (closeTarget) {
+          closeTypeModal();
+        }
+      });
+
+      typeModalShell.addEventListener('change', function (event) {
+        if (event.target && event.target.id === 'connect-upload-input') {
+          handleUploadSelection(event.target);
+        }
+      });
+
+      typeModalShell.addEventListener('input', function (event) {
+        if (event.target && event.target.id === 'connect-caption-input') {
+          draftCaption = String(event.target.value || '');
+          return;
+        }
+
+        if (event.target && event.target.id === 'connect-crop-scale') {
+          cropScale = Number(event.target.value || 1);
+          renderCreateFlow();
+          return;
+        }
+
+        if (event.target && event.target.id === 'connect-crop-x') {
+          cropX = Number(event.target.value || 50);
+          renderCreateFlow();
+          return;
+        }
+
+        if (event.target && event.target.id === 'connect-crop-y') {
+          cropY = Number(event.target.value || 50);
+          renderCreateFlow();
+        }
+      });
+    }
+
     if (exploreButton && suggestedSection) {
       exploreButton.addEventListener('click', function () {
         suggestedSection.scrollIntoView({
@@ -124,6 +256,15 @@
         });
       });
     }
+
+    connectPostsGrid.addEventListener('click', function (event) {
+      const actionButton = event.target.closest('[data-post-action]');
+      if (!actionButton) {
+        return;
+      }
+
+      handlePostAction(actionButton);
+    });
 
     connectGrid.addEventListener('click', function (event) {
       const followButton = event.target.closest('[data-follow-id]');
@@ -167,6 +308,294 @@
       openMenuId = null;
       renderSuggestedAthletes();
     });
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && typeModalShell && !typeModalShell.hidden) {
+        closeTypeModal();
+      }
+    });
+  }
+
+  function openTypeModal() {
+    if (!typeModalShell) {
+      return;
+    }
+
+    resetCreateFlow();
+    typeModalShell.hidden = false;
+    renderCreateFlow();
+  }
+
+  function closeTypeModal() {
+    if (!typeModalShell) {
+      return;
+    }
+
+    typeModalShell.hidden = true;
+  }
+
+  function handleTypeSelection(button) {
+    const nextType = String(button.getAttribute('data-connect-type') || '').toLowerCase();
+    if (!nextType) {
+      return;
+    }
+
+    selectedType = nextType;
+    createStep = 'upload';
+    renderCreateFlow();
+
+    if (typeof window.showToast === 'function') {
+      window.showToast(capitalizeWord(selectedType) + ' selected.', 'success');
+    }
+  }
+
+  function handleModalBack() {
+    if (createStep === 'upload') {
+      createStep = 'selectType';
+      renderCreateFlow();
+      return;
+    }
+
+    if (createStep === 'caption') {
+      createStep = 'upload';
+      renderCreateFlow();
+    }
+  }
+
+  function handleModalNext() {
+    if (createStep === 'upload') {
+      if (!hasSelectedMedia()) {
+        if (typeof window.showToast === 'function') {
+          window.showToast('Upload an image or video first.', 'error');
+        }
+        return;
+      }
+
+      createStep = 'caption';
+      renderCreateFlow();
+      return;
+    }
+
+    if (createStep === 'caption') {
+      publishDraftPost();
+    }
+  }
+
+  function handleUploadSelection(input) {
+    const nextFile = input.files && input.files[0] ? input.files[0] : null;
+    if (!nextFile) {
+      return;
+    }
+
+    if (selectedMediaPreview) {
+      URL.revokeObjectURL(selectedMediaPreview);
+    }
+
+    selectedMediaFile = nextFile;
+    selectedMediaType = nextFile.type && nextFile.type.startsWith('video/') ? 'video' : 'image';
+    selectedMediaPreview = URL.createObjectURL(nextFile);
+    selectedMediaPersistent = '';
+    cropControlsOpen = false;
+    cropScale = 1;
+    cropX = 50;
+    cropY = 50;
+    cropRotation = 0;
+    renderCreateFlow();
+
+    readFileAsDataUrl(nextFile)
+      .then(function (dataUrl) {
+        selectedMediaPersistent = dataUrl;
+        renderCreateFlow();
+      })
+      .catch(function () {
+        if (typeof window.showToast === 'function') {
+          window.showToast('Unable to read this file.', 'error');
+        }
+      });
+  }
+
+  function handleUploadTool(button) {
+    const action = String(button.getAttribute('data-connect-upload-tool') || '');
+    if (!action) {
+      return;
+    }
+
+    if (action === 'remove') {
+      clearSelectedMedia();
+      renderCreateFlow();
+      return;
+    }
+
+    if (action === 'crop') {
+      if (selectedMediaType !== 'image' || !hasSelectedMedia()) {
+        if (typeof window.showToast === 'function') {
+          window.showToast('Crop is available for images after upload.', 'error');
+        }
+        return;
+      }
+
+      cropControlsOpen = !cropControlsOpen;
+      renderCreateFlow();
+      return;
+    }
+
+    if (action === 'rotate') {
+      if (selectedMediaType !== 'image' || !hasSelectedMedia()) {
+        if (typeof window.showToast === 'function') {
+          window.showToast('Rotate is available for uploaded images.', 'error');
+        }
+        return;
+      }
+
+      cropRotation = (cropRotation + 90) % 360;
+      renderCreateFlow();
+    }
+  }
+
+  function renderCreateFlow() {
+    if (!createFlow || !modalBackButton || !modalNextButton) {
+      return;
+    }
+
+    if (createStep === 'upload') {
+      createFlow.innerHTML = renderUploadStep();
+      modalBackButton.hidden = false;
+      modalNextButton.hidden = false;
+      modalNextButton.textContent = 'Next';
+      return;
+    }
+
+    if (createStep === 'caption') {
+      createFlow.innerHTML = renderCaptionStep();
+      modalBackButton.hidden = false;
+      modalNextButton.hidden = false;
+      modalNextButton.textContent = selectedType === 'story' ? 'Share Story' : 'Post';
+      return;
+    }
+
+    createFlow.innerHTML = renderSelectTypeStep();
+    modalBackButton.hidden = true;
+    modalNextButton.hidden = true;
+  }
+
+  function renderSelectTypeStep() {
+    return (
+      '<div class="connect-type-options">' +
+        '<button class="connect-type-option" type="button" data-connect-type="post">' +
+          '<span class="connect-type-option-title">Post</span>' +
+          '<span class="connect-type-option-copy">Share a workout image or update with your network.</span>' +
+        '</button>' +
+        '<button class="connect-type-option" type="button" data-connect-type="reel">' +
+          '<span class="connect-type-option-title">Reel</span>' +
+          '<span class="connect-type-option-copy">Upload a quick video clip with motion-first energy.</span>' +
+        '</button>' +
+        '<button class="connect-type-option" type="button" data-connect-type="story">' +
+          '<span class="connect-type-option-title">Story</span>' +
+          '<span class="connect-type-option-copy">Post a short-lived snapshot for the day.</span>' +
+        '</button>' +
+      '</div>'
+    );
+  }
+
+  function renderUploadStep() {
+    return (
+      '<div class="connect-upload-stage">' +
+        '<label class="connect-upload-field">' +
+          '<span class="mini-label">Upload ' + escapeHtml(capitalizeWord(selectedType)) + '</span>' +
+          '<input id="connect-upload-input" class="connect-upload-input" type="file" accept="image/*,video/*" />' +
+        '</label>' +
+        '<div class="connect-upload-preview' + (selectedMediaPreview || selectedMediaPersistent ? ' has-media' : '') + '">' +
+          renderUploadPreview() +
+        '</div>' +
+        '<div class="connect-upload-actions">' +
+          '<button class="connect-upload-tool" type="button" data-connect-upload-tool="crop">Crop</button>' +
+          '<button class="connect-upload-tool" type="button" data-connect-upload-tool="rotate">Rotate</button>' +
+          '<button class="connect-upload-tool is-danger" type="button" data-connect-upload-tool="remove">Remove</button>' +
+        '</div>' +
+        renderCropControls() +
+      '</div>'
+    );
+  }
+
+  function renderUploadPreview() {
+    const previewSource = selectedMediaPreview || selectedMediaPersistent;
+    if (!previewSource) {
+      return '<div class="connect-upload-empty">Choose an image or video to preview your ' + escapeHtml(selectedType) + ' before moving to the caption step.</div>';
+    }
+
+    if (selectedMediaType === 'video') {
+      return '<video src="' + escapeHtml(previewSource) + '" controls playsinline preload="metadata"></video>';
+    }
+
+    return (
+      '<div class="connect-media-frame">' +
+        '<img class="connect-crop-image" src="' + escapeHtml(previewSource) + '" alt="Selected media preview" loading="lazy" decoding="async" style="' + escapeHtml(buildImageStyle(getDraftMediaCrop())) + '" />' +
+      '</div>'
+    );
+  }
+
+  function renderCaptionStep() {
+    return (
+      '<div class="connect-caption-stage">' +
+        '<div class="connect-upload-preview has-media">' +
+          renderUploadPreview() +
+        '</div>' +
+        '<label class="connect-upload-field">' +
+          '<span class="mini-label">Caption</span>' +
+          '<textarea id="connect-caption-input" class="connect-caption-textarea" placeholder="Write the caption for your ' + escapeHtml(selectedType) + '...">' + escapeHtml(draftCaption) + '</textarea>' +
+        '</label>' +
+      '</div>'
+    );
+  }
+
+  function renderCropControls() {
+    if (!cropControlsOpen || selectedMediaType !== 'image' || !(selectedMediaPreview || selectedMediaPersistent)) {
+      return '';
+    }
+
+    return (
+      '<div class="connect-crop-controls">' +
+        '<div class="connect-crop-controls-head">' +
+          '<span class="mini-label">Crop Controls</span>' +
+          '<span class="connect-crop-controls-copy">Adjust the preview until it looks right, then tap Next.</span>' +
+        '</div>' +
+        '<label class="connect-crop-control">' +
+          '<span>Zoom</span>' +
+          '<input id="connect-crop-scale" type="range" min="1" max="2" step="0.05" value="' + escapeHtml(cropScale) + '" />' +
+        '</label>' +
+        '<label class="connect-crop-control">' +
+          '<span>Horizontal</span>' +
+          '<input id="connect-crop-x" type="range" min="0" max="100" step="1" value="' + escapeHtml(cropX) + '" />' +
+        '</label>' +
+        '<label class="connect-crop-control">' +
+          '<span>Vertical</span>' +
+          '<input id="connect-crop-y" type="range" min="0" max="100" step="1" value="' + escapeHtml(cropY) + '" />' +
+        '</label>' +
+      '</div>'
+    );
+  }
+
+  function resetCreateFlow() {
+    createStep = 'selectType';
+    selectedType = 'post';
+    clearSelectedMedia();
+    draftCaption = '';
+  }
+
+  function clearSelectedMedia() {
+    if (selectedMediaPreview) {
+      URL.revokeObjectURL(selectedMediaPreview);
+    }
+
+    selectedMediaFile = null;
+    selectedMediaPreview = '';
+    selectedMediaPersistent = '';
+    selectedMediaType = '';
+    cropControlsOpen = false;
+    cropScale = 1;
+    cropX = 50;
+    cropY = 50;
+    cropRotation = 0;
   }
 
   function renderWelcomeName(user) {
@@ -197,6 +626,307 @@
     }
 
     return 'Athlete';
+  }
+
+  function readPosts() {
+    try {
+      const raw = window.localStorage.getItem(POSTS_STORAGE_KEY);
+      if (!raw) {
+        return [];
+      }
+
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
+
+      return parsed.filter(function (post) {
+        return post && post.id && (post.persistentMedia || post.media) && post.type;
+      }).sort(function (left, right) {
+        return Number(right.id) - Number(left.id);
+      });
+    } catch (error) {
+      return [];
+    }
+  }
+
+  function persistPosts() {
+    try {
+      window.localStorage.setItem(POSTS_STORAGE_KEY, JSON.stringify(posts));
+    } catch (error) {
+      if (typeof window.showToast === 'function') {
+        window.showToast('Unable to save posts on this device.', 'error');
+      }
+    }
+  }
+
+  function renderPosts() {
+    if (!connectPostsGrid) {
+      return;
+    }
+
+    const feedPosts = posts.concat(demoPosts);
+
+    connectPostsGrid.innerHTML = feedPosts.map(function (post) {
+      return renderPostCard(post);
+    }).join('');
+  }
+
+  function renderPostCard(post) {
+    return (
+      '<article class="glass-card card connect-post-card" data-post-id="' + post.id + '">' +
+        '<div class="connect-post-header">' +
+          '<div class="connect-post-author">' +
+            renderPostAvatar(post) +
+            '<div class="connect-post-author-copy">' +
+              '<h3 class="connect-post-username">' + escapeHtml(post.user || 'Athlete') + '</h3>' +
+              '<span class="connect-post-time">' + escapeHtml(post.time || formatPostDate(post.createdAt)) + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<span class="connect-post-type">' + escapeHtml(post.type) + '</span>' +
+        '</div>' +
+        '<div class="connect-post-media is-' + escapeHtml(post.type || 'post') + '">' +
+          renderPostMedia(post) +
+        '</div>' +
+        '<div class="connect-post-copy">' +
+          '<div class="connect-post-actions">' +
+            renderPostActionButton(post, 'like', post.liked ? 'Liked' : 'Like', 'like') +
+            renderPostActionButton(post, 'comment', 'Comment', 'comment') +
+            renderPostActionButton(post, 'share', 'Share', 'share') +
+          '</div>' +
+          '<p class="connect-post-caption-line"><span class="connect-post-caption-user">' + escapeHtml(post.user || 'Athlete') + '</span>' + escapeHtml(post.caption || 'No caption added.') + '</p>' +
+        '</div>' +
+      '</article>'
+    );
+  }
+
+  function renderPostAvatar(post) {
+    const avatar = String(post.avatar || '').trim();
+    const userLabel = escapeHtml(post.user || 'Athlete');
+
+    if (avatar) {
+      return '<img class="connect-post-avatar" src="' + escapeHtml(avatar) + '" alt="' + userLabel + ' avatar" loading="lazy" decoding="async" width="46" height="46" />';
+    }
+
+    return '<img class="connect-post-avatar" src="' + escapeHtml('https://ui-avatars.com/api/?name=' + encodeURIComponent(post.user || 'Athlete') + '&background=1a2110&color=c5ff2f') + '" alt="' + userLabel + ' avatar" loading="lazy" decoding="async" width="46" height="46" />';
+  }
+
+  function renderPostActionButton(post, action, label, iconType) {
+    const isActive = action === 'like' && Boolean(post.liked);
+
+    return (
+      '<button class="connect-post-action' + (isActive ? ' is-active' : '') + '" type="button" data-post-id="' + post.id + '" data-post-action="' + action + '">' +
+        '<span class="connect-post-action-icon">' + renderPostActionIcon(iconType, isActive) + '</span>' +
+        '<span>' + label + '</span>' +
+      '</button>'
+    );
+  }
+
+  function handlePostAction(button) {
+    const postId = String(button.getAttribute('data-post-id') || '');
+    const action = String(button.getAttribute('data-post-action') || '');
+    const postIndex = posts.findIndex(function (post) {
+      return String(post.id) === postId;
+    });
+    const demoPostIndex = demoPosts.findIndex(function (post) {
+      return String(post.id) === postId;
+    });
+
+    if ((postIndex === -1 && demoPostIndex === -1) || !action) {
+      return;
+    }
+
+    if (action === 'like') {
+      if (postIndex !== -1) {
+        posts[postIndex].liked = !posts[postIndex].liked;
+        persistPosts();
+        updateSinglePostCard(posts[postIndex]);
+        return;
+      }
+
+      demoPosts[demoPostIndex].liked = !demoPosts[demoPostIndex].liked;
+      updateSinglePostCard(demoPosts[demoPostIndex]);
+      return;
+    }
+
+    if (typeof window.showToast === 'function') {
+      if (action === 'comment') {
+        window.showToast('Comments are coming soon.', 'success');
+      } else if (action === 'share') {
+        window.showToast('Share options are coming soon.', 'success');
+      }
+    }
+  }
+
+  function updateSinglePostCard(post) {
+    if (!connectPostsGrid || !post) {
+      return;
+    }
+
+    const existingCard = connectPostsGrid.querySelector('[data-post-id="' + post.id + '"]');
+    if (!existingCard) {
+      renderPosts();
+      return;
+    }
+
+    existingCard.outerHTML = renderPostCard(post);
+  }
+
+  function renderPostMedia(post) {
+    const mediaSource = post.persistentMedia || post.media;
+    const mediaType = String(post.mediaType || '').toLowerCase();
+
+    if (mediaType === 'video' || post.type === 'video') {
+      return '<video src="' + escapeHtml(mediaSource) + '" controls playsinline preload="metadata"></video>';
+    }
+
+    return (
+      '<div class="connect-media-frame">' +
+        '<img class="connect-crop-image" src="' + escapeHtml(mediaSource) + '" alt="Post upload preview" loading="lazy" decoding="async" style="' + escapeHtml(buildImageStyle(post.crop)) + '" />' +
+      '</div>'
+    );
+  }
+
+  function formatPostDate(value) {
+    const date = new Date(value);
+
+    return date.toLocaleString([], {
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit'
+    });
+  }
+
+  function renderPostActionIcon(type, isActive) {
+    const icons = {
+      like:
+        '<svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">' +
+          '<path d="M10 17.2 8.8 16.1C4.2 11.9 1.2 9.1 1.2 5.6c0-2.5 1.9-4.4 4.3-4.4 1.5 0 2.9.7 3.8 1.9.9-1.2 2.3-1.9 3.8-1.9 2.4 0 4.3 1.9 4.3 4.4 0 3.5-3 6.3-7.6 10.5L10 17.2Z" fill="' + (isActive ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>' +
+        '</svg>',
+      comment:
+        '<svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">' +
+          '<path d="M3 4.6c0-1 .8-1.8 1.8-1.8h10.4c1 0 1.8.8 1.8 1.8v7.1c0 1-.8 1.8-1.8 1.8H8l-3.5 3v-3H4.8c-1 0-1.8-.8-1.8-1.8V4.6Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>' +
+        '</svg>',
+      share:
+        '<svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">' +
+          '<path d="M11.8 2.8 17 8l-5.2 5.2V9.8H8.5A4.7 4.7 0 0 0 3.8 14.5v.7c0-4 2.7-6.8 6.7-6.8h1.3V2.8Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '</svg>'
+    };
+
+    return icons[type] || '';
+  }
+
+  function capitalizeWord(value) {
+    const text = String(value || '');
+    if (!text) {
+      return '';
+    }
+
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  }
+
+  function publishDraftPost() {
+    if (!hasSelectedMedia()) {
+      if (typeof window.showToast === 'function') {
+        window.showToast('Upload media before posting.', 'error');
+      }
+      return;
+    }
+
+    if (!selectedMediaPersistent && selectedMediaFile) {
+      readFileAsDataUrl(selectedMediaFile)
+        .then(function (dataUrl) {
+          selectedMediaPersistent = dataUrl;
+          publishDraftPost();
+        })
+        .catch(function () {
+          if (typeof window.showToast === 'function') {
+            window.showToast('Unable to finish preparing this file for posting.', 'error');
+          }
+        });
+      return;
+    }
+
+    const createdAt = new Date().toISOString();
+    const newPost = {
+      id: Date.now(),
+      user: resolveWelcomeName(),
+      avatar: '',
+      type: selectedType,
+      mediaType: selectedMediaType || 'image',
+      media: selectedMediaPersistent,
+      persistentMedia: selectedMediaPersistent,
+      caption: String(draftCaption || '').trim(),
+      likes: 0,
+      liked: false,
+      time: 'Just now',
+      createdAt: createdAt,
+      crop: selectedMediaType === 'image' ? getDraftMediaCrop() : null
+    };
+
+    posts.unshift(newPost);
+    persistPosts();
+    renderPosts();
+    closeTypeModal();
+    resetCreateFlow();
+
+    if (typeof window.showToast === 'function') {
+      window.showToast(capitalizeWord(selectedType) + ' posted successfully.', 'success');
+    }
+  }
+
+  function getDraftMediaCrop() {
+    return {
+      scale: Number(cropScale || 1),
+      x: Number(cropX || 50),
+      y: Number(cropY || 50),
+      rotation: Number(cropRotation || 0)
+    };
+  }
+
+  function buildImageStyle(crop) {
+    const imageCrop = crop || {};
+    const scale = clampNumber(imageCrop.scale, 1, 2, 1);
+    const x = clampNumber(imageCrop.x, 0, 100, 50);
+    const y = clampNumber(imageCrop.y, 0, 100, 50);
+    const rotation = Number(imageCrop.rotation || 0);
+
+    return 'object-position:' + x + '% ' + y + '%;transform:scale(' + scale + ') rotate(' + rotation + 'deg);';
+  }
+
+  function clampNumber(value, min, max, fallback) {
+    const numericValue = Number(value);
+    if (!Number.isFinite(numericValue)) {
+      return fallback;
+    }
+
+    return Math.min(Math.max(numericValue, min), max);
+  }
+
+  function hasSelectedMedia() {
+    return Boolean(selectedMediaPersistent || selectedMediaPreview || selectedMediaFile);
+  }
+
+  function readFileAsDataUrl(file) {
+    return new Promise(function (resolve, reject) {
+      if (!file) {
+        reject(new Error('Missing file.'));
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = function () {
+        resolve(String(reader.result || ''));
+      };
+
+      reader.onerror = function () {
+        reject(reader.error || new Error('Unable to read file.'));
+      };
+
+      reader.readAsDataURL(file);
+    });
   }
 
   function renderSuggestedAthletes() {
