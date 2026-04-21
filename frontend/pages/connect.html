@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Connect | MuscleMap</title>
-    <link rel="stylesheet" href="../css/styles.css?v=20260421h" />
+    <link rel="stylesheet" href="../css/styles.css?v=20260421i" />
     <script>
       if (window.localStorage.getItem('isLoggedIn') !== 'true') {
         window.location.replace('./login.html');
@@ -38,7 +38,9 @@
             <div class="connect-section-head">
               <h2 class="page-title connect-section-title">Feed</h2>
               <button class="connect-create-trigger" id="connect-create-trigger" type="button" aria-haspopup="dialog" aria-controls="connect-type-modal" aria-label="Create content">
-                <span aria-hidden="true">+</span>
+                <span class="connect-create-trigger-ring" aria-hidden="true">
+                  <span class="connect-create-trigger-icon"></span>
+                </span>
               </button>
             </div>
             <div class="connect-posts-feed" id="connect-posts-grid"></div>
@@ -76,7 +78,7 @@
 
     <script src="../js/site-runtime.js?v=20260418e" defer></script>
     <script src="../js/site.js?v=20260418e" defer></script>
-    <script src="../js/connect.js?v=20260421h" defer></script>
+    <script src="../js/connect.js?v=20260421i" defer></script>
   </body>
 </html>
 
