@@ -4,6 +4,7 @@
   const connectGrid = document.getElementById('connect-athletes-grid');
   const exploreButton = document.getElementById('connect-explore-button');
   const suggestedSection = document.getElementById('connect-suggested-section');
+  const welcomeName = document.getElementById('connect-welcome-name');
   const followState = {};
   let openMenuId = null;
   const suggestedAthletes = [
@@ -83,6 +84,7 @@
   }
 
   document.addEventListener('DOMContentLoaded', function () {
+    renderWelcomeName();
     renderSuggestedAthletes();
     bindActions();
 
@@ -92,7 +94,8 @@
     }
 
     app.requestJson('profile')
-      .then(function () {
+      .then(function (data) {
+        renderWelcomeName(data && data.user ? data.user : null);
         connectMain.hidden = false;
       })
       .catch(function (error) {
@@ -164,6 +167,36 @@
       openMenuId = null;
       renderSuggestedAthletes();
     });
+  }
+
+  function renderWelcomeName(user) {
+    if (!welcomeName) {
+      return;
+    }
+
+    const resolvedName = resolveWelcomeName(user);
+    welcomeName.textContent = 'Hey ' + resolvedName;
+  }
+
+  function resolveWelcomeName(user) {
+    const profileUser = user || {};
+    const displayName = String(profileUser.full_name || profileUser.username || '').trim();
+    const storedName = String(window.localStorage.getItem('userName') || '').trim();
+    const storedId = String(window.localStorage.getItem('userId') || '').trim();
+
+    if (displayName) {
+      return displayName;
+    }
+
+    if (storedName) {
+      return storedName;
+    }
+
+    if (storedId) {
+      return 'User ' + storedId;
+    }
+
+    return 'Athlete';
   }
 
   function renderSuggestedAthletes() {
