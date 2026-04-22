@@ -1,4 +1,4 @@
 <?php
 
-header("Location: /muscle-map/frontend/index.html");
+header("Location: frontend/index.html");
 exit;
