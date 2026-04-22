@@ -230,9 +230,6 @@
 
   const navHost = document.getElementById('site-nav');
   const footerHost = document.getElementById('site-footer');
-  const isLoggedIn = window.localStorage.getItem('isLoggedIn') === 'true';
-  const accountLink = isLoggedIn ? links.profile : links.login;
-  const accountLabel = isLoggedIn ? 'Profile' : 'Login';
 
   function getActiveKey() {
     const path = (window.location.pathname || '').toLowerCase();
@@ -257,7 +254,11 @@
     return null;
   }
 
-  function buildNavMarkup() {
+  function buildNavMarkup(session) {
+    const isLoggedIn = Boolean(session && session.authenticated);
+    const accountLink = isLoggedIn ? links.profile : links.login;
+    const accountLabel = isLoggedIn ? 'Profile' : 'Login';
+
     return `
       <div class="site-nav-wrap">
         <nav class="site-nav" aria-label="Primary">
@@ -490,18 +491,30 @@
     return stack;
   }
 
-  if (navHost) {
-    navHost.innerHTML = buildNavMarkup();
+  function renderSiteChrome(session) {
+    if (navHost) {
+      navHost.innerHTML = buildNavMarkup(session);
+    }
+
+    if (footerHost) {
+      footerHost.innerHTML = buildFooterMarkup();
+    }
+
+    markActiveNav(getActiveKey());
+    initMoreMenu();
+    initMobileMenu();
   }
 
-  if (footerHost) {
-    footerHost.innerHTML = buildFooterMarkup();
-  }
-
-  markActiveNav(getActiveKey());
-  initMoreMenu();
-  initMobileMenu();
+  renderSiteChrome(typeof app.getCachedSession === 'function' ? app.getCachedSession() : null);
   initThemePanel();
+
+  if (typeof app.getSession === 'function') {
+    app.getSession().then(function (session) {
+      renderSiteChrome(session);
+    }).catch(function () {
+      renderSiteChrome(null);
+    });
+  }
 
   const toastStack = createToastStack();
 

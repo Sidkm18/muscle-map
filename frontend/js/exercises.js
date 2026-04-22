@@ -539,17 +539,10 @@
         : normalizedSubMuscle === normalizedSelectedSubMuscle;
       const matchesEquipment = selectedEquipment === null || normalizedSelectedEquipment === 'all'
         ? true
-        : normalizedEquipment === normalizedSelectedEquipment;
+        : hasAllowedEquipment && normalizedEquipment === normalizedSelectedEquipment;
 
-      return hasAllowedEquipment && matchesMuscle && matchesSubMuscle && matchesEquipment;
+      return matchesMuscle && matchesSubMuscle && matchesEquipment && (hasAllowedEquipment || selectedEquipment === null || normalizedSelectedEquipment === 'all');
     });
-
-    console.log('[Exercise Filters]', {
-      selectedMuscle: selectedMuscle,
-      selectedSubMuscle: selectedSubMuscle,
-      selectedEquipment: selectedEquipment
-    });
-    console.log('[Filtered Exercises]', filtered);
 
     count.textContent = 'Showing ' + filtered.length + ' exercise' + (filtered.length === 1 ? '' : 's');
     mount.innerHTML = filtered.map(function (item) {
@@ -575,7 +568,16 @@
   }
 
   function renderEquipmentFilters() {
-    const shouldShowEquipment = selectedMuscle !== 'all' && selectedSubMuscle !== null;
+    const availableEquipment = exercises.filter(function (item) {
+      if (selectedMuscle === 'all' || selectedSubMuscle === null) {
+        return false;
+      }
+
+      return String(item.category || '').toLowerCase() === String(selectedMuscle || '').toLowerCase()
+        && String(item.subMuscle || '').toLowerCase() === String(selectedSubMuscle || '').toLowerCase()
+        && allowedEquipmentValues.indexOf(String(item.equipment || '').toLowerCase()) !== -1;
+    });
+    const shouldShowEquipment = availableEquipment.length > 0;
 
     equipmentFilterSection.hidden = !shouldShowEquipment;
     if (!shouldShowEquipment) {
@@ -638,8 +640,8 @@
       name: item && item.name ? item.name : 'Exercise',
       category: normalizedCategory,
       muscle: normalizedMuscle,
-      subMuscle: item && item.subMuscle
-        ? item.subMuscle
+      subMuscle: item && (item.subMuscle || item.sub_muscle)
+        ? (item.subMuscle || item.sub_muscle)
         : inferSubMuscle(normalizedCategory, item && item.name),
       equipment: item && item.equipment ? item.equipment : 'Other',
       difficulty: item && item.difficulty ? item.difficulty : 'Beginner',
@@ -731,11 +733,33 @@
   }
 
   function loadExercises() {
-    exercises = fallbackExercises.slice();
-    renderSubMuscleFilters();
-    renderEquipmentFilters();
-    renderSessionStatus();
-    render();
+    const applyExercises = function (items) {
+      exercises = items.map(normalizeExercise);
+      renderSubMuscleFilters();
+      renderEquipmentFilters();
+      renderSessionStatus();
+      render();
+    };
+
+    if (typeof app.requestJson !== 'function') {
+      applyExercises(fallbackExercises.slice());
+      return;
+    }
+
+    app.requestJson('exercises')
+      .then(function (data) {
+        const apiExercises = data && Array.isArray(data.exercises) ? data.exercises : [];
+
+        if (apiExercises.length) {
+          applyExercises(apiExercises);
+          return;
+        }
+
+        applyExercises(fallbackExercises.slice());
+      })
+      .catch(function () {
+        applyExercises(fallbackExercises.slice());
+      });
   }
 
   function createEmptyWorkoutSession() {

@@ -51,7 +51,7 @@ class SecurityMiddleware
         header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
         header("Content-Security-Policy: default-src 'none'; frame-ancestors 'none'; base-uri 'none'");
         header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-        header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, X-CSRF-Token');
         header('Access-Control-Allow-Credentials: true');
     }
 

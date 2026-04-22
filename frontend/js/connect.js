@@ -78,41 +78,28 @@
     return;
   }
 
-  if (window.localStorage.getItem('isLoggedIn') !== 'true') {
-    window.location.replace('./login.html');
-    return;
-  }
-
   document.addEventListener('DOMContentLoaded', function () {
-    renderWelcomeName();
-    renderSuggestedAthletes();
-    bindActions();
-
-    if (typeof app.requestJson !== 'function') {
-      connectMain.hidden = false;
-      return;
-    }
-
-    app.requestJson('profile')
-      .then(function (data) {
-        renderWelcomeName(data && data.user ? data.user : null);
-        connectMain.hidden = false;
-      })
-      .catch(function (error) {
-        if (error && error.status === 401) {
-          window.localStorage.removeItem('isLoggedIn');
-          window.localStorage.removeItem('userId');
-          window.localStorage.removeItem('userEmail');
-          window.localStorage.removeItem('userName');
+    if (typeof app.getSession === 'function') {
+      app.getSession().then(function (session) {
+        if (!session || !session.authenticated) {
           window.location.replace('./login.html');
           return;
         }
 
+        renderWelcomeName(session.user || null);
+        renderSuggestedAthletes();
+        bindActions();
         connectMain.hidden = false;
-        if (typeof window.showToast === 'function') {
-          window.showToast(error && error.message ? error.message : 'Unable to verify login session.', 'error');
-        }
+      }).catch(function () {
+        window.location.replace('./login.html');
       });
+      return;
+    }
+
+    renderWelcomeName();
+    renderSuggestedAthletes();
+    bindActions();
+    connectMain.hidden = false;
   });
 
   function bindActions() {

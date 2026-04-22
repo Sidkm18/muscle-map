@@ -110,6 +110,7 @@
   const weeklyStepsLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   const weeklyStepsFallback = [1800, 2600, 2200, 3400, 3900, 3100, 5200];
   let selectedProfilePhoto = '';
+  let originalProfilePhoto = '';
   let fitnessTrackerState = readTrackingState();
   ensureDemoTrackingStreak();
   let strengthPrState = readStrengthPrState();
@@ -199,7 +200,9 @@
       })
       .catch(function (error) {
         if (error.status === 401) {
-          localStorage.removeItem('isLoggedIn');
+          if (typeof app.clearSession === 'function') {
+            app.clearSession();
+          }
           window.location.href = './login.html';
           return;
         }
@@ -224,6 +227,7 @@
       ? app.resolveProfilePhoto(user.profile_photo, displayName)
       : '';
     selectedProfilePhoto = user.profile_photo || '';
+    originalProfilePhoto = user.profile_photo || '';
     fields.name.textContent = displayName;
     fields.subtitle.textContent = displayHandle + ' · Joined ' + joinedLabel;
     fields.metaEmail.textContent = user.email || '--';
@@ -255,9 +259,24 @@
     fields.banner.hidden = setupComplete;
     renderWaterGuide();
 
-    localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('userName', user.full_name || user.username || '');
-    localStorage.setItem('userEmail', user.email || '');
+    if (typeof app.setSession === 'function') {
+      app.setSession({
+        authenticated: true,
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          full_name: user.full_name,
+          bio: user.bio,
+          profile_photo: user.profile_photo,
+          created_at: user.created_at
+        }
+      });
+    } else {
+      localStorage.setItem('userName', user.full_name || user.username || '');
+      localStorage.setItem('userEmail', user.email || '');
+    }
+
     if (user.username || stats.height || fitness.gym_frequency) {
       localStorage.setItem('onboardingComplete', 'true');
     }
@@ -273,9 +292,12 @@
       phone: fields.phone.value.trim(),
       gender: fields.gender.value,
       dob: fields.dob.value,
-      bio: fields.bio.value.trim(),
-      profile_photo: selectedProfilePhoto
+      bio: fields.bio.value.trim()
     };
+
+    if (selectedProfilePhoto !== originalProfilePhoto) {
+      payload.profile_photo = selectedProfilePhoto;
+    }
 
     if (!payload.full_name) {
       window.showToast && window.showToast('Full name is required.', 'error');
@@ -300,10 +322,32 @@
       method: 'PUT',
       body: payload
     })
-      .then(function () {
-        localStorage.setItem('userName', payload.full_name);
-        if (typeof app.cacheAvatarPreview === 'function' && selectedProfilePhoto && selectedProfilePhoto.indexOf('data:image/') === 0) {
-          app.cacheAvatarPreview(selectedProfilePhoto);
+      .then(function (response) {
+        const storedProfilePhoto = response && Object.prototype.hasOwnProperty.call(response, 'profile_photo')
+          ? (response.profile_photo || '')
+          : selectedProfilePhoto;
+
+        selectedProfilePhoto = storedProfilePhoto;
+        originalProfilePhoto = storedProfilePhoto;
+
+        if (typeof app.setSession === 'function') {
+          const cachedSession = typeof app.getCachedSession === 'function' ? app.getCachedSession() : null;
+          app.setSession({
+            authenticated: true,
+            user: Object.assign({}, cachedSession && cachedSession.user ? cachedSession.user : {}, {
+              full_name: payload.full_name,
+              username: payload.username,
+              email: fields.email.value.trim(),
+              profile_photo: storedProfilePhoto
+            })
+          });
+        } else {
+          localStorage.setItem('userName', payload.full_name);
+        }
+        if (typeof app.cacheAvatarPreview === 'function' && storedProfilePhoto && storedProfilePhoto.indexOf('data:image/') === 0) {
+          app.cacheAvatarPreview(storedProfilePhoto);
+        } else if (typeof app.clearAvatarPreview === 'function') {
+          app.clearAvatarPreview();
         }
         toggleProfileEditor(false);
         if (window.showToast) {
@@ -338,9 +382,21 @@
       return;
     }
 
-    if (!file.type.startsWith('image/')) {
+    const isSupportedPhoto = typeof app.isSupportedProfilePhotoType === 'function'
+      ? app.isSupportedProfilePhotoType(file.type)
+      : file.type.startsWith('image/');
+
+    if (!isSupportedPhoto) {
       if (window.showToast) {
-        window.showToast('Please choose an image file.', 'error');
+        window.showToast('Please choose a PNG, JPG, WEBP, GIF, or SVG image.', 'error');
+      }
+      fields.photoInput.value = '';
+      return;
+    }
+
+    if (file.type === 'image/svg+xml') {
+      if (window.showToast) {
+        window.showToast('Please use a PNG, JPG, GIF, or WEBP image.', 'error');
       }
       fields.photoInput.value = '';
       return;
@@ -400,10 +456,13 @@
         // Clear client session state even if the server session is already gone.
       })
       .finally(function () {
-        localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem('userId');
-        localStorage.removeItem('userEmail');
-        localStorage.removeItem('userName');
+        if (typeof app.clearSession === 'function') {
+          app.clearSession();
+        } else {
+          localStorage.removeItem('userId');
+          localStorage.removeItem('userEmail');
+          localStorage.removeItem('userName');
+        }
         localStorage.removeItem('onboardingComplete');
         localStorage.removeItem('userOnboardingData');
         localStorage.removeItem('onboardingProgress');

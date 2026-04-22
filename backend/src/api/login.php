@@ -16,10 +16,18 @@ $data = mm_filter_request([
         'min_length' => 1,
         'max_length' => 255,
     ],
+    'remember_me' => [
+        'type' => 'int',
+        'required' => false,
+        'default' => 0,
+        'min' => 0,
+        'max' => 1,
+    ],
 ]);
 
 $email = $data['email'];
 $password = $data['password'];
+$rememberMe = ((int) ($data['remember_me'] ?? 0)) === 1;
 
 $db = mm_db();
 
@@ -36,17 +44,28 @@ try {
         mm_json(['error' => 'Invalid password'], 401);
     }
 
-    mm_start_session_user($user);
+    $userPayload = [
+        'id' => (int) $user['id'],
+        'email' => $user['email'],
+        'full_name' => $user['full_name'],
+        'username' => $user['username'],
+    ];
 
-    mm_json([
-        'message' => 'Login successful',
-        'user' => [
+    mm_start_session_user($userPayload);
+
+    if ($rememberMe) {
+        mm_issue_remember_me_cookie([
             'id' => (int) $user['id'],
             'email' => $user['email'],
-            'full_name' => $user['full_name'],
-            'username' => $user['username'],
-        ],
-    ]);
+            'password_hash' => $user['password_hash'],
+        ]);
+    } else {
+        mm_clear_remember_me_cookie();
+    }
+
+    mm_json(array_merge([
+        'message' => 'Login successful',
+    ], mm_session_payload($userPayload)));
 } catch (PDOException $exception) {
     error_log('Login failed: ' . $exception->getMessage());
     mm_json(['error' => 'Login failed'], 500);

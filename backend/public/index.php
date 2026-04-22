@@ -5,30 +5,22 @@ require_once __DIR__ . '/../src/bootstrap.php';
 mm_apply_api_security();
 
 $uriPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+$normalizedPath = '/' . ltrim(trim($uriPath), '/');
+$normalizedPath = $normalizedPath === '/api' ? $normalizedPath : rtrim($normalizedPath, '/');
+$method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
 
-if (preg_match('#(?:^|/)api(?:/|$)(?P<endpoint>[A-Za-z0-9_-]+)?/?$#', $uriPath, $matches)) {
-    $endpoint = $matches['endpoint'] ?? '';
-
-    if ($endpoint === '') {
+if (str_starts_with($normalizedPath, '/api')) {
+    if ($normalizedPath === '/api') {
         mm_json([
             'status' => 'ok',
             'message' => 'MuscleMap API is running.',
-            'endpoints' => [
-                'GET /api/exercises',
-                'GET /api/me',
-                'GET /api/profile',
-                'POST /api/login',
-                'POST /api/register',
-                'POST /api/onboarding',
-                'POST /api/subscribe',
-                'POST /api/logout',
-            ],
+            'endpoints' => mm_public_endpoint_list(),
         ]);
     }
 
-    $controllerPath = __DIR__ . '/../src/api/' . $endpoint . '.php';
-    if (is_file($controllerPath)) {
-        require $controllerPath;
+    $route = mm_find_api_route($method, $normalizedPath);
+    if ($route !== null) {
+        require __DIR__ . '/../src/api/' . $route['endpoint'] . '.php';
         exit();
     }
 

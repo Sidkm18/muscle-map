@@ -21,6 +21,7 @@
   };
 
   let selectedProfilePhoto = '';
+  let originalProfilePhoto = '';
 
   document.addEventListener('DOMContentLoaded', function () {
     loadProfile();
@@ -49,7 +50,9 @@
       })
       .catch(function (error) {
         if (error.status === 401) {
-          localStorage.removeItem('isLoggedIn');
+          if (typeof app.clearSession === 'function') {
+            app.clearSession();
+          }
           window.location.href = './login.html';
           return;
         }
@@ -65,6 +68,7 @@
     const displayName = user.full_name || user.username || 'MuscleMap User';
 
     selectedProfilePhoto = user.profile_photo || '';
+    originalProfilePhoto = user.profile_photo || '';
     if (fields.avatar) {
       fields.avatar.src = typeof app.resolveProfilePhoto === 'function'
         ? app.resolveProfilePhoto(user.profile_photo, displayName)
@@ -90,9 +94,12 @@
       phone: fields.phone.value.trim(),
       gender: fields.gender.value,
       dob: fields.dob.value,
-      bio: fields.bio.value.trim(),
-      profile_photo: selectedProfilePhoto
+      bio: fields.bio.value.trim()
     };
+
+    if (selectedProfilePhoto !== originalProfilePhoto) {
+      payload.profile_photo = selectedProfilePhoto;
+    }
 
     if (!payload.full_name) {
       window.showToast && window.showToast('Full name is required.', 'error');
@@ -117,10 +124,32 @@
       method: 'PUT',
       body: payload
     })
-      .then(function () {
-        localStorage.setItem('userName', payload.full_name);
-        if (typeof app.cacheAvatarPreview === 'function' && selectedProfilePhoto && selectedProfilePhoto.indexOf('data:image/') === 0) {
-          app.cacheAvatarPreview(selectedProfilePhoto);
+      .then(function (response) {
+        const storedProfilePhoto = response && Object.prototype.hasOwnProperty.call(response, 'profile_photo')
+          ? (response.profile_photo || '')
+          : selectedProfilePhoto;
+
+        selectedProfilePhoto = storedProfilePhoto;
+        originalProfilePhoto = storedProfilePhoto;
+
+        if (typeof app.setSession === 'function') {
+          const cachedSession = typeof app.getCachedSession === 'function' ? app.getCachedSession() : null;
+          app.setSession({
+            authenticated: true,
+            user: Object.assign({}, cachedSession && cachedSession.user ? cachedSession.user : {}, {
+              full_name: payload.full_name,
+              username: payload.username,
+              email: fields.email.value.trim(),
+              profile_photo: storedProfilePhoto
+            })
+          });
+        } else {
+          localStorage.setItem('userName', payload.full_name);
+        }
+        if (typeof app.cacheAvatarPreview === 'function' && storedProfilePhoto && storedProfilePhoto.indexOf('data:image/') === 0) {
+          app.cacheAvatarPreview(storedProfilePhoto);
+        } else if (typeof app.clearAvatarPreview === 'function') {
+          app.clearAvatarPreview();
         }
         if (window.showToast) {
           window.showToast('Profile updated successfully!', 'success');
@@ -147,9 +176,21 @@
       return;
     }
 
-    if (!file.type.startsWith('image/')) {
+    const isSupportedPhoto = typeof app.isSupportedProfilePhotoType === 'function'
+      ? app.isSupportedProfilePhotoType(file.type)
+      : file.type.startsWith('image/');
+
+    if (!isSupportedPhoto) {
       if (window.showToast) {
-        window.showToast('Please choose an image file.', 'error');
+        window.showToast('Please choose a PNG, JPG, WEBP, GIF, or SVG image.', 'error');
+      }
+      fields.photoInput.value = '';
+      return;
+    }
+
+    if (file.type === 'image/svg+xml') {
+      if (window.showToast) {
+        window.showToast('Please use a PNG, JPG, GIF, or WEBP image.', 'error');
       }
       fields.photoInput.value = '';
       return;

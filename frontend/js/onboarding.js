@@ -1,12 +1,12 @@
 /* Onboarding questionnaire with multi-step validation and local persistence */
 
-if (localStorage.getItem('isLoggedIn') !== 'true') {
-  window.location.href = './login.html';
-}
-
 (function () {
   const app = window.MuscleMap || {};
   const form = document.getElementById('onboardingForm');
+  const wizard = document.getElementById('onboardingWizard');
+  const ageGateScreen = document.getElementById('ageGateScreen');
+  const eligibleDateDisplay = document.getElementById('eligibleDate');
+  const ageGateBackBtn = document.getElementById('ageGateBackBtn');
   const steps = Array.from(document.querySelectorAll('.form-step'));
   const progressFill = document.getElementById('progressFill');
   const currentStepDisplay = document.getElementById('currentStep');
@@ -17,6 +17,13 @@ if (localStorage.getItem('isLoggedIn') !== 'true') {
   const submitBtn = document.getElementById('submitBtn');
   const bioInput = document.getElementById('bio');
   const photoPreview = document.getElementById('photoPreview');
+  const MINIMUM_ONBOARDING_AGE = 13;
+  const SUPPORTED_PROFILE_PHOTO_TYPES = typeof app.supportedProfilePhotoTypes !== 'undefined'
+    ? app.supportedProfilePhotoTypes
+    : ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/svg+xml'];
+  const eligibleDateFormatter = typeof Intl !== 'undefined' && typeof Intl.DateTimeFormat === 'function'
+    ? new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+    : null;
   const totalSteps = steps.length;
   const formData = {};
   let currentStep = 1;
@@ -26,6 +33,24 @@ if (localStorage.getItem('isLoggedIn') !== 'true') {
   }
 
   document.addEventListener('DOMContentLoaded', function () {
+    if (typeof app.getSession === 'function') {
+      app.getSession().then(function (session) {
+        if (!session || !session.authenticated) {
+          window.location.replace('./login.html');
+          return;
+        }
+
+        initializeForm();
+        attachEventListeners();
+        updateProgress();
+        updateNavigationButtons();
+        syncAvatarPreview();
+      }).catch(function () {
+        window.location.replace('./login.html');
+      });
+      return;
+    }
+
     initializeForm();
     attachEventListeners();
     updateProgress();
@@ -36,17 +61,30 @@ if (localStorage.getItem('isLoggedIn') !== 'true') {
   function initializeForm() {
     const savedData = localStorage.getItem('onboardingProgress');
     if (savedData) {
-      Object.assign(formData, JSON.parse(savedData));
+      try {
+        Object.assign(formData, JSON.parse(savedData));
+      } catch (error) {
+        localStorage.removeItem('onboardingProgress');
+      }
     }
 
+    delete formData.profilePhoto;
+
     if (!formData.fullName) {
-      formData.fullName = localStorage.getItem('userName') || '';
+      const cachedSession = typeof app.getCachedSession === 'function' ? app.getCachedSession() : null;
+      formData.fullName = (cachedSession && cachedSession.user && (cachedSession.user.full_name || cachedSession.user.username))
+        || localStorage.getItem('userName')
+        || '';
     }
 
     populateFormFromData();
     updateBioCounter();
     if (totalStepsDisplay) {
       totalStepsDisplay.textContent = String(totalSteps);
+    }
+
+    if (getDateOfBirthAssessment(formData.dob).reason === 'underage') {
+      showAgeGateState(formData.dob);
     }
   }
 
@@ -71,6 +109,10 @@ if (localStorage.getItem('isLoggedIn') !== 'true') {
     const photoInput = document.getElementById('profilePhoto');
     if (photoInput) {
       photoInput.addEventListener('change', handlePhotoUpload);
+    }
+
+    if (ageGateBackBtn) {
+      ageGateBackBtn.addEventListener('click', handleAgeGateBack);
     }
 
     if (bioInput) {
@@ -182,6 +224,7 @@ if (localStorage.getItem('isLoggedIn') !== 'true') {
     const phone = document.getElementById('phone');
     const gender = document.getElementById('gender');
     const dob = document.getElementById('dob');
+    const dobAssessment = getDateOfBirthAssessment(dob.value);
     let isValid = true;
 
     if (!fullName.value.trim() || fullName.value.trim().length < 2) {
@@ -205,9 +248,12 @@ if (localStorage.getItem('isLoggedIn') !== 'true') {
       setSuccess(gender);
     }
 
-    if (!isValidDateOfBirth(dob.value)) {
-      setError(dob, 'Please select a valid date of birth');
+    if (!dobAssessment.isValid) {
+      setError(dob, getDateOfBirthError(dobAssessment));
       isValid = false;
+      if (dobAssessment.reason === 'underage') {
+        showAgeGateState(dob.value);
+      }
     } else {
       setSuccess(dob);
     }
@@ -332,8 +378,9 @@ if (localStorage.getItem('isLoggedIn') !== 'true') {
     }
 
     if (field.name === 'dob' && field.value) {
-      if (!isValidDateOfBirth(field.value)) {
-        setError(field, 'Please select a valid date of birth');
+      const dobAssessment = getDateOfBirthAssessment(field.value);
+      if (!dobAssessment.isValid) {
+        setError(field, getDateOfBirthError(dobAssessment));
       } else {
         setSuccess(field);
       }
@@ -386,14 +433,121 @@ if (localStorage.getItem('isLoggedIn') !== 'true') {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 
-  function isValidDateOfBirth(value) {
+  function getDateOfBirthAssessment(value) {
     if (!value) {
-      return false;
+      return {
+        isValid: false,
+        reason: 'missing',
+        date: null,
+        eligibleDate: null
+      };
     }
 
     const parsedDate = new Date(value + 'T00:00:00');
     const today = new Date();
-    return !Number.isNaN(parsedDate.getTime()) && parsedDate <= today;
+    today.setHours(0, 0, 0, 0);
+
+    if (Number.isNaN(parsedDate.getTime())) {
+      return {
+        isValid: false,
+        reason: 'invalid',
+        date: null,
+        eligibleDate: null
+      };
+    }
+
+    if (parsedDate > today) {
+      return {
+        isValid: false,
+        reason: 'future',
+        date: parsedDate,
+        eligibleDate: null
+      };
+    }
+
+    const eligibleDate = new Date(parsedDate.getTime());
+    eligibleDate.setFullYear(eligibleDate.getFullYear() + MINIMUM_ONBOARDING_AGE);
+    eligibleDate.setHours(0, 0, 0, 0);
+
+    if (eligibleDate > today) {
+      return {
+        isValid: false,
+        reason: 'underage',
+        date: parsedDate,
+        eligibleDate: eligibleDate
+      };
+    }
+
+    return {
+      isValid: true,
+      reason: 'valid',
+      date: parsedDate,
+      eligibleDate: eligibleDate
+    };
+  }
+
+  function getDateOfBirthError(assessment) {
+    if (!assessment || assessment.reason === 'missing' || assessment.reason === 'invalid' || assessment.reason === 'future') {
+      return 'Please select a valid date of birth';
+    }
+
+    if (assessment.reason === 'underage') {
+      return 'You must be at least 13 years old to continue';
+    }
+
+    return '';
+  }
+
+  function formatEligibleDate(date) {
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
+      return '';
+    }
+
+    return eligibleDateFormatter ? eligibleDateFormatter.format(date) : date.toISOString().slice(0, 10);
+  }
+
+  function showAgeGateState(dateOfBirth) {
+    const assessment = getDateOfBirthAssessment(dateOfBirth);
+    if (assessment.reason !== 'underage') {
+      return;
+    }
+
+    formData.dob = String(dateOfBirth || '');
+    saveProgress();
+
+    if (eligibleDateDisplay) {
+      eligibleDateDisplay.textContent = formatEligibleDate(assessment.eligibleDate);
+    }
+
+    if (wizard) {
+      wizard.hidden = true;
+    }
+
+    if (ageGateScreen) {
+      ageGateScreen.hidden = false;
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function hideAgeGateState() {
+    if (wizard) {
+      wizard.hidden = false;
+    }
+
+    if (ageGateScreen) {
+      ageGateScreen.hidden = true;
+    }
+  }
+
+  function handleAgeGateBack() {
+    hideAgeGateState();
+    goToStep(1);
+
+    const dob = document.getElementById('dob');
+    if (dob && typeof dob.focus === 'function') {
+      dob.focus();
+    }
   }
 
   function setError(element, message) {
@@ -478,7 +632,13 @@ if (localStorage.getItem('isLoggedIn') !== 'true') {
   }
 
   function saveProgress() {
-    localStorage.setItem('onboardingProgress', JSON.stringify(formData));
+    const storedSnapshot = Object.assign({}, formData);
+    delete storedSnapshot.profilePhoto;
+    try {
+      localStorage.setItem('onboardingProgress', JSON.stringify(storedSnapshot));
+    } catch (error) {
+      // Ignore storage quota issues for draft progress.
+    }
   }
 
   function populateFormFromData() {
@@ -515,19 +675,24 @@ if (localStorage.getItem('isLoggedIn') !== 'true') {
   function handlePhotoUpload(event) {
     const file = event.target.files && event.target.files[0];
     if (!file) {
+      delete formData.profilePhoto;
       syncAvatarPreview();
       return;
     }
 
-    if (!file.type.startsWith('image/')) {
-      window.showToast && window.showToast('Please upload an image file.', 'error');
+    const isSupportedPhoto = typeof app.isSupportedProfilePhotoType === 'function'
+      ? app.isSupportedProfilePhotoType(file.type)
+      : SUPPORTED_PROFILE_PHOTO_TYPES.indexOf(String(file.type || '').toLowerCase()) !== -1;
+    if (!isSupportedPhoto) {
+      window.showToast && window.showToast('Please use a PNG, JPG, WEBP, GIF, or SVG image.', 'error');
       event.target.value = '';
+      delete formData.profilePhoto;
       syncAvatarPreview();
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      window.showToast && window.showToast('Image size should not exceed 5MB.', 'error');
+    if (file.size > 2.5 * 1024 * 1024) {
+      window.showToast && window.showToast('Image size should not exceed 2.5MB.', 'error');
       event.target.value = '';
       syncAvatarPreview();
       return;
@@ -541,15 +706,22 @@ if (localStorage.getItem('isLoggedIn') !== 'true') {
       }
       formData.profilePhoto = dataUrl;
       saveProgress();
-      if (typeof app.cacheAvatarPreview === 'function' && dataUrl) {
-        app.cacheAvatarPreview(dataUrl);
-      }
     };
     reader.readAsDataURL(file);
   }
 
   function syncAvatarPreview() {
     if (!photoPreview) {
+      return;
+    }
+
+    if (formData.profilePhoto) {
+      photoPreview.src = String(formData.profilePhoto);
+      return;
+    }
+
+    if (typeof app.createAvatarPlaceholder === 'function') {
+      photoPreview.src = app.createAvatarPlaceholder(formData.fullName || formData.username || localStorage.getItem('userName') || 'MuscleMap User');
       return;
     }
 
@@ -613,10 +785,26 @@ if (localStorage.getItem('isLoggedIn') !== 'true') {
       : Promise.reject(new Error('Onboarding unavailable'))
     )
       .then(function () {
-        localStorage.setItem('userOnboardingData', JSON.stringify(formData));
-        localStorage.setItem('onboardingComplete', 'true');
-        localStorage.setItem('userName', onboardingPayload.fullName || formData.username || localStorage.getItem('userName') || '');
-        localStorage.removeItem('onboardingProgress');
+        try {
+          localStorage.removeItem('userOnboardingData');
+          localStorage.removeItem('onboardingProgress');
+          localStorage.setItem('onboardingComplete', 'true');
+          localStorage.setItem('userName', onboardingPayload.fullName || formData.username || localStorage.getItem('userName') || '');
+        } catch (error) {
+          // Keep the successful server response authoritative even if local storage is full.
+        }
+
+        if (typeof app.setSession === 'function') {
+          const cachedSession = typeof app.getCachedSession === 'function' ? app.getCachedSession() : null;
+          app.setSession({
+            authenticated: true,
+            user: Object.assign({}, cachedSession && cachedSession.user ? cachedSession.user : {}, {
+              full_name: onboardingPayload.fullName,
+              username: onboardingPayload.username,
+              profile_photo: onboardingPayload.profilePhoto || ''
+            })
+          });
+        }
 
         if (window.showToast) {
           window.showToast('Profile setup complete!', 'success');
@@ -625,6 +813,17 @@ if (localStorage.getItem('isLoggedIn') !== 'true') {
         window.location.href = './profile.html';
       })
       .catch(function (error) {
+        if (error && error.payload && error.payload.details && error.payload.details.dob === 'You must be at least 13 years old.') {
+          if (typeof app.setButtonBusy === 'function') {
+            app.setButtonBusy(submitBtn, false);
+          } else {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Finish Setup';
+          }
+          showAgeGateState(onboardingPayload.dob);
+          return;
+        }
+
         if (window.showToast) {
           window.showToast(error.message || 'Failed to save onboarding data', 'error');
         }
@@ -645,9 +844,15 @@ if (localStorage.getItem('isLoggedIn') !== 'true') {
         return;
       }
 
-      event.preventDefault();
       if (currentStep < totalSteps) {
+        event.preventDefault();
         handleNext();
+        return;
+      }
+
+      if (typeof form.requestSubmit === 'function') {
+        event.preventDefault();
+        form.requestSubmit();
       }
     }
   });
