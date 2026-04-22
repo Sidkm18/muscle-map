@@ -1,3 +1,6 @@
+-- Legacy reference only.
+-- This file is not used by the live MuscleMap app anymore; keep database/schema.sql
+-- as the canonical schema for the current frontend/backend contract.
 -- =========================
 -- CREATE DATABASE
 -- =========================

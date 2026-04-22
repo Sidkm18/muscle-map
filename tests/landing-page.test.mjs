@@ -33,21 +33,20 @@ test("landing page uses the redesigned squad-journey structure", () => {
   assert.match(html, /href="#home-feature-story"[^>]*>Explore The Flow</);
 });
 
-test("landing page loads landing-only CSS, GSAP, and homepage behavior", () => {
+test("landing page loads landing-only CSS and homepage behavior scripts", () => {
   const html = readRepoFile("frontend/index.html");
 
   assert.match(html, /href="\.\/css\/home\.css/);
-  assert.match(html, /gsap\.min\.js/);
-  assert.match(html, /ScrollTrigger\.min\.js/);
-  assert.match(html, /src="\.\/js\/home\.js"/);
+  assert.match(html, /src="\.\/js\/site\.js/);
+  assert.match(html, /src="\.\/js\/home\.js/);
 });
 
-test("landing assets support reduced motion and theme-aware animation state", () => {
+test("landing assets support reduced motion and theme-aware interaction state", () => {
   const css = readRepoFile("frontend/css/home.css");
   const js = readRepoFile("frontend/js/home.js");
 
   assert.match(css, /prefers-reduced-motion/);
   assert.match(js, /mm:themechange/);
-  assert.match(js, /ScrollTrigger/);
+  assert.match(js, /IntersectionObserver/);
   assert.match(js, /matchMedia/);
 });

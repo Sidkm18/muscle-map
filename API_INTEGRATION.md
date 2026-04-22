@@ -1,7 +1,16 @@
 # MuscleMap Frontend-Backend Integration Guide
 
 ## Overview
-This document explains how the frontend pages (login, registration, onboarding) are now connected to the PHP backend and MySQL database.
+This document describes the current frontend/backend contract used by the PHP API, the browser runtime, and the MySQL schema.
+
+The current app uses:
+- `database/schema.sql` as the canonical schema
+- `database/seed.sql` for demo data
+- `database/db.sql` as a legacy reference model only
+- cookie sessions as the source of truth for authentication
+- `GET /api/me` for session checks in the frontend runtime
+
+The browser sends API requests with `credentials: 'include'`, and session-authenticated write requests include an `X-CSRF-Token` header obtained from `GET /api/me`, `POST /api/login`, or `POST /api/register`.
 
 ## Database Setup
 
@@ -9,13 +18,47 @@ This document explains how the frontend pages (login, registration, onboarding) 
 1. **users** - Main user table with profile information
 2. **user_stats** - Physical stats (height, weight, BMI, calories)
 3. **user_fitness_profiles** - Fitness preferences and goals
-4. **memberships** - Subscription information
+4. **memberships** - Subscription and billing summary information
 
-The database is automatically created via `database/schema.sql`.
+The database is created from `database/schema.sql`.
 
 ## API Endpoints
 
-### 1. Login Endpoint
+### 1. Session Endpoint
+**GET** `/api/me`
+
+**Response (Anonymous):**
+```json
+{
+  "authenticated": false,
+  "user": null
+}
+```
+
+**Response (Authenticated):**
+```json
+{
+  "authenticated": true,
+  "user": {
+    "id": 1,
+    "email": "user@example.com",
+    "full_name": "User Name",
+    "username": "username"
+  },
+  "csrf_token": "..."
+}
+```
+
+---
+
+### 2. Pricing Endpoint
+**GET** `/api/pricing`
+
+Returns the public pricing catalog used by the pricing page and subscribe flow.
+
+---
+
+### 3. Login Endpoint
 **POST** `/api/login`
 
 **Request:**
@@ -30,11 +73,14 @@ The database is automatically created via `database/schema.sql`.
 ```json
 {
   "message": "Login successful",
+  "authenticated": true,
   "user": {
     "id": 1,
     "email": "user@example.com",
-    "full_name": "User Name"
-  }
+    "full_name": "User Name",
+    "username": "username"
+  },
+  "csrf_token": "..."
 }
 ```
 
@@ -47,7 +93,7 @@ The database is automatically created via `database/schema.sql`.
 
 ---
 
-### 2. Registration Endpoint
+### 4. Registration Endpoint
 **POST** `/api/register`
 
 **Request:**
@@ -63,7 +109,15 @@ The database is automatically created via `database/schema.sql`.
 ```json
 {
   "message": "User registered successfully",
-  "user_id": 2
+  "user_id": 2,
+  "authenticated": true,
+  "user": {
+    "id": 2,
+    "email": "john@example.com",
+    "full_name": "John Doe",
+    "username": "john"
+  },
+  "csrf_token": "..."
 }
 ```
 
@@ -76,10 +130,10 @@ The database is automatically created via `database/schema.sql`.
 
 ---
 
-### 3. Onboarding Endpoint
+### 5. Onboarding Endpoint
 **POST** `/api/onboarding`
 
-**Requires:** Active session (user must be logged in)
+**Requires:** Active session and valid `X-CSRF-Token`
 
 **Request:**
 ```json
@@ -111,19 +165,55 @@ The database is automatically created via `database/schema.sql`.
 
 ---
 
+### 6. Subscribe Endpoint
+**POST** `/api/subscribe`
+
+**Requires:** Active session and valid `X-CSRF-Token`
+
+**Request:**
+```json
+{
+  "plan_name": "pro",
+  "duration_months": 3
+}
+```
+
+**Response (Success):**
+```json
+{
+  "message": "Subscribed to Pro successfully",
+  "membership": {
+    "plan_name": "pro",
+    "duration_months": 3,
+    "renewal_date": "2026-07-22",
+    "status": "Active"
+  },
+  "pricing": {
+    "currency": "INR",
+    "monthly_price": 250,
+    "base_amount": 750,
+    "discount_percent": 5,
+    "discount_amount": 37.5,
+    "total_amount": 712.5
+  }
+}
+```
+
+---
+
 ## Frontend Data Flow
 
 ### Login Page (`frontend/pages/login.html`)
 1. User enters email and password
 2. Submits form → `frontend/js/login.js`
 3. JavaScript sends POST request to `/api/login`
-4. On success: stores user data in localStorage, redirects to onboarding
+4. On success: runtime caches server session state, redirects to profile
 
 ### Registration Page (`frontend/pages/register.html`)
 1. User fills registration form
 2. Submits form → `frontend/js/register.js`
 3. JavaScript sends POST request to `/api/register`
-4. On success: stores user data, redirects to onboarding
+4. On success: runtime caches server session state, redirects to onboarding
 
 ### Onboarding Page (`frontend/pages/onboarding.html`)
 1. User fills multi-step onboarding form
@@ -131,6 +221,17 @@ The database is automatically created via `database/schema.sql`.
 3. Collects all form data in `formData` object
 4. Sends POST request to `/api/onboarding`
 5. On success: clears localStorage cache, redirects to menu
+
+### Exercises Page (`frontend/pages/exercises.html`)
+1. Loads `frontend/js/exercises.js`
+2. Requests `/api/exercises`
+3. Falls back to the bundled local dataset only when the API is unavailable
+
+### Pricing Page (`frontend/pages/pricing.html`)
+1. Loads `frontend/js/pricing.js`
+2. Requests `/api/pricing`
+3. When signed in, sends `POST /api/subscribe`
+4. When anonymous, redirects to login instead of relying on a local auth flag
 
 ---
 

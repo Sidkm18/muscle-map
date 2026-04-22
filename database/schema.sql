@@ -1,3 +1,5 @@
+-- Canonical schema for the current XAMPP-backed MuscleMap application.
+-- Apply this file first, then database/seed.sql for demo data.
 -- =========================
 -- CREATE DATABASE
 -- =========================
@@ -20,7 +22,7 @@ CREATE TABLE IF NOT EXISTS users (
     gender ENUM('Male', 'Female', 'Other', 'Prefer Not to Say') DEFAULT 'Prefer Not to Say',
     dob DATE,
     bio TEXT,
-    profile_photo MEDIUMTEXT,
+    profile_photo MEDIUMTEXT COMMENT 'Stores an app-relative upload path; legacy rows may still contain data URLs.',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -78,6 +80,10 @@ CREATE TABLE IF NOT EXISTS memberships (
     plan_name VARCHAR(50) NOT NULL,
     status ENUM('Active', 'Inactive', 'Cancelled') DEFAULT 'Active',
     renewal_date DATE,
+    billing_duration_months INT NOT NULL DEFAULT 1,
+    monthly_price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    discount_percent DECIMAL(5,2) NOT NULL DEFAULT 0.00,
+    amount_paid DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

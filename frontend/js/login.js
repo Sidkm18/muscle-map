@@ -2,9 +2,10 @@
   const form = document.getElementById('login-form');
   const passInput = document.getElementById('login-password');
   const toggle = document.getElementById('toggle-password');
+  const rememberMeInput = document.getElementById('login-remember-me');
   const app = window.MuscleMap || {};
 
-  if (!form || !passInput || !toggle) {
+  if (!form || !passInput || !toggle || !rememberMeInput) {
     return;
   }
 
@@ -27,7 +28,8 @@
     const submitBtn = form.querySelector('button[type="submit"]');
     const loginData = {
       email: email,
-      password: password
+      password: password,
+      remember_me: rememberMeInput.checked ? 1 : 0
     };
 
     if (!email || !password) {
@@ -50,10 +52,9 @@
           window.showToast('Signed in successfully!', 'success');
         }
 
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('userId', data.user.id);
-        localStorage.setItem('userEmail', data.user.email);
-        localStorage.setItem('userName', data.user.full_name || '');
+        if (typeof app.setSession === 'function') {
+          app.setSession(data);
+        }
 
         window.setTimeout(function () {
           window.location.href = './profile.html';

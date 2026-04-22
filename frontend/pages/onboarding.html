@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Onboarding | MuscleMap</title>
-    <link rel="stylesheet" href="../css/styles.css?v=20260416a" />
+    <link rel="stylesheet" href="../css/styles.css?v=20260422a" />
   </head>
   <body>
     <div class="page-shell">
@@ -20,203 +20,218 @@
           </div>
 
           <div class="glass-card card onboarding-card">
-            <div class="onboarding-meta">
-              <p class="mini-label">Step <span id="currentStep">1</span> of <span id="totalSteps">11</span></p>
-            </div>
-            <div class="wizard-progress">
-              <div id="progressFill" class="wizard-progress-fill"></div>
-            </div>
-
-            <form id="onboardingForm" class="form-grid onboarding-form">
-              <section class="form-step active">
-                <h2 class="page-title onboarding-step-title">Profile Demographics</h2>
-                <p class="muted onboarding-step-copy">Start with the core details you want attached to your profile.</p>
-                <div class="form-row">
-                  <div>
-                    <label class="mini-label" for="fullName">Full Name</label>
-                    <input id="fullName" name="fullName" type="text" placeholder="John Doe" />
-                    <p class="error-message"></p>
-                  </div>
-                  <div>
-                    <label class="mini-label" for="phone">Phone (optional)</label>
-                    <input id="phone" name="phone" type="tel" placeholder="+91 98765 43210" />
-                    <p class="error-message"></p>
-                  </div>
-                </div>
-                <div class="form-row">
-                  <div>
-                    <label class="mini-label" for="gender">Gender</label>
-                    <select id="gender" name="gender">
-                      <option value="">Select gender</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                      <option value="Other">Other</option>
-                      <option value="Prefer Not to Say">Prefer Not to Say</option>
-                    </select>
-                    <p class="error-message"></p>
-                  </div>
-                  <div>
-                    <label class="mini-label" for="dob">Date of Birth</label>
-                    <input id="dob" name="dob" type="date" />
-                    <p class="error-message"></p>
-                  </div>
-                </div>
-                <p class="error-message"></p>
-              </section>
-
-              <section class="form-step">
-                <h2 class="page-title onboarding-step-title">How often do you visit the gym?</h2>
-                <p class="muted onboarding-step-copy">Pick the option that best matches your normal week.</p>
-                <div class="option-grid option-grid-3">
-                  <label class="option-card"><input type="radio" name="gymFrequency" value="1-2" /> 1-2 days/week</label>
-                  <label class="option-card"><input type="radio" name="gymFrequency" value="3-4" /> 3-4 days/week</label>
-                  <label class="option-card"><input type="radio" name="gymFrequency" value="5+" /> 5+ days/week</label>
-                </div>
-                <p class="error-message"></p>
-              </section>
-
-              <section class="form-step">
-                <h2 class="page-title onboarding-step-title">What is your fitness expertise?</h2>
-                <p class="muted onboarding-step-copy">This helps us fine-tune your recommendations.</p>
-                <div class="option-grid option-grid-3">
-                  <label class="option-card"><input type="radio" name="expertiseLevel" value="beginner" /> Beginner</label>
-                  <label class="option-card"><input type="radio" name="expertiseLevel" value="intermediate" /> Intermediate</label>
-                  <label class="option-card"><input type="radio" name="expertiseLevel" value="advanced" /> Advanced</label>
-                </div>
-                <p class="error-message"></p>
-              </section>
-
-              <section class="form-step">
-                <h2 class="page-title onboarding-step-title">Physical Stats</h2>
-                <p class="muted onboarding-step-copy">Add current measurements for more accurate planning.</p>
-                <div class="form-row">
-                  <div>
-                    <label class="mini-label" for="height">Height (cm)</label>
-                    <input id="height" name="height" type="number" placeholder="175" />
-                    <p class="error-message"></p>
-                  </div>
-                  <div>
-                    <label class="mini-label" for="weight">Weight (kg)</label>
-                    <input id="weight" name="weight" type="number" placeholder="75" />
-                    <p class="error-message"></p>
-                  </div>
-                </div>
-                <div>
-                  <label class="mini-label" for="dailyCalories">Daily Calories (optional)</label>
-                  <input id="dailyCalories" name="dailyCalories" type="number" placeholder="2400" />
-                  <p class="error-message"></p>
-                </div>
-                <p class="error-message"></p>
-              </section>
-
-              <section class="form-step">
-                <h2 class="page-title onboarding-step-title">Diet Preference</h2>
-                <p class="muted onboarding-step-copy">Select your eating style so meal suggestions are relevant.</p>
-                <div class="option-grid option-grid-2">
-                  <label class="option-card"><input type="radio" name="dietPreference" value="omnivore" /> Omnivore</label>
-                  <label class="option-card"><input type="radio" name="dietPreference" value="vegetarian" /> Vegetarian</label>
-                  <label class="option-card"><input type="radio" name="dietPreference" value="vegan" /> Vegan</label>
-                  <label class="option-card"><input type="radio" name="dietPreference" value="keto" /> Keto</label>
-                </div>
-                <p class="error-message"></p>
-              </section>
-
-              <section class="form-step">
-                <h2 class="page-title onboarding-step-title">Preferred Workout Plan</h2>
-                <p class="muted onboarding-step-copy">Choose the split you enjoy most right now.</p>
-                <div class="option-grid option-grid-3">
-                  <label class="option-card"><input type="radio" name="workoutPlan" value="full-body" /> Full Body</label>
-                  <label class="option-card"><input type="radio" name="workoutPlan" value="push-pull-legs" /> Push Pull Legs</label>
-                  <label class="option-card"><input type="radio" name="workoutPlan" value="upper-lower" /> Upper Lower</label>
-                </div>
-                <p class="error-message"></p>
-              </section>
-
-              <section class="form-step">
-                <h2 class="page-title onboarding-step-title">Preferred Workout Time</h2>
-                <p class="muted onboarding-step-copy">When are you most consistent with training?</p>
-                <div class="option-grid option-grid-3">
-                  <label class="option-card"><input type="radio" name="workoutTime" value="morning" /> Morning</label>
-                  <label class="option-card"><input type="radio" name="workoutTime" value="afternoon" /> Afternoon</label>
-                  <label class="option-card"><input type="radio" name="workoutTime" value="evening" /> Evening</label>
-                </div>
-                <p class="error-message"></p>
-              </section>
-
-              <section class="form-step">
-                <h2 class="page-title onboarding-step-title">Your Goals</h2>
-                <p class="muted onboarding-step-copy">Select one or more goals to focus your programming.</p>
-                <div class="option-grid option-grid-2">
-                  <label class="option-card"><input type="checkbox" name="goals" value="fat-loss" /> Fat Loss</label>
-                  <label class="option-card"><input type="checkbox" name="goals" value="muscle-gain" /> Muscle Gain</label>
-                  <label class="option-card"><input type="checkbox" name="goals" value="strength" /> Strength</label>
-                  <label class="option-card"><input type="checkbox" name="goals" value="endurance" /> Endurance</label>
-                </div>
-                <p class="error-message"></p>
-              </section>
-
-              <section class="form-step">
-                <h2 class="page-title onboarding-step-title">Referral (Optional)</h2>
-                <p class="muted onboarding-step-copy">Enter a referral code or invite a friend by email.</p>
-                <div class="form-row">
-                  <div>
-                    <label class="mini-label" for="referralCode">Referral Code</label>
-                    <input id="referralCode" name="referralCode" type="text" placeholder="ABC123" />
-                    <p class="error-message"></p>
-                  </div>
-                  <div>
-                    <label class="mini-label" for="addFriends">Friend Email</label>
-                    <input id="addFriends" name="addFriends" type="email" placeholder="friend@email.com" />
-                    <p class="error-message"></p>
-                  </div>
-                </div>
-                <p class="error-message"></p>
-              </section>
-
-              <section class="form-step">
-                <h2 class="page-title onboarding-step-title">Profile Setup</h2>
-                <p class="muted onboarding-step-copy">Create your public username and optional profile photo.</p>
-                <div class="form-row">
-                  <div>
-                    <label class="mini-label" for="username">Username</label>
-                    <input id="username" name="username" type="text" placeholder="musclemap_user" />
-                    <p class="error-message"></p>
-                  </div>
-                  <div>
-                    <label class="mini-label" for="profilePhoto">Profile Photo</label>
-                    <input id="profilePhoto" name="profilePhoto" type="file" accept="image/*" />
-                    <p class="error-message"></p>
-                  </div>
-                </div>
-                <div class="onboarding-avatar-wrap">
-                  <img id="photoPreview" alt="Profile preview" class="onboarding-avatar" src="https://via.placeholder.com/96x96?text=+" loading="lazy" decoding="async" width="68" height="68" />
-                  <p class="muted">Upload an optional profile photo.</p>
-                </div>
-                <p class="error-message"></p>
-              </section>
-
-              <section class="form-step">
-                <h2 class="page-title onboarding-step-title">Supplements & Bio (Optional)</h2>
-                <p class="muted onboarding-step-copy">Add details to personalize tips in your dashboard.</p>
-                <div>
-                  <label class="mini-label" for="supplements">Supplements you use</label>
-                  <input id="supplements" name="supplements" type="text" placeholder="Creatine, whey, omega-3" />
-                </div>
-                <div>
-                  <label class="mini-label" for="bio">Short Bio</label>
-                  <textarea id="bio" name="bio" maxlength="180" rows="4" placeholder="Tell us about your training goals..."></textarea>
-                  <p class="muted onboarding-counter"><span id="bioCount">0</span>/180</p>
-                </div>
-                <p class="error-message"></p>
-              </section>
-
-              <div class="onboarding-actions">
-                <button id="prevBtn" class="button button-outline" type="button">Previous</button>
-                <button id="skipBtn" class="button button-outline" type="button">Skip</button>
-                <button id="nextBtn" class="button button-primary" type="button">Next</button>
-                <button id="submitBtn" class="button button-primary" type="submit" style="display:none;">Finish Setup</button>
+            <div id="onboardingWizard">
+              <div class="onboarding-meta">
+                <p class="mini-label">Step <span id="currentStep">1</span> of <span id="totalSteps">11</span></p>
               </div>
-            </form>
+              <div class="wizard-progress">
+                <div id="progressFill" class="wizard-progress-fill"></div>
+              </div>
+
+              <form id="onboardingForm" class="form-grid onboarding-form">
+                <section class="form-step active">
+                  <h2 class="page-title onboarding-step-title">Profile Demographics</h2>
+                  <p class="muted onboarding-step-copy">Start with the core details you want attached to your profile.</p>
+                  <div class="form-row">
+                    <div>
+                      <label class="mini-label" for="fullName">Full Name</label>
+                      <input id="fullName" name="fullName" type="text" placeholder="John Doe" />
+                      <p class="error-message"></p>
+                    </div>
+                    <div>
+                      <label class="mini-label" for="phone">Phone (optional)</label>
+                      <input id="phone" name="phone" type="tel" placeholder="+91 98765 43210" />
+                      <p class="error-message"></p>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div>
+                      <label class="mini-label" for="gender">Gender</label>
+                      <select id="gender" name="gender">
+                        <option value="">Select gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                        <option value="Prefer Not to Say">Prefer Not to Say</option>
+                      </select>
+                      <p class="error-message"></p>
+                    </div>
+                    <div>
+                      <label class="mini-label" for="dob">Date of Birth</label>
+                      <input id="dob" name="dob" type="date" />
+                      <p class="error-message"></p>
+                    </div>
+                  </div>
+                  <p class="error-message"></p>
+                </section>
+
+                <section class="form-step">
+                  <h2 class="page-title onboarding-step-title">How often do you visit the gym?</h2>
+                  <p class="muted onboarding-step-copy">Pick the option that best matches your normal week.</p>
+                  <div class="option-grid option-grid-3">
+                    <label class="option-card"><input type="radio" name="gymFrequency" value="1-2" /> 1-2 days/week</label>
+                    <label class="option-card"><input type="radio" name="gymFrequency" value="3-4" /> 3-4 days/week</label>
+                    <label class="option-card"><input type="radio" name="gymFrequency" value="5+" /> 5+ days/week</label>
+                  </div>
+                  <p class="error-message"></p>
+                </section>
+
+                <section class="form-step">
+                  <h2 class="page-title onboarding-step-title">What is your fitness expertise?</h2>
+                  <p class="muted onboarding-step-copy">This helps us fine-tune your recommendations.</p>
+                  <div class="option-grid option-grid-3">
+                    <label class="option-card"><input type="radio" name="expertiseLevel" value="beginner" /> Beginner</label>
+                    <label class="option-card"><input type="radio" name="expertiseLevel" value="intermediate" /> Intermediate</label>
+                    <label class="option-card"><input type="radio" name="expertiseLevel" value="advanced" /> Advanced</label>
+                  </div>
+                  <p class="error-message"></p>
+                </section>
+
+                <section class="form-step">
+                  <h2 class="page-title onboarding-step-title">Physical Stats</h2>
+                  <p class="muted onboarding-step-copy">Add current measurements for more accurate planning.</p>
+                  <div class="form-row">
+                    <div>
+                      <label class="mini-label" for="height">Height (cm)</label>
+                      <input id="height" name="height" type="number" placeholder="175" />
+                      <p class="error-message"></p>
+                    </div>
+                    <div>
+                      <label class="mini-label" for="weight">Weight (kg)</label>
+                      <input id="weight" name="weight" type="number" placeholder="75" />
+                      <p class="error-message"></p>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="mini-label" for="dailyCalories">Daily Calories (optional)</label>
+                    <input id="dailyCalories" name="dailyCalories" type="number" placeholder="2400" />
+                    <p class="error-message"></p>
+                  </div>
+                  <p class="error-message"></p>
+                </section>
+
+                <section class="form-step">
+                  <h2 class="page-title onboarding-step-title">Diet Preference</h2>
+                  <p class="muted onboarding-step-copy">Select your eating style so meal suggestions are relevant.</p>
+                  <div class="option-grid option-grid-2">
+                    <label class="option-card"><input type="radio" name="dietPreference" value="omnivore" /> Omnivore</label>
+                    <label class="option-card"><input type="radio" name="dietPreference" value="vegetarian" /> Vegetarian</label>
+                    <label class="option-card"><input type="radio" name="dietPreference" value="vegan" /> Vegan</label>
+                    <label class="option-card"><input type="radio" name="dietPreference" value="keto" /> Keto</label>
+                  </div>
+                  <p class="error-message"></p>
+                </section>
+
+                <section class="form-step">
+                  <h2 class="page-title onboarding-step-title">Preferred Workout Plan</h2>
+                  <p class="muted onboarding-step-copy">Choose the split you enjoy most right now.</p>
+                  <div class="option-grid option-grid-3">
+                    <label class="option-card"><input type="radio" name="workoutPlan" value="full-body" /> Full Body</label>
+                    <label class="option-card"><input type="radio" name="workoutPlan" value="push-pull-legs" /> Push Pull Legs</label>
+                    <label class="option-card"><input type="radio" name="workoutPlan" value="upper-lower" /> Upper Lower</label>
+                  </div>
+                  <p class="error-message"></p>
+                </section>
+
+                <section class="form-step">
+                  <h2 class="page-title onboarding-step-title">Preferred Workout Time</h2>
+                  <p class="muted onboarding-step-copy">When are you most consistent with training?</p>
+                  <div class="option-grid option-grid-3">
+                    <label class="option-card"><input type="radio" name="workoutTime" value="morning" /> Morning</label>
+                    <label class="option-card"><input type="radio" name="workoutTime" value="afternoon" /> Afternoon</label>
+                    <label class="option-card"><input type="radio" name="workoutTime" value="evening" /> Evening</label>
+                  </div>
+                  <p class="error-message"></p>
+                </section>
+
+                <section class="form-step">
+                  <h2 class="page-title onboarding-step-title">Your Goals</h2>
+                  <p class="muted onboarding-step-copy">Select one or more goals to focus your programming.</p>
+                  <div class="option-grid option-grid-2">
+                    <label class="option-card"><input type="checkbox" name="goals" value="fat-loss" /> Fat Loss</label>
+                    <label class="option-card"><input type="checkbox" name="goals" value="muscle-gain" /> Muscle Gain</label>
+                    <label class="option-card"><input type="checkbox" name="goals" value="strength" /> Strength</label>
+                    <label class="option-card"><input type="checkbox" name="goals" value="endurance" /> Endurance</label>
+                  </div>
+                  <p class="error-message"></p>
+                </section>
+
+                <section class="form-step">
+                  <h2 class="page-title onboarding-step-title">Referral (Optional)</h2>
+                  <p class="muted onboarding-step-copy">Enter a referral code or invite a friend by email.</p>
+                  <div class="form-row">
+                    <div>
+                      <label class="mini-label" for="referralCode">Referral Code</label>
+                      <input id="referralCode" name="referralCode" type="text" placeholder="ABC123" />
+                      <p class="error-message"></p>
+                    </div>
+                    <div>
+                      <label class="mini-label" for="addFriends">Friend Email</label>
+                      <input id="addFriends" name="addFriends" type="email" placeholder="friend@email.com" />
+                      <p class="error-message"></p>
+                    </div>
+                  </div>
+                  <p class="error-message"></p>
+                </section>
+
+                <section class="form-step">
+                  <h2 class="page-title onboarding-step-title">Profile Setup</h2>
+                  <p class="muted onboarding-step-copy">Create your public username and optional profile photo.</p>
+                  <div class="form-row">
+                    <div>
+                      <label class="mini-label" for="username">Username</label>
+                      <input id="username" name="username" type="text" placeholder="musclemap_user" />
+                      <p class="error-message"></p>
+                    </div>
+                    <div>
+                      <label class="mini-label" for="profilePhoto">Profile Photo</label>
+                      <input id="profilePhoto" name="profilePhoto" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" />
+                      <p class="error-message"></p>
+                    </div>
+                  </div>
+                  <div class="onboarding-avatar-wrap">
+                    <img id="photoPreview" alt="Profile preview" class="onboarding-avatar" src="https://via.placeholder.com/96x96?text=+" loading="lazy" decoding="async" width="68" height="68" />
+                    <p class="muted">Upload an optional profile photo.</p>
+                  </div>
+                  <p class="error-message"></p>
+                </section>
+
+                <section class="form-step">
+                  <h2 class="page-title onboarding-step-title">Supplements & Bio (Optional)</h2>
+                  <p class="muted onboarding-step-copy">Add details to personalize tips in your dashboard.</p>
+                  <div>
+                    <label class="mini-label" for="supplements">Supplements you use</label>
+                    <input id="supplements" name="supplements" type="text" placeholder="Creatine, whey, omega-3" />
+                  </div>
+                  <div>
+                    <label class="mini-label" for="bio">Short Bio</label>
+                    <textarea id="bio" name="bio" maxlength="180" rows="4" placeholder="Tell us about your training goals..."></textarea>
+                    <p class="muted onboarding-counter"><span id="bioCount">0</span>/180</p>
+                  </div>
+                  <p class="error-message"></p>
+                </section>
+
+                <div class="onboarding-actions">
+                  <button id="prevBtn" class="button button-outline" type="button">Previous</button>
+                  <button id="skipBtn" class="button button-outline" type="button">Skip</button>
+                  <button id="nextBtn" class="button button-primary" type="button">Next</button>
+                  <button id="submitBtn" class="button button-primary" type="submit" style="display:none;">Finish Setup</button>
+                </div>
+              </form>
+            </div>
+
+            <section id="ageGateScreen" class="onboarding-age-gate" hidden aria-live="polite">
+              <span class="badge">Age Requirement</span>
+              <h2 class="page-title onboarding-step-title">Sorry, you are not old enough to register.</h2>
+              <p class="lead onboarding-age-gate-copy">
+                Please wait until <span id="eligibleDate" class="onboarding-age-gate-date"></span>, when you turn 13, before continuing.
+              </p>
+              <p class="muted onboarding-age-gate-copy">If this date of birth was entered by mistake, go back and correct it.</p>
+              <div class="onboarding-age-gate-actions">
+                <button id="ageGateBackBtn" class="button button-outline" type="button">Go Back</button>
+                <a class="button button-primary" href="./register.html">Back to Register</a>
+              </div>
+            </section>
           </div>
         </section>
       </main>
@@ -226,9 +241,7 @@
 
     <script src="../js/site-runtime.js?v=20260418e" defer></script>
     <script src="../js/site.js?v=20260418e" defer></script>
-    <script src="../js/onboarding.js" defer></script>
+    <script src="../js/onboarding.js?v=20260422a" defer></script>
   </body>
 </html>
-
-
 

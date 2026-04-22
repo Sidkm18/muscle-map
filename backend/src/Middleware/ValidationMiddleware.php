@@ -252,7 +252,7 @@ class ValidationMiddleware
             return null;
         }
 
-        $date = DateTime::createFromFormat('Y-m-d', $normalized);
+        $date = DateTime::createFromFormat('!Y-m-d', $normalized);
         if (!$date || $date->format('Y-m-d') !== $normalized) {
             throw self::fieldError($field, 'Please provide a valid date.');
         }
@@ -261,6 +261,18 @@ class ValidationMiddleware
             $today = new DateTime('today');
             if ($date > $today) {
                 throw self::fieldError($field, 'This date cannot be in the future.');
+            }
+        }
+
+        if (isset($rules['min_age'])) {
+            $minimumAge = (int) $rules['min_age'];
+            if ($minimumAge > 0) {
+                $eligibleDate = (clone $date)->modify('+' . $minimumAge . ' years');
+                $today = new DateTime('today');
+
+                if ($eligibleDate > $today) {
+                    throw self::fieldError($field, 'You must be at least ' . $minimumAge . ' years old.');
+                }
             }
         }
 
@@ -368,18 +380,43 @@ class ValidationMiddleware
             'strip_tags' => false,
             'trim' => true,
             'empty_to_null' => $rules['empty_to_null'] ?? true,
-            'max_length' => $rules['max_length'] ?? 7340032,
+            'max_length' => $rules['max_length'] ?? 3670016,
         ]));
 
         if ($normalized === null) {
             return null;
         }
 
-        if (!preg_match('#^data:image/(?:png|jpe?g|webp|gif|svg\+xml)(?:;[a-z0-9.+-]+=[^;,]+)*(?:;base64)?,#i', $normalized)) {
+        if (!preg_match('#^data:image/(?:png|jpe?g|webp|gif)(?:;[a-z0-9.+-]+=[^;,]+)*;base64,#i', $normalized)) {
             throw self::fieldError($field, 'Profile photo must be a valid image data URL.');
         }
 
+        $parts = explode(',', $normalized, 2);
+        $encodedPayload = preg_replace('/\s+/', '', $parts[1] ?? '') ?? '';
+        if ($encodedPayload === '' || base64_decode($encodedPayload, true) === false) {
+            throw self::fieldError($field, 'Profile photo data is invalid.');
+        }
+
+        $maxBinaryBytes = (int) ($rules['max_binary_bytes'] ?? 2621440);
+        if (self::decodedBase64ByteLength($encodedPayload) > $maxBinaryBytes) {
+            throw self::fieldError($field, 'Profile photo is too large.');
+        }
+
         return $normalized;
+    }
+
+    private static function decodedBase64ByteLength(string $encodedPayload): int
+    {
+        $length = strlen($encodedPayload);
+        $padding = 0;
+
+        if ($length >= 2 && str_ends_with($encodedPayload, '==')) {
+            $padding = 2;
+        } elseif ($length >= 1 && str_ends_with($encodedPayload, '=')) {
+            $padding = 1;
+        }
+
+        return (int) (($length * 3) / 4) - $padding;
     }
 
     /**

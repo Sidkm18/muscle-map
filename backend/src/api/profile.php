@@ -37,6 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         mm_json(['error' => 'Unable to load profile'], 500);
     }
 } elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+    mm_require_csrf();
+
     $data = mm_filter_request([
         'full_name' => [
             'type' => 'string',
@@ -70,12 +72,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         'profile_photo' => [
             'type' => 'image_data_url',
             'empty_to_null' => true,
-            'max_length' => 7340032,
+            'max_length' => 3670016,
+            'max_binary_bytes' => 2621440,
         ],
     ]);
 
     $updates = [];
     $params = [':user_id' => $userId];
+    $photoStorage = new App\Support\ProfilePhotoStorage();
+    $profilePhotoResult = [
+        'stored_value' => null,
+        'created_value' => null,
+        'obsolete_value' => null,
+    ];
     
     try {
         if (array_key_exists('full_name', $data)) {
@@ -109,8 +118,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         }
 
         if (array_key_exists('profile_photo', $data)) {
+            $currentProfileStmt = $db->prepare('SELECT profile_photo FROM users WHERE id = :id LIMIT 1');
+            $currentProfileStmt->execute([':id' => $userId]);
+            $currentProfile = $currentProfileStmt->fetch();
+            $currentProfilePhoto = is_array($currentProfile) ? ($currentProfile['profile_photo'] ?? null) : null;
+
+            $profilePhotoResult = $photoStorage->prepare($userId, $data['profile_photo'], is_string($currentProfilePhoto) ? $currentProfilePhoto : null);
             $updates[] = 'profile_photo = :profile_photo';
-            $params[':profile_photo'] = $data['profile_photo'];
+            $params[':profile_photo'] = $profilePhotoResult['stored_value'];
         }
 
         if (empty($updates)) {
@@ -120,8 +135,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $stmt = $db->prepare('UPDATE users SET ' . implode(', ', $updates) . ' WHERE id = :user_id');
         $stmt->execute($params);
 
-        mm_json(['message' => 'Profile updated successfully']);
+        if ($profilePhotoResult['obsolete_value'] !== null) {
+            $photoStorage->deleteManagedPhoto($profilePhotoResult['obsolete_value']);
+        }
+
+        $response = ['message' => 'Profile updated successfully'];
+        if (array_key_exists('profile_photo', $data)) {
+            $response['profile_photo'] = $profilePhotoResult['stored_value'];
+        }
+
+        mm_json($response);
+    } catch (InvalidArgumentException $e) {
+        if ($profilePhotoResult['created_value'] !== null) {
+            $photoStorage->deleteManagedPhoto($profilePhotoResult['created_value']);
+        }
+
+        mm_json(['error' => $e->getMessage()], 422);
+    } catch (RuntimeException $e) {
+        if ($profilePhotoResult['created_value'] !== null) {
+            $photoStorage->deleteManagedPhoto($profilePhotoResult['created_value']);
+        }
+
+        error_log('Profile photo storage failed: ' . $e->getMessage());
+        mm_json(['error' => 'Unable to store profile photo'], 500);
     } catch (PDOException $e) {
+        if ($profilePhotoResult['created_value'] !== null) {
+            $photoStorage->deleteManagedPhoto($profilePhotoResult['created_value']);
+        }
+
         error_log('Profile update failed: ' . $e->getMessage());
 
         if (($e->getCode() ?? '') === '23000') {

@@ -5,6 +5,7 @@ require_once __DIR__ . '/../bootstrap.php';
 mm_require_method('POST');
 
 $userId = mm_require_auth();
+mm_require_csrf();
 $db = mm_db();
 $data = mm_filter_request([
     'fullName' => [
@@ -29,6 +30,7 @@ $data = mm_filter_request([
         'required' => true,
         'allow_empty' => false,
         'not_in_future' => true,
+        'min_age' => 13,
     ],
     'gymFrequency' => [
         'type' => 'enum',
@@ -122,7 +124,8 @@ $data = mm_filter_request([
     'profilePhoto' => [
         'type' => 'image_data_url',
         'empty_to_null' => true,
-        'max_length' => 7340032,
+        'max_length' => 3670016,
+        'max_binary_bytes' => 2621440,
     ],
 ]);
 
@@ -130,8 +133,24 @@ $fullName = $data['fullName'];
 $phone = $data['phone'];
 $gender = $data['gender'];
 $normalizedDob = $data['dob'];
+$photoStorage = new App\Support\ProfilePhotoStorage();
+$profilePhotoResult = [
+    'stored_value' => null,
+    'created_value' => null,
+    'obsolete_value' => null,
+];
 
 try {
+    $currentProfileStmt = $db->prepare('SELECT profile_photo FROM users WHERE id = :id LIMIT 1');
+    $currentProfileStmt->execute([':id' => $userId]);
+    $currentProfile = $currentProfileStmt->fetch();
+    $currentProfilePhoto = is_array($currentProfile) ? ($currentProfile['profile_photo'] ?? null) : null;
+    $profilePhotoResult['stored_value'] = is_string($currentProfilePhoto) ? $currentProfilePhoto : null;
+
+    if (array_key_exists('profilePhoto', $data)) {
+        $profilePhotoResult = $photoStorage->prepare($userId, $data['profilePhoto'], is_string($currentProfilePhoto) ? $currentProfilePhoto : null);
+    }
+
     $db->beginTransaction();
 
     $statsParams = [
@@ -186,7 +205,7 @@ try {
         ':dob' => $normalizedDob,
         ':username' => $data['username'],
         ':bio' => $data['bio'],
-        ':profile_photo' => $data['profilePhoto'],
+        ':profile_photo' => $profilePhotoResult['stored_value'],
     ];
     $stmt = $db->prepare('
         UPDATE users
@@ -202,14 +221,43 @@ try {
     $stmt->execute($userParams);
 
     $db->commit();
+    if ($profilePhotoResult['obsolete_value'] !== null) {
+        $photoStorage->deleteManagedPhoto($profilePhotoResult['obsolete_value']);
+    }
 
     mm_json([
         'message' => 'Onboarding data saved successfully',
         'user_id' => $userId,
+        'profile_photo' => $profilePhotoResult['stored_value'],
     ]);
+} catch (InvalidArgumentException $exception) {
+    if ($db->inTransaction()) {
+        $db->rollBack();
+    }
+
+    if ($profilePhotoResult['created_value'] !== null) {
+        $photoStorage->deleteManagedPhoto($profilePhotoResult['created_value']);
+    }
+
+    mm_json(['error' => $exception->getMessage()], 422);
+} catch (RuntimeException $exception) {
+    if ($db->inTransaction()) {
+        $db->rollBack();
+    }
+
+    if ($profilePhotoResult['created_value'] !== null) {
+        $photoStorage->deleteManagedPhoto($profilePhotoResult['created_value']);
+    }
+
+    error_log('Onboarding profile photo storage failed: ' . $exception->getMessage());
+    mm_json(['error' => 'Unable to store profile photo'], 500);
 } catch (PDOException $exception) {
     if ($db->inTransaction()) {
         $db->rollBack();
+    }
+
+    if ($profilePhotoResult['created_value'] !== null) {
+        $photoStorage->deleteManagedPhoto($profilePhotoResult['created_value']);
     }
 
     error_log('Onboarding save failed: ' . $exception->getMessage());

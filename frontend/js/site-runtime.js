@@ -67,27 +67,96 @@
     return getApiBase() + normalizedPath;
   }
 
-  function requestJson(path, options) {
-    const requestOptions = Object.assign(
-      {
-        credentials: 'include'
-      },
-      options || {}
-    );
-
-    const headers = new Headers(requestOptions.headers || {});
-    const body = requestOptions.body;
-
-    if (body && typeof body === 'object' && !(body instanceof FormData) && !(body instanceof Blob) && !(body instanceof URLSearchParams)) {
-      if (!headers.has('Content-Type')) {
-        headers.set('Content-Type', 'application/json');
-      }
-      requestOptions.body = JSON.stringify(body);
+  const anonymousWritePaths = ['login', 'register'];
+  const SUPPORTED_PROFILE_PHOTO_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/svg+xml'];
+  const MAX_STORED_AVATAR_PREVIEW_CHARS = 262144;
+  const sessionState = {
+    loaded: false,
+    loadingPromise: null,
+    data: {
+      authenticated: false,
+      user: null,
+      csrfToken: null
     }
+  };
 
-    requestOptions.headers = headers;
+  function isObject(value) {
+    return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+  }
 
-    return fetch(apiUrl(path), requestOptions).then(async function (response) {
+  function isSessionPayload(payload) {
+    return isObject(payload) && Object.prototype.hasOwnProperty.call(payload, 'authenticated');
+  }
+
+  function syncLegacySessionCache(session) {
+    try {
+      window.localStorage.removeItem('isLoggedIn');
+
+      if (session.authenticated && session.user) {
+        if (session.user.id !== undefined && session.user.id !== null) {
+          window.localStorage.setItem('userId', String(session.user.id));
+        } else {
+          window.localStorage.removeItem('userId');
+        }
+
+        if (session.user.email) {
+          window.localStorage.setItem('userEmail', String(session.user.email));
+        } else {
+          window.localStorage.removeItem('userEmail');
+        }
+
+        if (session.user.full_name || session.user.username) {
+          window.localStorage.setItem('userName', String(session.user.full_name || session.user.username || ''));
+        }
+      } else {
+        window.localStorage.removeItem('userId');
+        window.localStorage.removeItem('userEmail');
+        window.localStorage.removeItem('userName');
+        window.localStorage.removeItem('onboardingComplete');
+      }
+    } catch (error) {
+      // Ignore storage failures.
+    }
+  }
+
+  function normalizeSessionPayload(payload) {
+    const current = sessionState.data || {
+      authenticated: false,
+      user: null,
+      csrfToken: null
+    };
+    const authenticated = Boolean(payload && payload.authenticated && isObject(payload.user));
+
+    return {
+      authenticated: authenticated,
+      user: authenticated ? payload.user : null,
+      csrfToken: authenticated
+        ? String((payload && (payload.csrf_token || payload.csrfToken)) || current.csrfToken || '').trim() || null
+        : null
+    };
+  }
+
+  function setSession(payload) {
+    const session = normalizeSessionPayload(payload);
+    sessionState.loaded = true;
+    sessionState.data = session;
+    syncLegacySessionCache(session);
+    return session;
+  }
+
+  function clearSession() {
+    return setSession({
+      authenticated: false,
+      user: null
+    });
+  }
+
+  function getCachedSession() {
+    return sessionState.data;
+  }
+
+  function fetchJson(url, options) {
+    return fetch(url, options).then(async function (response) {
       const text = await response.text();
       let payload = null;
 
@@ -108,6 +177,107 @@
       }
 
       return payload;
+    });
+  }
+
+  function refreshSession() {
+    if (sessionState.loadingPromise) {
+      return sessionState.loadingPromise;
+    }
+
+    sessionState.loadingPromise = fetchJson(apiUrl('me'), {
+      credentials: 'include'
+    }).then(function (payload) {
+      return setSession(payload);
+    }).catch(function (error) {
+      clearSession();
+      throw error;
+    }).finally(function () {
+      sessionState.loadingPromise = null;
+    });
+
+    return sessionState.loadingPromise;
+  }
+
+  function getSession() {
+    if (sessionState.loaded) {
+      return Promise.resolve(sessionState.data);
+    }
+
+    return refreshSession().catch(function () {
+      return sessionState.data;
+    });
+  }
+
+  function shouldSkipCsrf(path, method, headers) {
+    if (['GET', 'HEAD', 'OPTIONS'].includes(method)) {
+      return true;
+    }
+
+    if (headers.has('X-CSRF-Token')) {
+      return true;
+    }
+
+    const normalizedPath = String(path || '').replace(/^\/+/, '').toLowerCase();
+    return anonymousWritePaths.indexOf(normalizedPath) !== -1;
+  }
+
+  function attachCsrfHeader(path, requestOptions, headers) {
+    const method = String(requestOptions.method || 'GET').toUpperCase();
+
+    if (shouldSkipCsrf(path, method, headers)) {
+      return Promise.resolve();
+    }
+
+    const cachedToken = sessionState.data && sessionState.data.csrfToken;
+    if (cachedToken) {
+      headers.set('X-CSRF-Token', cachedToken);
+      return Promise.resolve();
+    }
+
+    return getSession().then(function (session) {
+      if (session && session.authenticated && session.csrfToken) {
+        headers.set('X-CSRF-Token', session.csrfToken);
+      }
+    }).catch(function () {
+      // Leave the request unchanged; the server will reject it if needed.
+    });
+  }
+
+  function requestJson(path, options) {
+    const requestOptions = Object.assign(
+      {
+        credentials: 'include'
+      },
+      options || {}
+    );
+
+    const headers = new Headers(requestOptions.headers || {});
+    const body = requestOptions.body;
+
+    if (body && typeof body === 'object' && !(body instanceof FormData) && !(body instanceof Blob) && !(body instanceof URLSearchParams)) {
+      if (!headers.has('Content-Type')) {
+        headers.set('Content-Type', 'application/json');
+      }
+      requestOptions.body = JSON.stringify(body);
+    }
+
+    requestOptions.headers = headers;
+
+    return attachCsrfHeader(path, requestOptions, headers).then(function () {
+      return fetchJson(apiUrl(path), requestOptions);
+    }).then(function (payload) {
+      if (isSessionPayload(payload)) {
+        setSession(payload);
+      }
+
+      return payload;
+    }).catch(function (error) {
+      if (error && error.status === 401) {
+        clearSession();
+      }
+
+      throw error;
     });
   }
 
@@ -221,14 +391,31 @@
   function getStoredAvatarPreview() {
     try {
       const storedValue = window.localStorage.getItem('userAvatarPreview');
-      return storedValue && storedValue.startsWith('data:image/') ? storedValue : '';
+      if (storedValue && storedValue.length > MAX_STORED_AVATAR_PREVIEW_CHARS) {
+        clearAvatarPreview();
+        return '';
+      }
+      return storedValue
+        && storedValue.startsWith('data:image/')
+        && storedValue.length <= MAX_STORED_AVATAR_PREVIEW_CHARS
+        ? storedValue
+        : '';
     } catch (error) {
       return '';
     }
   }
 
+  function isSupportedProfilePhotoType(value) {
+    return SUPPORTED_PROFILE_PHOTO_TYPES.indexOf(String(value || '').toLowerCase()) !== -1;
+  }
+
   function cacheAvatarPreview(dataUrl) {
     if (!dataUrl || !String(dataUrl).startsWith('data:image/')) {
+      return;
+    }
+
+    if (String(dataUrl).length > MAX_STORED_AVATAR_PREVIEW_CHARS) {
+      clearAvatarPreview();
       return;
     }
 
@@ -266,6 +453,11 @@
     apiBase: getApiBase(),
     apiUrl: apiUrl,
     requestJson: requestJson,
+    getSession: getSession,
+    getCachedSession: getCachedSession,
+    refreshSession: refreshSession,
+    setSession: setSession,
+    clearSession: clearSession,
     togglePasswordVisibility: togglePasswordVisibility,
     setButtonBusy: setButtonBusy,
     scorePassword: scorePassword,
@@ -273,6 +465,8 @@
     createAvatarPlaceholder: createAvatarPlaceholder,
     resolveProfilePhoto: resolveProfilePhoto,
     cacheAvatarPreview: cacheAvatarPreview,
-    clearAvatarPreview: clearAvatarPreview
+    clearAvatarPreview: clearAvatarPreview,
+    isSupportedProfilePhotoType: isSupportedProfilePhotoType,
+    supportedProfilePhotoTypes: SUPPORTED_PROFILE_PHOTO_TYPES.slice()
   };
 })();

@@ -77,17 +77,20 @@
     }
 
     (typeof app.requestJson === 'function' ? app.requestJson('register', { method: 'POST', body: registerData }) : Promise.reject(new Error('Registration unavailable'))).then(
-      function () {
+      function (data) {
         if (typeof window.showToast === 'function') {
           window.showToast('Account created successfully!', 'success');
         }
 
-        localStorage.setItem('isLoggedIn', 'true');
-        if (name) {
-          localStorage.setItem('userName', name);
-        }
-        if (email) {
-          localStorage.setItem('userEmail', email);
+        if (typeof app.setSession === 'function') {
+          app.setSession(data);
+        } else {
+          if (name) {
+            localStorage.setItem('userName', name);
+          }
+          if (email) {
+            localStorage.setItem('userEmail', email);
+          }
         }
 
         window.setTimeout(function () {

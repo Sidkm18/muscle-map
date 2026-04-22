@@ -78,21 +78,19 @@ try {
 
     $db->commit();
 
-    mm_start_session_user([
+    $userPayload = [
         'id' => $userId,
         'email' => $email,
-    ]);
+        'full_name' => $fullName ?? '',
+        'username' => $username,
+    ];
 
-    mm_json([
+    mm_start_session_user($userPayload);
+
+    mm_json(array_merge([
         'message' => 'User registered successfully',
         'user_id' => $userId,
-        'user' => [
-            'id' => $userId,
-            'email' => $email,
-            'full_name' => $fullName ?? '',
-            'username' => $username,
-        ],
-    ], 201);
+    ], mm_session_payload($userPayload)), 201);
 } catch (PDOException $exception) {
     if ($db->inTransaction()) {
         $db->rollBack();

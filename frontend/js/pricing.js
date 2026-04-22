@@ -6,24 +6,79 @@
   const baseEl = document.getElementById('summary-base');
   const discountEl = document.getElementById('summary-discount');
   const totalEl = document.getElementById('summary-total');
+  const checkoutButton = document.getElementById('pricing-checkout-button');
+  const app = window.MuscleMap || {};
 
-  if (!planRow || !durationRow) {
+  if (!planRow || !durationRow || !membershipEl || !durationEl || !baseEl || !discountEl || !totalEl || !checkoutButton) {
     return;
   }
 
-  const pricing = { basic: 100, pro: 250, elite: 500 };
-  const discounts = { 1: 0, 3: 5, 12: 15 };
+  let pricingConfig = {
+    currency: 'INR',
+    defaults: {
+      plan_name: 'basic',
+      duration_months: 1
+    },
+    plans: {
+      basic: { id: 'basic', label: 'Basic', monthly_price: 100 },
+      pro: { id: 'pro', label: 'Pro', monthly_price: 250 },
+      elite: { id: 'elite', label: 'Elite', monthly_price: 500 }
+    },
+    durations: {
+      1: { months: 1, label: '1 Month', discount_percent: 0 },
+      3: { months: 3, label: '3 Months', discount_percent: 5 },
+      12: { months: 12, label: '1 Year', discount_percent: 15 }
+    }
+  };
 
   let state = {
     membership: 'basic',
     duration: 1
   };
 
-  function formatDuration(value) {
-    if (value === 12) {
-      return '1 Year';
+  function getCurrencySymbol(currencyCode) {
+    return currencyCode === 'INR' ? '₹' : `${currencyCode} `;
+  }
+
+  function formatMoney(value) {
+    const symbol = getCurrencySymbol(pricingConfig.currency);
+    const numericValue = Number(value || 0);
+
+    if (typeof app.formatCurrency === 'function' && pricingConfig.currency === 'INR') {
+      return app.formatCurrency(numericValue);
     }
-    return `${value} Month${value > 1 ? 's' : ''}`;
+
+    return symbol + numericValue.toFixed(2);
+  }
+
+  function getSelectedPlan() {
+    return pricingConfig.plans[state.membership] || pricingConfig.plans.basic;
+  }
+
+  function getSelectedDuration() {
+    return pricingConfig.durations[String(state.duration)] || pricingConfig.durations[1];
+  }
+
+  function formatDuration(value) {
+    const durationConfig = pricingConfig.durations[String(value)];
+    return durationConfig ? durationConfig.label : `${value} Month${value > 1 ? 's' : ''}`;
+  }
+
+  function getQuote() {
+    const plan = getSelectedPlan();
+    const durationConfig = getSelectedDuration();
+    const monthlyPrice = Number(plan.monthly_price || 0);
+    const base = monthlyPrice * state.duration;
+    const discountPct = Number(durationConfig.discount_percent || 0);
+    const discountAmount = Number(((base * discountPct) / 100).toFixed(2));
+    const total = Number((base - discountAmount).toFixed(2));
+
+    return {
+      base: base,
+      discountPct: discountPct,
+      discountAmount: discountAmount,
+      total: total
+    };
   }
 
   function updateSelectionStyles() {
@@ -43,18 +98,15 @@
   }
 
   function updateSummary() {
-    const base = pricing[state.membership] * state.duration;
-    const discountPct = discounts[state.duration] || 0;
-    const discountAmount = Math.round((base * discountPct) / 100);
-    const total = base - discountAmount;
+    const quote = getQuote();
 
     membershipEl.textContent = state.membership;
     durationEl.textContent = formatDuration(state.duration);
-    baseEl.textContent = `₹${base.toFixed(2)}`;
-    discountEl.textContent = discountPct
-      ? `-₹${discountAmount.toFixed(2)} (${discountPct}%)`
+    baseEl.textContent = formatMoney(quote.base);
+    discountEl.textContent = quote.discountPct
+      ? `-${formatMoney(quote.discountAmount)} (${quote.discountPct}%)`
       : 'No Discount';
-    totalEl.textContent = `₹${total.toFixed(2)}`;
+    totalEl.textContent = formatMoney(quote.total);
   }
 
   planRow.addEventListener('click', function (event) {
@@ -76,6 +128,90 @@
     updateSelectionStyles();
     updateSummary();
   });
+
+  checkoutButton.addEventListener('click', function () {
+    if (typeof app.setButtonBusy === 'function') {
+      app.setButtonBusy(checkoutButton, true, 'Processing...');
+    } else {
+      checkoutButton.disabled = true;
+      checkoutButton.textContent = 'Processing...';
+    }
+
+    const sessionPromise = typeof app.getSession === 'function'
+      ? app.getSession()
+      : Promise.resolve({ authenticated: false });
+
+    sessionPromise.then(function (session) {
+      if (!session || !session.authenticated) {
+        if (typeof window.showToast === 'function') {
+          window.showToast('Please sign in before subscribing.', 'error');
+        }
+        window.setTimeout(function () {
+          window.location.href = './login.html';
+        }, 300);
+        return null;
+      }
+
+      if (typeof app.requestJson !== 'function') {
+        throw new Error('Subscription unavailable');
+      }
+
+      return app.requestJson('subscribe', {
+        method: 'POST',
+        body: {
+          plan_name: state.membership,
+          duration_months: state.duration
+        }
+      });
+    }).then(function (payload) {
+      if (!payload) {
+        return;
+      }
+
+      if (typeof window.showToast === 'function') {
+        window.showToast(payload.message || 'Subscription updated successfully!', 'success');
+      }
+
+      window.setTimeout(function () {
+        window.location.href = './profile.html';
+      }, 500);
+    }).catch(function (error) {
+      if (typeof window.showToast === 'function') {
+        window.showToast(error && error.message ? error.message : 'Unable to complete subscription.', 'error');
+      }
+    }).finally(function () {
+      if (typeof app.setButtonBusy === 'function') {
+        app.setButtonBusy(checkoutButton, false);
+      } else {
+        checkoutButton.disabled = false;
+        checkoutButton.textContent = 'Proceed to Payment';
+      }
+    });
+  });
+
+  if (typeof app.requestJson === 'function') {
+    app.requestJson('pricing')
+      .then(function (payload) {
+        if (!payload || typeof payload !== 'object') {
+          return;
+        }
+
+        pricingConfig = Object.assign({}, pricingConfig, payload);
+        state.membership = String(
+          (payload.defaults && payload.defaults.plan_name)
+          || state.membership
+        );
+        state.duration = Number(
+          (payload.defaults && payload.defaults.duration_months)
+          || state.duration
+        );
+        updateSelectionStyles();
+        updateSummary();
+      })
+      .catch(function () {
+        // Keep the inline fallback config when the backend is unavailable.
+      });
+  }
 
   updateSelectionStyles();
   updateSummary();
