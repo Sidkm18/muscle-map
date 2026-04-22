@@ -252,7 +252,7 @@ class ValidationMiddleware
             return null;
         }
 
-        $date = DateTime::createFromFormat('Y-m-d', $normalized);
+        $date = DateTime::createFromFormat('!Y-m-d', $normalized);
         if (!$date || $date->format('Y-m-d') !== $normalized) {
             throw self::fieldError($field, 'Please provide a valid date.');
         }

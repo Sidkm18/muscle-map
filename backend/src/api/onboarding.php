@@ -30,6 +30,7 @@ $data = mm_filter_request([
         'required' => true,
         'allow_empty' => false,
         'not_in_future' => true,
+        'min_age' => 13,
     ],
     'gymFrequency' => [
         'type' => 'enum',

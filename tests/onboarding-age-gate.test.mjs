@@ -33,11 +33,13 @@ function runPhpSnippet(source) {
 test("onboarding page contains an underage notice with the eligible-date placeholder", () => {
   const html = readRepoFile("frontend/pages/onboarding.html");
   const script = readRepoFile("frontend/js/onboarding.js");
+  const apiHandler = readRepoFile("backend/src/api/onboarding.php");
 
   assert.match(html, /id="ageGateScreen"/);
   assert.match(html, /Sorry, you are not old enough to register\./);
   assert.match(html, /id="eligibleDate"/);
   assert.match(script, /MINIMUM_ONBOARDING_AGE\s*=\s*13/);
+  assert.match(apiHandler, /'min_age'\s*=>\s*13/);
 });
 
 test("validation middleware rejects users younger than 13 and allows users who are 13 today", () => {

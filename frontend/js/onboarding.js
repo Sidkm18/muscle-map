@@ -786,7 +786,6 @@
     )
       .then(function () {
         try {
-          localStorage.removeItem('userOnboardingData');
           localStorage.removeItem('onboardingProgress');
           localStorage.setItem('onboardingComplete', 'true');
           localStorage.setItem('userName', onboardingPayload.fullName || formData.username || localStorage.getItem('userName') || '');
