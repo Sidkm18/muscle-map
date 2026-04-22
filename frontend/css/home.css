@@ -170,6 +170,7 @@
   min-height: 42rem;
   display: grid;
   place-items: center;
+  perspective: 1200px;
 }
 
 .landing-chip {
@@ -186,6 +187,8 @@
   overflow: hidden;
   transform: translate3d(0, 0, 0);
   transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease, background-color 220ms ease;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 @keyframes landing-chip-wobble {
@@ -283,6 +286,9 @@
   position: relative;
   width: min(27rem, 82vw);
   z-index: 2;
+  transform-style: preserve-3d;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .hero-device::before,
@@ -516,6 +522,12 @@
   margin-bottom: 1.6rem;
 }
 
+.journey-head,
+.tools-head {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 42rem;
+}
+
 .proof-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -537,6 +549,9 @@
 .proof-item {
   padding: 1.2rem;
   border-radius: 1.2rem;
+  transform-style: preserve-3d;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .proof-number {
@@ -678,6 +693,7 @@
 .story-panel-tall {
   display: grid;
   align-content: start;
+  gap: 0.15rem;
 }
 
 .story-library-tags {
@@ -689,8 +705,8 @@
 
 .story-library-tags .mock-chip {
   border: 1px solid rgba(255, 255, 255, 0.08);
-  cursor: pointer;
   font: inherit;
+  cursor: default;
 }
 
 .story-library-list {
@@ -1028,10 +1044,12 @@
   align-content: start;
   gap: 1rem;
   transition: transform 180ms ease, border-color 180ms ease;
+  transform-style: preserve-3d;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .tool-panel:hover {
-  transform: translateY(-0.18rem);
   border-color: rgba(var(--primary-rgb), 0.3);
 }
 

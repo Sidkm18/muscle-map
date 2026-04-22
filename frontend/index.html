@@ -9,7 +9,7 @@
       content="MuscleMap is an all-in-one gym buddy app for planning routines, browsing exercises, logging lifts, tracking daily activity, and choosing the right membership plan."
     />
     <link rel="stylesheet" href="./css/styles.css?v=20260416a" />
-    <link rel="stylesheet" href="./css/home.css?v=20260418b" />
+    <link rel="stylesheet" href="./css/home.css?v=20260422a" />
   </head>
   <body class="landing-page">
     <div class="page-shell">
@@ -220,13 +220,13 @@
 
               <div class="story-panel story-panel-tall">
                 <div class="story-panel-head">
-                  <span class="mini-label">Selected movement</span>
+                  <span class="mini-label">Session focus</span>
                   <strong data-story-movement-title>Bench press</strong>
                 </div>
                 <div class="story-library-tags">
-                  <button class="mock-chip active" type="button" data-story-tag="0" aria-pressed="true">Compound</button>
-                  <button class="mock-chip" type="button" data-story-tag="1" aria-pressed="false">Chest</button>
-                  <button class="mock-chip" type="button" data-story-tag="2" aria-pressed="false">Intermediate</button>
+                  <span class="mock-chip active" data-story-tag="0">Compound</span>
+                  <span class="mock-chip" data-story-tag="1">Chest</span>
+                  <span class="mock-chip" data-story-tag="2">Intermediate</span>
                 </div>
                 <ul class="story-library-list" data-story-movement-stats>
                   <li>
@@ -238,7 +238,7 @@
                     <strong data-story-stat-value="1">Strength volume</strong>
                   </li>
                   <li>
-                    <span class="mini-label">Fallback</span>
+                    <span class="mini-label">Swap</span>
                     <strong data-story-stat-value="2">Dumbbell press</strong>
                   </li>
                 </ul>
@@ -254,9 +254,6 @@
                 <span class="badge">During + After</span>
                 <h2 class="section-title">Move through the workout in one uninterrupted loop.</h2>
               </div>
-              <p class="muted">
-                One device surface shifts from planning to logging to review, while the copy keeps the attention on the next useful action instead of another screen hunt.
-              </p>
             </div>
 
             <div class="journey-pin">
@@ -407,9 +404,6 @@
                 <span class="badge">Extra Utility</span>
                 <h2 class="section-title">When the gym day spills into the rest of life, the tools still stay useful.</h2>
               </div>
-              <p class="muted">
-                The app stays helpful before training, between sessions, and on quieter days when you still want numbers, guidance, and a reason to keep the streak alive.
-              </p>
             </div>
 
             <div class="tools-grid">
@@ -472,9 +466,6 @@
             <div class="pricing-copy home-reveal" data-home-reveal>
               <span class="badge">Ready To Level Up?</span>
               <h2 class="section-title">Start with the plan that matches your training season.</h2>
-              <p class="lead">
-                Keep the entry light, move up when you want more depth, and compare the full pricing view the second your routine wants premium support.
-              </p>
               <div class="pricing-actions">
                 <a class="button button-primary" href="./pages/pricing.html">Start Free Plan</a>
                 <a class="button button-outline" href="./pages/pricing.html">Compare All Plans</a>
@@ -522,9 +513,9 @@
     </div>
 
     <script src="./js/site.js?v=20260418e" defer></script>
-    <script src="./js/home.js?v=20260418c" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/gsap.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/ScrollTrigger.min.js" defer></script>
+    <script src="./js/home.js?v=20260422a" defer></script>
   </body>
 </html>
-
-
 
