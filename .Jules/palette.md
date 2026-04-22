@@ -1,0 +1,3 @@
+## 2024-04-22 - Add ARIA label to password visibility toggle buttons
+**Learning:** Even though buttons have text (like "Show" or "Hide"), adding an explicit `aria-label` that clarifies the context ("Show password" or "Hide password") significantly improves the experience for screen reader users, giving them clear context on what the button acts on.
+**Action:** Always verify that state-toggling buttons have descriptive `aria-label` attributes reflecting both their purpose and current state.

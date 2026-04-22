@@ -291,6 +291,7 @@
     const hidden = input.type === 'password';
     input.type = hidden ? 'text' : 'password';
     button.textContent = hidden ? 'Hide' : 'Show';
+    button.setAttribute('aria-label', hidden ? 'Hide password' : 'Show password');
     button.setAttribute('aria-pressed', hidden ? 'true' : 'false');
   }
 
