@@ -3,6 +3,7 @@
   const list = document.getElementById('exercise-list');
   const clearAllBtn = document.getElementById('clear-all');
   const emptyState = document.getElementById('empty-state');
+  const app = window.MuscleMap || {};
 
   if (!form || !list || !clearAllBtn || !emptyState) {
     return;
@@ -121,7 +122,6 @@
     }
 
     const bodyweight = getCurrentBodyweight();
-
     strengthLevelEl.className = 'strength-level-indicator';
 
     if (!bodyweight || bodyweight <= 0) {
@@ -146,8 +146,7 @@
     }
 
     strengthLevelEl.classList.add(level.className);
-    strengthLevelEl.textContent =
-      'Strength Level: ' + level.label + ' (' + ratio.toFixed(2) + 'x bodyweight)';
+    strengthLevelEl.textContent = 'Strength Level: ' + level.label + ' (' + ratio.toFixed(2) + 'x bodyweight)';
   }
 
   function calculateNextSetSuggestion(item) {
@@ -205,8 +204,7 @@
 
     nextSetEmptyEl.hidden = true;
     nextSetCardEl.hidden = false;
-    nextSetValueEl.textContent =
-      formatWeight(suggestion.weight) + ' ' + WEIGHT_UNIT.label + ' for ' + suggestion.repText + ' reps';
+    nextSetValueEl.textContent = formatWeight(suggestion.weight) + ' ' + WEIGHT_UNIT.label + ' for ' + suggestion.repText + ' reps';
     nextSetNoteEl.textContent = suggestion.note;
   }
 
@@ -218,12 +216,10 @@
     const totalVolume = items.reduce(function (sum, item) {
       return sum + item.weight * item.reps;
     }, 0);
-    const averageReps =
-      items.reduce(function (sum, item) {
-        return sum + item.reps;
-      }, 0) / items.length;
-    const startedHeavier =
-      items.length > 1 && items[items.length - 1].weight > items[0].weight;
+    const averageReps = items.reduce(function (sum, item) {
+      return sum + item.reps;
+    }, 0) / items.length;
+    const startedHeavier = items.length > 1 && items[items.length - 1].weight > items[0].weight;
     const fatigueDetected = items.some(function (item, index) {
       if (index === 0) {
         return false;
@@ -257,11 +253,9 @@
   }
 
   function renderWorkoutFeedback() {
-    if (!calculatorFeedbackEl) {
-      return;
+    if (calculatorFeedbackEl) {
+      calculatorFeedbackEl.textContent = getWorkoutFeedback();
     }
-
-    calculatorFeedbackEl.textContent = getWorkoutFeedback();
   }
 
   function updateRestTimerUI() {
@@ -374,20 +368,17 @@
     const totalVolume = items.reduce(function (sum, item) {
       return sum + item.weight * item.reps;
     }, 0);
-
     const totalSets = items.length;
     const totalReps = items.reduce(function (sum, item) {
       return sum + item.reps;
     }, 0);
     const avgReps = totalSets ? totalReps / totalSets : 0;
-
     const heaviest = items.reduce(function (max, item) {
       if (!max || item.weight > max.weight || (item.weight === max.weight && item.reps > max.reps)) {
         return item;
       }
       return max;
     }, null);
-
     const est1RM = heaviest ? calculate1RM(heaviest.weight, heaviest.reps) : 0;
 
     totalVolumeEl.textContent = totalVolume.toLocaleString();
@@ -431,51 +422,136 @@
     });
   }
 
+  function normalizeSet(item) {
+    return {
+      id: Number(item && item.id ? item.id : Date.now()),
+      weight: Number(item && item.weight ? item.weight : 0),
+      reps: Number(item && item.reps ? item.reps : 0),
+      bodyweight: item && item.bodyweight !== null && item.bodyweight !== undefined ? Number(item.bodyweight) : null,
+      timestamp: Number(item && item.timestamp ? item.timestamp : Date.now())
+    };
+  }
+
   function renderList() {
     const bestSetId = getBestSetId();
 
-    list.innerHTML = items
-      .map(function (item, index) {
-        const isBestSet = item.id === bestSetId;
+    list.innerHTML = items.map(function (item, index) {
+      const isBestSet = item.id === bestSetId;
 
-        return `
-          <div class="glass-card workout-set-row${isBestSet ? ' is-best' : ''}">
-            <div class="workout-set-meta">
-              <div class="workout-set-head">
-                <span class="workout-set-badge">Set ${index + 1}</span>
-                ${isBestSet ? '<span class="workout-set-badge">Best Set</span>' : ''}
-              </div>
-              <div class="workout-set-line"><strong>${formatWeight(item.weight)}</strong> ${WEIGHT_UNIT.label} x <strong>${item.reps}</strong> reps</div>
-              <div class="workout-set-time">Logged at ${formatTimestamp(item.timestamp)}</div>
-            </div>
-            <button class="pill" type="button" data-remove="${item.id}" style="color:var(--danger)">Delete</button>
-          </div>
-        `;
-      })
-      .join('');
+      return (
+        '<div class="glass-card workout-set-row' + (isBestSet ? ' is-best' : '') + '">' +
+          '<div class="workout-set-meta">' +
+            '<div class="workout-set-head">' +
+              '<span class="workout-set-badge">Set ' + (index + 1) + '</span>' +
+              (isBestSet ? '<span class="workout-set-badge">Best Set</span>' : '') +
+            '</div>' +
+            '<div class="workout-set-line"><strong>' + formatWeight(item.weight) + '</strong> ' + WEIGHT_UNIT.label + ' x <strong>' + item.reps + '</strong> reps</div>' +
+            '<div class="workout-set-time">Logged at ' + formatTimestamp(item.timestamp) + '</div>' +
+          '</div>' +
+          '<button class="pill" type="button" data-remove="' + item.id + '" style="color:var(--danger)">Delete</button>' +
+        '</div>'
+      );
+    }).join('');
 
     emptyState.style.display = items.length ? 'none' : 'block';
     clearAllBtn.style.visibility = items.length ? 'visible' : 'hidden';
     updateMetrics();
   }
 
+  function setItems(nextItems) {
+    items = nextItems.map(normalizeSet);
+
+    const latestBodyweight = items.reduce(function (current, item) {
+      return item.bodyweight && item.bodyweight > 0 ? item.bodyweight : current;
+    }, 0);
+
+    if (bodyweightInput && latestBodyweight > 0 && !bodyweightInput.value) {
+      bodyweightInput.value = String(latestBodyweight);
+    }
+
+    renderList();
+  }
+
+  function requireSession() {
+    if (typeof app.getSession !== 'function') {
+      return Promise.resolve(true);
+    }
+
+    return app.getSession().then(function (session) {
+      if (!session || !session.authenticated) {
+        window.location.href = './login.html';
+        return false;
+      }
+
+      return true;
+    }).catch(function () {
+      window.location.href = './login.html';
+      return false;
+    });
+  }
+
+  function loadSets() {
+    if (typeof app.requestJson !== 'function') {
+      return;
+    }
+
+    app.requestJson('calculator')
+      .then(function (payload) {
+        const apiSets = payload && Array.isArray(payload.sets) ? payload.sets : [];
+        setItems(apiSets);
+      })
+      .catch(function (error) {
+        if (typeof window.showToast === 'function') {
+          window.showToast(error && error.message ? error.message : 'Unable to load saved sets.', 'error');
+        }
+      });
+  }
+
   form.addEventListener('submit', function (event) {
     event.preventDefault();
 
     const payload = {
-      id: Date.now(),
       weight: Number(weightInput.value),
       reps: Number(repsInput.value),
-      timestamp: Date.now()
+      bodyweight: bodyweightInput && bodyweightInput.value ? Number(bodyweightInput.value) : null
     };
 
-    if (payload.weight > 0 && payload.reps > 0) {
-      items.push(payload);
+    if (!(payload.weight > 0 && payload.reps > 0)) {
+      return;
+    }
+
+    if (typeof app.requestJson !== 'function') {
+      return;
+    }
+
+    const submitButton = form.querySelector('button[type="submit"]');
+    if (typeof app.setButtonBusy === 'function') {
+      app.setButtonBusy(submitButton, true, 'Adding...');
+    }
+
+    app.requestJson('calculator', {
+      method: 'POST',
+      body: payload
+    }).then(function (response) {
+      if (response && response.set) {
+        items.push(normalizeSet(response.set));
+        renderList();
+      } else {
+        loadSets();
+      }
+
       weightInput.value = '';
       repsInput.value = '';
-      renderList();
       weightInput.focus();
-    }
+    }).catch(function (error) {
+      if (typeof window.showToast === 'function') {
+        window.showToast(error && error.message ? error.message : 'Unable to save set.', 'error');
+      }
+    }).finally(function () {
+      if (typeof app.setButtonBusy === 'function') {
+        app.setButtonBusy(submitButton, false);
+      }
+    });
   });
 
   if (bodyweightInput) {
@@ -498,21 +574,53 @@
 
   list.addEventListener('click', function (event) {
     const btn = event.target.closest('[data-remove]');
-    if (!btn) {
+    if (!btn || typeof app.requestJson !== 'function') {
       return;
     }
+
     const id = Number(btn.getAttribute('data-remove'));
-    items = items.filter(function (item) {
-      return item.id !== id;
+    app.requestJson('calculator', {
+      method: 'DELETE',
+      body: {
+        id: id
+      }
+    }).then(function () {
+      items = items.filter(function (item) {
+        return item.id !== id;
+      });
+      renderList();
+    }).catch(function (error) {
+      if (typeof window.showToast === 'function') {
+        window.showToast(error && error.message ? error.message : 'Unable to delete set.', 'error');
+      }
     });
-    renderList();
   });
 
   clearAllBtn.addEventListener('click', function () {
-    items = [];
-    renderList();
+    if (typeof app.requestJson !== 'function' || !items.length) {
+      return;
+    }
+
+    app.requestJson('calculator', {
+      method: 'DELETE',
+      body: {
+        clear_all: 1
+      }
+    }).then(function () {
+      items = [];
+      renderList();
+    }).catch(function (error) {
+      if (typeof window.showToast === 'function') {
+        window.showToast(error && error.message ? error.message : 'Unable to clear sets.', 'error');
+      }
+    });
   });
 
   updateRestTimerUI();
   renderList();
+  requireSession().then(function (allowed) {
+    if (allowed) {
+      loadSets();
+    }
+  });
 })();

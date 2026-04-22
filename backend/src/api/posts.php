@@ -82,8 +82,8 @@ $cropX = mm_nullable_int($_POST['crop_x'] ?? null);
 $cropY = mm_nullable_int($_POST['crop_y'] ?? null);
 $cropRotation = mm_nullable_int($_POST['crop_rotation'] ?? null);
 
-$relativeDirectory = 'uploads/posts/' . date('Y/m');
-$targetDirectory = dirname(__DIR__, 2) . '/public/' . $relativeDirectory;
+$relativeDirectory = 'posts/' . date('Y/m');
+$targetDirectory = mm_connect_uploads_root() . '/' . $relativeDirectory;
 if (!is_dir($targetDirectory) && !mkdir($targetDirectory, 0775, true) && !is_dir($targetDirectory)) {
     mm_json(['error' => 'Unable to create upload directory'], 500);
 }
@@ -95,7 +95,7 @@ $fileName = sprintf(
     $mediaConfig['ext']
 );
 $relativePath = $relativeDirectory . '/' . $fileName;
-$targetPath = dirname(__DIR__, 2) . '/public/' . $relativePath;
+$targetPath = mm_connect_uploads_root() . '/' . $relativePath;
 
 if (!move_uploaded_file($tmpPath, $targetPath)) {
     mm_json(['error' => 'Unable to save uploaded media'], 500);
@@ -206,7 +206,12 @@ function mm_format_connect_post(array $post): array
 
 function mm_connect_media_url(string $relativePath): string
 {
-    $relativePath = ltrim($relativePath, '/');
+    $relativePath = mm_normalize_connect_media_path($relativePath);
+    if ($relativePath === '') {
+        return '';
+    }
+
+    mm_sync_legacy_connect_upload($relativePath);
     $scriptName = parse_url((string) ($_SERVER['SCRIPT_NAME'] ?? ''), PHP_URL_PATH) ?: '';
     $basePath = preg_replace('#/backend/public/index\.php$#', '', $scriptName);
     $basePath = is_string($basePath) ? rtrim($basePath, '/') : '';
@@ -217,7 +222,53 @@ function mm_connect_media_url(string $relativePath): string
         $basePath = is_string($derivedBasePath) ? rtrim($derivedBasePath, '/') : '';
     }
 
-    return ($basePath !== '' ? $basePath : '') . '/backend/public/' . $relativePath;
+    return ($basePath !== '' ? $basePath : '') . '/uploads/' . $relativePath;
+}
+
+function mm_connect_uploads_root(): string
+{
+    return dirname(__DIR__, 3) . '/uploads';
+}
+
+function mm_legacy_connect_uploads_root(): string
+{
+    return dirname(__DIR__, 2) . '/public/uploads';
+}
+
+function mm_sync_legacy_connect_upload(string $relativePath): void
+{
+    $relativePath = mm_normalize_connect_media_path($relativePath);
+    if ($relativePath === '') {
+        return;
+    }
+
+    $publicPath = mm_connect_uploads_root() . '/' . $relativePath;
+    if (is_file($publicPath)) {
+        return;
+    }
+
+    $legacyPath = mm_legacy_connect_uploads_root() . '/' . $relativePath;
+    if (!is_file($legacyPath)) {
+        return;
+    }
+
+    $publicDirectory = dirname($publicPath);
+    if (!is_dir($publicDirectory) && !mkdir($publicDirectory, 0775, true) && !is_dir($publicDirectory)) {
+        return;
+    }
+
+    @copy($legacyPath, $publicPath);
+}
+
+function mm_normalize_connect_media_path(string $relativePath): string
+{
+    $normalizedPath = ltrim(str_replace('\\', '/', $relativePath), '/');
+
+    if (str_starts_with($normalizedPath, 'uploads/')) {
+        $normalizedPath = substr($normalizedPath, strlen('uploads/'));
+    }
+
+    return $normalizedPath;
 }
 
 function mm_nullable_float(mixed $value): ?float

@@ -87,3 +87,53 @@ CREATE TABLE IF NOT EXISTS memberships (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+-- =========================
+-- WORKOUT PROGRAMS TABLE
+-- =========================
+CREATE TABLE IF NOT EXISTS workout_programs (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    slug VARCHAR(80) NOT NULL UNIQUE,
+    title VARCHAR(120) NOT NULL,
+    level ENUM('Beginner', 'Intermediate', 'Advanced') NOT NULL DEFAULT 'Beginner',
+    description TEXT NOT NULL,
+    weekly_split TEXT NOT NULL,
+    exercises_json LONGTEXT NOT NULL,
+    duration_weeks SMALLINT UNSIGNED NOT NULL DEFAULT 8,
+    frequency_per_week TINYINT UNSIGNED NOT NULL DEFAULT 4,
+    session_minutes VARCHAR(40) NOT NULL DEFAULT '45-60',
+    access_tier ENUM('Free', 'Premium') NOT NULL DEFAULT 'Free',
+    sort_order SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- =========================
+-- WORKOUT CALCULATOR SETS TABLE
+-- =========================
+CREATE TABLE IF NOT EXISTS workout_calculator_sets (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    weight DECIMAL(8,2) NOT NULL,
+    reps SMALLINT UNSIGNED NOT NULL,
+    bodyweight DECIMAL(8,2) NULL,
+    logged_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_workout_calculator_sets_user (user_id),
+    INDEX idx_workout_calculator_sets_logged_at (logged_at),
+    CONSTRAINT fk_workout_calculator_sets_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- =========================
+-- CONTACT MESSAGES TABLE
+-- =========================
+CREATE TABLE IF NOT EXISTS contact_messages (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NULL,
+    name VARCHAR(120) NOT NULL,
+    email VARCHAR(190) NOT NULL,
+    subject VARCHAR(40) NOT NULL,
+    message TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_contact_messages_created_at (created_at),
+    INDEX idx_contact_messages_subject (subject),
+    CONSTRAINT fk_contact_messages_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
