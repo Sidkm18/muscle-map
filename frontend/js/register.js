@@ -45,6 +45,8 @@
     const hidden = passwordInput.type === 'password';
     passwordInput.type = hidden ? 'text' : 'password';
     toggleBtn.textContent = hidden ? 'Hide' : 'Show';
+    toggleBtn.setAttribute('aria-label', hidden ? 'Hide password' : 'Show password');
+    toggleBtn.setAttribute('aria-pressed', hidden ? 'true' : 'false');
   });
 
   form.addEventListener('submit', function (event) {
