@@ -301,8 +301,10 @@
     selectedEquipment = null;
     filterRow.querySelectorAll('.pill').forEach(function (node) {
       node.classList.remove('active');
+      node.setAttribute('aria-pressed', 'false');
     });
     btn.classList.add('active');
+    btn.setAttribute('aria-pressed', 'true');
     renderSubMuscleFilters();
     renderEquipmentFilters();
     render();
@@ -588,7 +590,7 @@
     equipmentFilterRow.innerHTML = equipmentOptions.map(function (option) {
       const isActive = selectedEquipment === option.value;
       return (
-        '<button class="pill' + (isActive ? ' active' : '') + '" type="button" data-equipment-filter="' + escapeHtml(option.value) + '">' +
+        '<button class="pill' + (isActive ? ' active' : '') + '" type="button" data-equipment-filter="' + escapeHtml(option.value) + '" aria-pressed="' + (isActive ? 'true' : 'false') + '">' +
           escapeHtml(option.label) +
         '</button>'
       );
@@ -608,7 +610,7 @@
     subMuscleFilterRow.innerHTML = options.map(function (option) {
       const isActive = selectedSubMuscle === option;
       return (
-        '<button class="pill' + (isActive ? ' active' : '') + '" type="button" data-sub-muscle-filter="' + escapeHtml(option) + '">' +
+        '<button class="pill' + (isActive ? ' active' : '') + '" type="button" data-sub-muscle-filter="' + escapeHtml(option) + '" aria-pressed="' + (isActive ? 'true' : 'false') + '">' +
           escapeHtml(option) +
         '</button>'
       );
